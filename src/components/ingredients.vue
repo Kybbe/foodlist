@@ -1,8 +1,10 @@
 <template>
   <h2>Ingredients</h2>
-  <h4> {{ingredients.length}} ingredients </h4>
+  <h4>{{ ingredients.length }} ingredients</h4>
   <ul class="ingredients">
-    <li v-for="ingredient in ingredients" :key="ingredient.name"> {{ ingredient.amount + " " + ingredient.name }} </li>
+    <li v-for="ingredient in ingredients" :key="ingredient.name">
+      {{ ingredient.amount + " " + ingredient.name }}
+    </li>
   </ul>
 </template>
 
@@ -29,7 +31,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-h2, h4 {
+h2,
+h4 {
   margin: 0;
   text-align: center;
 }
