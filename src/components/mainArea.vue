@@ -4,22 +4,26 @@
     <p class="description">{{ description }}</p>
   </div>
   <div id="imgContainer">
-    <img
-      src="../assets/pasta_med_kramig_ost-_och_skinksas.jpg"
-      alt="image of the dish"
-    />
+    <img :src="imgLink" alt="image of the dish" />
   </div>
 </template>
 
 <script>
 export default {
   name: "mainArea",
-  data() {
-    return {
-      title: "Pasta med ost- och skinksås",
-      description:
-        "Ibland vill man bara fixa ihop en enkel men god pasta till middag! Då har du denna krämiga pastarätt med ost- och skinksås. Prästost ger en perfekt smak till såsen, och du adderar gräslök och tomater på toppen innan servering!",
-    };
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    imgLink: {
+      type: String,
+      required: true,
+    },
   },
 };
 </script>
@@ -49,17 +53,19 @@ h2 {
 }
 
 @media (min-width: 800px) {
-  #descriptionContainer, #imgContainer {
+  #descriptionContainer,
+  #imgContainer {
     padding: 20px;
   }
 
   #descriptionContainer {
-    width: calc(60% - 42px);
+    width: calc(50% - 42px);
     border-right: 1px solid rgba(128, 128, 128, 0.4);
+    font-size: 1.3em;
   }
 
   #imgContainer {
-    width: calc(40% - 40px);
+    width: calc(50% - 40px);
   }
 }
 </style>

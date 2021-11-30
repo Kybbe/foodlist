@@ -3,7 +3,7 @@
   <h4>{{ ingredients.length }} ingredients</h4>
   <ul class="ingredients">
     <li v-for="ingredient in ingredients" :key="ingredient.name">
-      {{ ingredient.amount + " " + ingredient.name }}
+      {{ ` ${ingredient.amount} ${ingredient.measurment} ${ingredient.name} ` }}
     </li>
   </ul>
 </template>
@@ -11,21 +11,11 @@
 <script>
 export default {
   name: "ingredients",
-  data() {
-    return {
-      ingredients: [
-        { amount: "4 Port", name: "Pasta" },
-        { amount: "1 dl", name: "Hackad lök" },
-        { amount: "1 msk", name: "Smör eller olja" },
-        { amount: "2 + 1/2 dl", name: "Matlagningsgrädde" },
-        { amount: "1 + 1/2 dl", name: "Mjölk" },
-        { amount: "2 tsk", name: "Majsstärkelse" },
-        { amount: "2 Förp // 360 gram", name: "Strimlad SKinka" },
-        { amount: "1 + 1/2 dl", name: "Riven smakrik ost" },
-        { amount: "", name: "Salt" },
-        { amount: "", name: "Peppar" },
-      ],
-    };
+  props: {
+    ingredients: {
+      type: Array,
+      required: true,
+    },
   },
 };
 </script>

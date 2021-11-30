@@ -8,10 +8,11 @@
 <script>
 export default {
   name: "Navbar",
-  data() {
-    return {
-      link: "https://www.ica.se/recept/pasta-med-kramig-ost-och-skinksas-725815/",
-    };
+  props: {
+    link: {
+      type: String,
+      required: true,
+    },
   },
 };
 </script>
