@@ -6,6 +6,7 @@
       {{ ` ${ingredient.amount} ${ingredient.measurment} ${ingredient.name} ` }}
     </li>
   </ul>
+  <button v-on:click=doubleIngredients() >Double the ingredients!</button>
 </template>
 
 <script>
@@ -15,6 +16,13 @@ export default {
     ingredients: {
       type: Array,
       required: true,
+    },
+  },
+  methods: {
+    doubleIngredients() {
+      this.ingredients.forEach((ingredient) => {
+        ingredient.amount *= 2;
+      });
     },
   },
 };
