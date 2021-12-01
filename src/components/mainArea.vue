@@ -33,6 +33,7 @@ h2 {
   width: 100%;
   text-align: center;
   margin: 5px 0px 5px 0px;
+  font-size: 2.25em;
 }
 
 #descriptionContainer {

@@ -66,7 +66,7 @@ export default {
         { amount: 2.5, measurment: "dl", name: "Matlagningsgrädde" },
         { amount: 1.5, measurment: "dl", name: "Mjölk" },
         { amount: 2, measurment: "tsk", name: "Majsstärkelse" },
-        { amount: 2, measurment: "Förpackningar", name: "Strimlad SKinka" },
+        { amount: 2, measurment: "Förpackningar", name: "Strimlad Skinka" },
         { amount: 1.5, measurment: "dl", name: "Riven smakrik ost" },
         { amount: "", measurment: "", name: "Salt" },
         { amount: "", measurment: "", name: "Peppar" },
