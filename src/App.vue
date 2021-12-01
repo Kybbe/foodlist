@@ -39,6 +39,7 @@ export default {
   },
   data: function () {
     return {
+      recipeId: 1,
       title: "Pasta med ost- och skinksås",
       description:
         "Ibland vill man bara fixa ihop en enkel men god pasta till middag! Då har du denna krämiga pastarätt med ost- och skinksås. Prästost ger en perfekt smak till såsen, och du adderar gräslök och tomater på toppen innan servering!",
@@ -115,7 +116,6 @@ body {
 
 .bigCard img {
   width: 100%;
-  aspect-ratio: 16/9;
 }
 
 .mediumCard {

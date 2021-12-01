@@ -25,15 +25,13 @@ export default {
   },
   methods: {
     checkInstruction: function (instruction) {
-      var elementinQuestion = document.getElementById(
-        instruction.id
-      ).parentElement;
+      var parent = document.getElementById(instruction.id).parentElement;
       if (instruction.checked) {
-        elementinQuestion.style.opacity = "";
-        elementinQuestion.style.textDecoration = "";
+        parent.style.opacity = "";
+        parent.style.textDecoration = "";
       } else {
-        elementinQuestion.style.opacity = "0.7";
-        elementinQuestion.style.textDecoration = "line-through";
+        parent.style.opacity = "0.7";
+        parent.style.textDecoration = "line-through";
       }
     },
   },

@@ -30,14 +30,14 @@ export default {
   box-shadow: 2px 2px 4px grey;
   background-color: var(--card-color);
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
 }
 
 a {
   padding: 5px 10px;
   border-radius: 15px;
-  background-color: lightblue;
-  color: black;
+  background-color: #4a8ee7;
+  color: white;
   text-decoration: none;
 }
 

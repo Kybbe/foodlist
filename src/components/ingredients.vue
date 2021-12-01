@@ -2,7 +2,7 @@
   <h2>Ingredients</h2>
   <h4>{{ ingredients.length }} ingredients</h4>
   <div id="servingsContainer">
-    <button v-on:click="remove2Portions()">-2</button>
+    <button v-on:click="remove2Portions()">-</button>
     <input
       name="portions"
       id="portions"
@@ -11,7 +11,7 @@
       @change="changeToPortions"
     />
     <label for="portions">Servings</label>
-    <button v-on:click="add2Portions()">+2</button>
+    <button v-on:click="add2Portions()">+</button>
   </div>
   <ul class="ingredients">
     <li v-for="ingredient in ingredients" :key="ingredient.name">
@@ -62,7 +62,7 @@ export default {
       this.portions -= 2;
     },
     changeToPortions(e) {
-      let number = e.target.value;
+      let number = parseInt(e.target.value);
       if (!this.checkServings(number)) {
         return;
       }
@@ -80,13 +80,19 @@ export default {
       }
     },
     checkServings(portions) {
-      if (portions > 98) {
+      if (portions == "") {
+        document.getElementById("portions").value = this.portions;
+        return false;
+      } else if (portions > 98) {
         alert("You can't have more than 98 servings!");
         document.getElementById("portions").value = 98;
         return false;
       } else if (portions < 2) {
         alert("You can't have less than 2 servings!");
         document.getElementById("portions").value = 2;
+        return false;
+      } else if (isNaN(portions)) {
+        document.getElementById("portions").value = this.portions;
         return false;
       } else {
         return true;
@@ -116,7 +122,19 @@ h4 {
   text-align: center;
 
   #portions {
-    width: 1em;
+    width: 1.2em;
+    padding: 1px 2px;
+  }
+
+  button {
+    border-radius: 5px;
+    width: calc(1em + 4px);
+    border: 1px solid black;
+    padding: 1px 2px;
+    cursor: pointer;
+    font-size: 1em;
+    background-color: #4a8ee7;
+    color: white;
   }
 
   * {
