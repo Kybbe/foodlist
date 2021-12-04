@@ -105,7 +105,6 @@ body {
 
   max-width: 75em;
   margin: 0 auto;
-  padding: 10px;
 }
 
 .card {
@@ -115,7 +114,8 @@ body {
 }
 
 .bigCard img {
-  width: 100%;
+  width: calc(100% - 20px);
+  margin: 0px 10px;
 }
 
 .mediumCard {
@@ -123,6 +123,10 @@ body {
 }
 
 @media (min-width: 800px) {
+  #content {
+    padding: 10px;
+  }
+
   .card {
     border-radius: 10px;
     background-color: var(--card-color);
@@ -132,6 +136,10 @@ body {
 
   .bigCard {
     width: 100%;
+  }
+
+  .bigCard img {
+    margin: 0px;
   }
 
   .mediumCard {
