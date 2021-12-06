@@ -1,6 +1,6 @@
 <template>
   <div class="header">
-    <router-link :to='"/"'>Home</router-link>
+    <router-link :to="'/'">Home</router-link>
     <a :href="link" target="_blank">Original Recipe</a>
   </div>
 </template>

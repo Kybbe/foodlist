@@ -9,12 +9,12 @@
       :key="partOfList.title"
     >
       <router-link :to="'/recipe/' + partOfList.recipeId">
-				<div class="backgroundIMG"></div>
-				<div class="textPart">
-					<h2>{{ partOfList.title }}</h2>
-					<p>{{ partOfList.description }}</p>
-				</div>
-			</router-link>
+        <div class="backgroundIMG"></div>
+        <div class="textPart">
+          <h2>{{ partOfList.title }}</h2>
+          <p>{{ partOfList.description }}</p>
+        </div>
+      </router-link>
     </div>
   </div>
 </template>
@@ -91,11 +91,11 @@ h1 {
 }
 
 a {
-	text-decoration: none;
-	color: black;
+  text-decoration: none;
+  color: black;
 
-	&:hover {
-		text-decoration: underline;
-	}
+  &:hover {
+    text-decoration: underline;
+  }
 }
 </style>

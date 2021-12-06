@@ -47,10 +47,10 @@ export default {
       required: true,
     },
   },
-  data () {
+  data() {
     return {
       currentRecipeId: this.$route.params.id,
-    }
+    };
   },
 };
 </script>

@@ -56,9 +56,7 @@ var recipesListObject = [
         text: "Koka pastan enligt anvisningen på förpackningen.",
       },
     ],
-    ingredients: [
-      { amount: 4, measurment: "Portioner", name: "Pasta" },
-    ],
+    ingredients: [{ amount: 4, measurment: "Portioner", name: "Pasta" }],
     link: "https://www.google.com",
     imgLink:
       "https://assets.icanet.se/e_sharpen:80,q_auto,dpr_1.25,w_718,h_718,c_lfill/imagevaultfiles/id_207924/cf_259/pasta_med_kramig_ost-_och_skinksas.jpg",
