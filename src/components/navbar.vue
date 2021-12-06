@@ -1,6 +1,6 @@
 <template>
   <div class="header">
-    <a href="app.vue">Home</a>
+    <router-link :to='"/"'>Home</router-link>
     <a :href="link" target="_blank">Original Recipe</a>
   </div>
 </template>
@@ -17,7 +17,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 .header {
   width: 100%;
