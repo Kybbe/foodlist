@@ -7,13 +7,14 @@
       class="long-card"
       v-for="partOfList in recipesList"
       :key="partOfList.title"
-			v-on:click="test(partOfList.recipeId)"
     >
-      <div class="backgroundIMG"></div>
-      <div class="textPart">
-        <h2>{{ partOfList.title }}</h2>
-        <p>{{ partOfList.description }}</p>
-      </div>
+      <router-link :to="'/recipe/' + partOfList.recipeId">
+				<div class="backgroundIMG"></div>
+				<div class="textPart">
+					<h2>{{ partOfList.title }}</h2>
+					<p>{{ partOfList.description }}</p>
+				</div>
+			</router-link>
     </div>
   </div>
 </template>
@@ -27,11 +28,6 @@ export default {
       required: true,
     },
   },
-	methods: {
-		test: function(id) {
-			console.log(id);
-		}
-	}
 };
 </script>
 
@@ -92,5 +88,14 @@ h1 {
     overflow: hidden;
     margin-bottom: 0px;
   }
+}
+
+a {
+	text-decoration: none;
+	color: black;
+
+	&:hover {
+		text-decoration: underline;
+	}
 }
 </style>

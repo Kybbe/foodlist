@@ -2,18 +2,23 @@
   "name": "foodlist",
   "version": "0.1.0",
   "private": true,
+  "description": "List of foods i can make with recipes etc, more of a VUE test site than anything",
+  "author": "Jacob Klarén",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
+  "main": ".eslintrc.js",
   "dependencies": {
     "core-js": "^3.6.5",
-    "vue": "^3.0.0"
+    "vue": "^3.0.0",
+    "vue-router": "^4.0.0-0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0",
     "@vue/eslint-config-prettier": "^6.0.0",
@@ -24,5 +29,14 @@
     "prettier": "^2.2.1",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2"
+  },
+  "bugs": {
+    "url": "https://github.com/Kybbe/foodlist/issues"
+  },
+  "homepage": "https://github.com/Kybbe/foodlist#readme",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kybbe/foodlist.git"
   }
 }

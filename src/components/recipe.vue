@@ -1,5 +1,5 @@
 <template>
-  <navbar :link="link" />
+  <navbar :link="recipe[currentRecipeId].link" />
   <div id="content">
     <div
       class="bigCard card"
@@ -10,15 +10,19 @@
         padding: 0px;
       "
     >
-      <mainArea :title="title" :description="description" :imgLink="recipe.imgLink" />
+      <mainArea
+        :title="recipe[currentRecipeId].title"
+        :description="recipe[currentRecipeId].description"
+        :imgLink="recipe[currentRecipeId].imgLink"
+      />
     </div>
 
     <div class="mediumCard card">
-      <ingredients :ingredients="recipe.ingredients" />
+      <ingredients :ingredients="recipe[currentRecipeId].ingredients" />
     </div>
 
     <div class="mediumCard card">
-      <instruction :instructions="recipe.instructions" />
+      <instruction :instructions="recipe[currentRecipeId].instructions" />
     </div>
   </div>
 </template>
@@ -42,7 +46,12 @@ export default {
       type: Object,
       required: true,
     },
-  }
+  },
+  data () {
+    return {
+      currentRecipeId: this.$route.params.id,
+    }
+  },
 };
 </script>
 
@@ -55,14 +64,6 @@ export default {
 
 body {
   margin: 0;
-}
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--background-color);
-  color: var(--text-color);
 }
 
 #content {
