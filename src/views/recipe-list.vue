@@ -68,7 +68,7 @@ h1 {
 
 .textPart {
   padding: 10px;
-  border-radius: inherit;
+  border-radius: 10px;
   backdrop-filter: blur(1px);
   background-color: rgba(255, 255, 255, 0.4);
   width: calc(100% - 20px);
