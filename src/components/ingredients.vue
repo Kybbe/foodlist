@@ -173,6 +173,11 @@ h4 {
     width: 1.5rem;
     height: 1.5rem;
     margin: 0px 2px;
+    transition: background-color 0.3s ease-in-out;
+
+    &:hover {
+      background-color: lightsalmon;
+    }
 
     svg {
       width: 1rem;
