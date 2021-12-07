@@ -1,8 +1,22 @@
 <template>
   <h2>Ingredients</h2>
-  <h4>{{ ingredients.length }} ingredients</h4>
+  <h4>{{ ingredients.length }} Ingredients</h4>
   <div id="servingsContainer">
-    <button v-on:click="remove2Portions()">-</button>
+    <button v-on:click="remove2Portions()">
+      <svg
+        version="1.1"
+        viewBox="0 0 32 32"
+        role="presentation"
+        aria-label="Decrease servings"
+        class="svg-icon svg-fill"
+      >
+        <path
+          pid="0"
+          fill-rule="evenodd"
+          d="M23.768 15H9a.249.249 0 00-.223.138l-.75 1.5A.25.25 0 008.25 17h15.518a.258.258 0 00.259-.259v-1.483a.258.258 0 00-.26-.258"
+        ></path>
+      </svg>
+    </button>
     <input
       name="portions"
       id="portions"
@@ -11,7 +25,21 @@
       @change="changeToPortions"
     />
     <label for="portions">Servings</label>
-    <button v-on:click="add2Portions()">+</button>
+    <button v-on:click="add2Portions()">
+      <svg
+        version="1.1"
+        viewBox="0 0 32 32"
+        role="presentation"
+        aria-label="Increase servings"
+        class="svg-icon svg-fill"
+      >
+        <path
+          pid="0"
+          fill-rule="evenodd"
+          d="M23.768 14.994h-6.744V8.258A.26.26 0 0016.766 8h-1.477a.257.257 0 00-.262.262v6.732H9a.249.249 0 00-.223.138l-.75 1.5a.25.25 0 00.223.362h6.777v6.748c0 .142.116.258.258.258l1.48-.004a.25.25 0 00.259-.258v-6.744h6.744a.258.258 0 00.259-.259v-1.483a.258.258 0 00-.26-.258"
+        ></path>
+      </svg>
+    </button>
   </div>
   <ul class="ingredients">
     <li v-for="ingredient in ingredients" :key="ingredient.name">
@@ -62,10 +90,16 @@ export default {
       this.portions -= 2;
     },
     changeToPortions(e) {
-      let number = parseInt(e.target.value);
+      if (typeof e == "number") {
+        var number = e;
+      } else {
+        number = parseInt(e.target.value);
+      }
+
       if (!this.checkServings(number)) {
         return;
       }
+
       if (number % 2 == 0) {
         if (this.portions != number) {
           let oldPortions = this.portions;
@@ -86,10 +120,12 @@ export default {
       } else if (portions > 98) {
         alert("You can't have more than 98 servings!");
         document.getElementById("portions").value = 98;
+        this.changeToPortions(98);
         return false;
       } else if (portions < 2) {
         alert("You can't have less than 2 servings!");
         document.getElementById("portions").value = 2;
+        this.changeToPortions(2);
         return false;
       } else if (isNaN(portions)) {
         document.getElementById("portions").value = this.portions;
@@ -127,14 +163,24 @@ h4 {
   }
 
   button {
-    border-radius: 5px;
-    width: calc(1em + 4px);
+    border-radius: 50%;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
     border: 1px solid black;
-    padding: 1px 2px;
+    padding: 0px;
     cursor: pointer;
-    font-size: 1em;
-    background-color: #4a8ee7;
-    color: white;
+    background-color: white;
+    overflow: hidden;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0px 2px;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      fill: #4a8ee7;
+      display: inline-block;
+      vertical-align: middle;
+    }
   }
 
   * {
@@ -153,5 +199,6 @@ li {
   border-radius: 5px;
   margin-bottom: 5px;
   background-color: white;
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
 }
 </style>

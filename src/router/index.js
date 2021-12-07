@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import recipeList from "../views/recipe-list";
-import recipe from "../components/recipe";
+import recipe from "../views/recipe";
 
 var recipesListObject = [
   {

@@ -28,10 +28,10 @@
 </template>
 
 <script>
-import mainArea from "./mainArea.vue";
-import instruction from "./instructions.vue";
-import ingredients from "./ingredients.vue";
-import Navbar from "./navbar.vue";
+import mainArea from "../components/mainArea.vue";
+import instruction from "../components/instructions.vue";
+import ingredients from "../components/ingredients.vue";
+import Navbar from "../components/navbar.vue";
 
 export default {
   name: "recipe",

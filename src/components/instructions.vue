@@ -1,5 +1,5 @@
 <template>
-  <h3 style="text-align: center">Instructions</h3>
+  <h2 style="text-align: center">Instructions</h2>
   <ol class="instruction">
     <li v-for="instruction in instructions" :key="instruction.id">
       <input
@@ -27,11 +27,9 @@ export default {
     checkInstruction: function (instruction) {
       var parent = document.getElementById(instruction.id).parentElement;
       if (instruction.checked) {
-        parent.style.opacity = "";
-        parent.style.textDecoration = "";
+        parent.classList.remove("checked");
       } else {
-        parent.style.opacity = "0.7";
-        parent.style.textDecoration = "line-through";
+        parent.classList.add("checked");
       }
     },
   },
@@ -39,6 +37,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+h2 {
+  margin-top: 10px;
+  margin-bottom: 3px;
+}
+
 ol {
   padding: 0;
 }
@@ -51,9 +54,10 @@ li {
   background-color: white;
   display: flex;
   cursor: pointer;
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
 
   label {
-    padding: 15px 25px 15px 5px;
+    padding: 15px 25px 15px 10px;
     width: 100%;
     cursor: pointer;
   }
@@ -64,6 +68,12 @@ li {
     flex-shrink: 0;
     margin: auto 0px auto 10px;
     cursor: pointer;
+    box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
   }
+}
+
+.checked {
+  opacity: 0.7;
+  text-decoration: line-through;
 }
 </style>

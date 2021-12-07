@@ -38,6 +38,7 @@ h2 {
 
 #descriptionContainer {
   width: 100%;
+  padding: 10px;
 
   p {
     height: 100%;
