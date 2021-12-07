@@ -55,6 +55,7 @@ li {
   display: flex;
   cursor: pointer;
   box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
+  opacity: 0.999;
 
   label {
     padding: 15px 25px 15px 10px;
@@ -73,7 +74,7 @@ li {
 }
 
 .checked {
-  opacity: 0.7;
+  opacity: 0.7 !important;
   text-decoration: line-through;
 }
 </style>
