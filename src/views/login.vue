@@ -12,7 +12,8 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/auth";
 import navbar from "../components/navbar.vue";
 export default {
   components: { navbar },
