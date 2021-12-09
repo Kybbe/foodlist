@@ -1,8 +1,25 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import recipeList from "../views/recipe-list";
 import recipe from "../views/recipe";
+import addRecipe from "../views/add-recipe";
+import login from "../views/login";
+import register from "../views/register";
+import firebase from "firebase";
 
-var recipesListObject = [
+const firebaseConfig = {
+  apiKey: "AIzaSyDqfqIZoRXgkZJadMG5km-YZa3O1x344uA",
+  authDomain: "foodlist-0921.firebaseapp.com",
+  databaseURL:
+    "https://foodlist-0921-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "foodlist-0921",
+  storageBucket: "foodlist-0921.appspot.com",
+  messagingSenderId: "652727898134",
+  appId: "1:652727898134:web:bbdf18c26aa6696fe12537",
+};
+
+firebase.initializeApp(firebaseConfig);
+
+/* var recipesListObject = [
   {
     recipeId: 0,
     title: "Pasta med ost- och skinksås",
@@ -61,7 +78,18 @@ var recipesListObject = [
     imgLink:
       "https://assets.icanet.se/e_sharpen:80,q_auto,dpr_1.25,w_718,h_718,c_lfill/imagevaultfiles/id_207924/cf_259/pasta_med_kramig_ost-_och_skinksas.jpg",
   },
-];
+]; */
+
+var recipesListObject = [];
+
+firebase
+  .database()
+  .ref("recipes")
+  .on("value", (snapshot) => {
+    snapshot.forEach((childSnapshot) => {
+      recipesListObject.push(childSnapshot.val());
+    });
+  });
 
 const routes = [
   {
@@ -74,6 +102,14 @@ const routes = [
     meta: {
       title: "RecipeList",
     },
+    beforeEnter: (to, from, next) => {
+      let checkExist = setInterval(function () {
+        if (recipesListObject.length > 0) {
+          clearInterval(checkExist);
+          next();
+        }
+      }, 400); // check every 100ms
+    },
   },
   {
     path: "/recipe/:id",
@@ -85,12 +121,71 @@ const routes = [
     meta: {
       title: "Recipe",
     },
+    beforeEnter: (to, from, next) => {
+      let checkExist = setInterval(function () {
+        if (recipesListObject.length > 0) {
+          clearInterval(checkExist);
+          next();
+        }
+      }, 400); // check every 100ms
+    },
+  },
+  {
+    path: "/add",
+    name: "addRecipe",
+    component: addRecipe,
+    props: {
+      recipesList: recipesListObject,
+    },
+    meta: {
+      title: "Add recipe",
+      authRequired: true,
+    },
+    beforeEnter: (to, from, next) => {
+      let checkExist = setInterval(function () {
+        if (recipesListObject.length > 0) {
+          clearInterval(checkExist);
+          next();
+        }
+      }, 400); // check every 100ms
+    },
+  },
+  {
+    path: "/Login",
+    name: "Login",
+    component: login,
+    meta: {
+      title: "Login",
+    },
+  },
+  {
+    path: "/Register",
+    name: "Register",
+    component: register,
+    meta: {
+      title: "Register",
+    },
   },
 ];
 
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.authRequired)) {
+    if (firebase.auth().currentUser) {
+      next();
+    } else {
+      alert("You must be logged in to see this page");
+      next({
+        path: "/Login",
+      });
+    }
+  } else {
+    next();
+  }
 });
 
 router.beforeEach((to, from, next) => {

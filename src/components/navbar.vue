@@ -28,18 +28,59 @@
         </g>
       </svg>
     </router-link>
-    <a :href="link" target="_blank">Original Recipe</a>
+    <router-link :to="'/add'"> Add Recipe </router-link>
+    <router-link :to="'/login'" v-if="!loggedIn"> Login </router-link>
+    <router-link :to="'/register'" v-if="!loggedIn"> Register </router-link>
+    <a v-if="this.link" :href="link" target="_blank">Original Recipe</a>
+    <button @click="logout" v-if="loggedIn">logout</button>
   </div>
 </template>
 
 <script>
+import firebase from "firebase";
 export default {
   name: "Navbar",
   props: {
     link: {
       type: String,
-      required: true,
     },
+  },
+  data() {
+    return {
+      loggedIn: false,
+      email: "",
+      password: "",
+    };
+  },
+  methods: {
+    IsLoggedIn() {
+      let user = firebase.auth().currentUser;
+
+      if (user) {
+        this.loggedIn = true; // If it exists
+      } else {
+        this.loggedIn = false; // If it doesn't
+      }
+    },
+    logout() {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          alert("Successfully logged out");
+          this.loggedIn = false;
+          this.$router.push("/");
+        })
+        .catch((error) => {
+          alert(error.message);
+          this.$router.push("/");
+        });
+    },
+  },
+  mounted() {
+    setTimeout(() => {
+      this.IsLoggedIn();
+    }, 10);
   },
 };
 </script>
@@ -49,7 +90,6 @@ export default {
   width: 100%;
   height: 50px;
   display: flex;
-  flex-wrap: wrap;
   overflow: hidden;
   justify-content: space-evenly;
   border-bottom: 1px solid grey;
@@ -65,6 +105,11 @@ a {
   background-color: #4a8ee7;
   color: white;
   text-decoration: none;
+  flex-shrink: 0;
+
+  p {
+    margin: 0;
+  }
 }
 
 a:hover {

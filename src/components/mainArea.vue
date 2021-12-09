@@ -49,9 +49,9 @@ h2 {
   width: 100%;
 
   img {
-    width: 100%;
     height: 100%;
     border-radius: 5px;
+    margin: 0 10px;
   }
 }
 

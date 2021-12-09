@@ -1,4 +1,6 @@
 <template>
+  <navbar></navbar>
+
   <div style="text-align: center; background-color: lightblue">
     <h1>Recipes:</h1>
   </div>
@@ -9,7 +11,10 @@
       :key="partOfList.title"
     >
       <router-link :to="'/recipe/' + partOfList.recipeId">
-        <div class="backgroundIMG"></div>
+        <div
+          class="backgroundIMG"
+          :style="backgroundimg(partOfList.imgLink)"
+        ></div>
         <div class="textPart">
           <h2>{{ partOfList.title }}</h2>
           <p>{{ partOfList.description }}</p>
@@ -20,12 +25,28 @@
 </template>
 
 <script>
+import navbar from "../components/navbar.vue";
+
 export default {
   name: "RecipeList",
+  components: {
+    navbar,
+  },
   props: {
     recipesList: {
       type: Array,
       required: true,
+    },
+  },
+  methods: {
+    backgroundimg(specificLink) {
+      if (specificLink == "") {
+        specificLink =
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg";
+      }
+      return {
+        "background-image": `url(${specificLink})`,
+      };
     },
   },
 };
@@ -54,7 +75,6 @@ h1 {
 }
 
 .backgroundIMG {
-  background-image: url("https://assets.icanet.se/e_sharpen:80,q_auto,dpr_1.25,w_718,h_718,c_lfill/imagevaultfiles/id_207924/cf_259/pasta_med_kramig_ost-_och_skinksas.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center center;

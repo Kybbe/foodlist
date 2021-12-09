@@ -105,10 +105,6 @@ body {
     width: 100%;
   }
 
-  .bigCard img {
-    margin: 0px;
-  }
-
   .mediumCard {
     width: calc(50% - 32px);
     margin: 7px 0px;
