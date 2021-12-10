@@ -4,22 +4,12 @@ import recipe from "../views/recipe";
 import addRecipe from "../views/add-recipe";
 import login from "../views/login";
 import register from "../views/register";
+
+import "../../firebaseConfigInit";
+
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDqfqIZoRXgkZJadMG5km-YZa3O1x344uA",
-  authDomain: "foodlist-0921.firebaseapp.com",
-  databaseURL:
-    "https://foodlist-0921-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "foodlist-0921",
-  storageBucket: "foodlist-0921.appspot.com",
-  messagingSenderId: "652727898134",
-  appId: "1:652727898134:web:bbdf18c26aa6696fe12537",
-};
-
-firebase.initializeApp(firebaseConfig);
 
 /* var recipesListObject = [
   {
@@ -162,6 +152,7 @@ const routes = [
     component: login,
     meta: {
       title: "Login",
+      guestRequired: true,
     },
   },
   {
@@ -170,6 +161,7 @@ const routes = [
     component: register,
     meta: {
       title: "Register",
+      guestRequired: true,
     },
   },
 ];
@@ -188,6 +180,16 @@ router.beforeEach((to, from, next) => {
       next({
         path: "/Login",
       });
+    }
+  } else {
+    next();
+  }
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.guestRequired)) {
+    if (!firebase.auth().currentUser) {
+      next();
     }
   } else {
     next();

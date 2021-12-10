@@ -28,10 +28,10 @@
         </g>
       </svg>
     </router-link>
-    <router-link :to="'/add'"> Add Recipe </router-link>
+    <a v-if="this.link" :href="link" target="_blank">Original Recipe</a>
+    <router-link :to="'/add'" v-if="loggedIn"> Add Recipe </router-link>
     <router-link :to="'/login'" v-if="!loggedIn"> Login </router-link>
     <router-link :to="'/register'" v-if="!loggedIn"> Register </router-link>
-    <a v-if="this.link" :href="link" target="_blank">Original Recipe</a>
     <button @click="logout" v-if="loggedIn">logout</button>
   </div>
 </template>

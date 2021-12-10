@@ -29,8 +29,8 @@ export default {
         .auth()
         .createUserWithEmailAndPassword(this.email, this.password)
         .then(() => {
-          alert("Successfully registered! Please login.");
-          this.$router.push("/Login");
+          alert("Successfully registered! Welcome!");
+          this.$router.push("/");
         })
         .catch((error) => {
           alert(error.message);
@@ -48,6 +48,8 @@ export default {
   margin: 20px auto;
   padding: 10px;
   max-width: 500px;
+  background-color: lightskyblue;
+  border-radius: 10px;
 
   * {
     box-sizing: border-box;

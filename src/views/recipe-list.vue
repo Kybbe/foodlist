@@ -82,7 +82,7 @@ h1 {
   height: 100%;
   width: 100%;
   position: absolute;
-  border-radius: inherit;
+  border-radius: 10px;
   filter: saturate(70%);
 }
 

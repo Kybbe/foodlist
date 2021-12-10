@@ -59,6 +59,8 @@ export default {
   margin: 20px auto;
   padding: 10px;
   max-width: 500px;
+  background-color: lightsteelblue;
+  border-radius: 10px;
 
   * {
     box-sizing: border-box;

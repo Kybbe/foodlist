@@ -206,6 +206,8 @@ export default {
         this.recipe.ingredients = ingredients;
       }
     },
+    checkRobots() {},
+
     post() {
       if (this.recipe.title == "Test JKL") {
         this.recipe.title = "Test";
