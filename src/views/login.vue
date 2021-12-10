@@ -8,6 +8,8 @@
       <input type="password" placeholder="password..." v-model="password" />
       <button type="submit">Login</button>
     </form>
+
+    <button @click="loginWithGoogle">Sign In with Google</button>
   </div>
 </template>
 
@@ -35,6 +37,21 @@ export default {
         })
         .catch((error) => {
           alert(error.message);
+        });
+    },
+    loginWithGoogle() {
+      let provider = new firebase.auth.GoogleAuthProvider();
+      firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then((result) => {
+          let token = result.credential.accessToken;
+          let user = result.user;
+          console.log(token); // Token
+          console.log(user); // User that was authenticated
+        })
+        .catch((err) => {
+          console.log(err);
         });
     },
   },
