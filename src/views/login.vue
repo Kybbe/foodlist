@@ -32,7 +32,6 @@ export default {
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
         .then(() => {
-          alert("Successfully logged in");
           this.$router.push("/");
         })
         .catch((error) => {
@@ -44,14 +43,11 @@ export default {
       firebase
         .auth()
         .signInWithPopup(provider)
-        .then((result) => {
-          let token = result.credential.accessToken;
-          let user = result.user;
-          console.log(token); // Token
-          console.log(user); // User that was authenticated
+        .then(() => {
+          this.$router.push("/");
         })
         .catch((err) => {
-          console.log(err);
+          console.log(`Error: ${err}`);
         });
     },
   },
