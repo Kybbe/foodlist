@@ -39,13 +39,17 @@
             type="text"
             placeholder="Tomatoes"
             name="name"
-            v-on:change="jsonIfyIngredients"
+            v-on:change="fixIngredients"
             required
           />
         </div>
       </div>
       <button type="button" v-on:click="addIngredient">Add Ingredient</button>
-      <button type="button" v-on:click="removeIngredient">
+      <button
+        type="button"
+        v-on:click="removeIngredient"
+        v-if="moreThanOneIngredient"
+      >
         Remove Ingredient
       </button>
       <div class="form-group">
@@ -65,7 +69,7 @@
           class="form-control"
           id="recipeInstructions"
           rows="3"
-          v-on:change="jsonIfyInstructions"
+          v-on:change="fixInstructions"
           placeholder="1. Preheat oven to 350 degrees. ,2. Mix ingredients. ,3. Bake for 20 minutes."
         ></textarea>
       </div>
@@ -89,9 +93,7 @@
           v-model="recipe.imgLink"
         />
       </div>
-      <button v-on:click.prevent="post" type="submit" class="btn btn-primary">
-        Submit
-      </button>
+      <button v-on:click.prevent="post" type="submit">Submit</button>
     </form>
   </div>
 </template>
@@ -118,6 +120,7 @@ export default {
         link: "",
         imgLink: "",
       },
+      moreThanOneIngredient: false,
     };
   },
   methods: {
@@ -137,14 +140,19 @@ export default {
       document
         .getElementsByClassName("ingredients")[0]
         .parentNode.appendChild(ingredientTemplate);
+
+      this.moreThanOneIngredient = true;
     },
     removeIngredient() {
       let ingredients = document.getElementsByClassName("ingredients");
       if (ingredients.length > 1) {
         ingredients[ingredients.length - 1].remove();
       }
+      if (ingredients.length == 1) {
+        this.moreThanOneIngredient = false;
+      }
     },
-    jsonIfyIngredients() {
+    fixIngredients() {
       let ingredients = [];
       let ingredientsGroups = document.getElementsByClassName("ingredients");
       for (let i = 0; i < ingredientsGroups.length; i++) {
@@ -158,7 +166,7 @@ export default {
       this.recipe.ingredients = ingredients;
       this.checkServings();
     },
-    jsonIfyInstructions() {
+    fixInstructions() {
       let instructionsRaw = document.getElementById("recipeInstructions").value;
       let instructions = instructionsRaw
         .split(",")
@@ -199,6 +207,45 @@ export default {
       }
     },
     post() {
+      if (this.recipe.title == "Test JKL") {
+        this.recipe.title = "Test";
+        this.recipe.description = "Test";
+        this.addRecipeId();
+        this.recipe.ingredients = [
+          {
+            name: "Test",
+            amount: "1",
+            measurment: "Test",
+          },
+        ];
+        this.recipe.instructions = [
+          {
+            id: 0,
+            checked: true,
+            text: "Test",
+          },
+        ];
+        this.recipe.servings = "4";
+        this.recipe.link = "www.google.com";
+        this.recipe.imgLink = "";
+
+        firebase.database().ref("recipes").push(this.recipe);
+        alert("Recipe added!");
+        this.$router.push("/");
+        return;
+      }
+
+      if (
+        this.recipe.title == "" ||
+        this.recipe.description == "" ||
+        this.recipe.ingredients == "" ||
+        this.recipe.instructions == "" ||
+        this.recipe.link == ""
+      ) {
+        alert("Please fill out all fields");
+        return;
+      }
+
       this.addRecipeId();
       firebase.database().ref("recipes").push(this.recipe);
       alert("Recipe added!");

@@ -84,14 +84,18 @@ firebase.initializeApp(firebaseConfig);
 
 var recipesListObject = [];
 
-firebase
-  .database()
-  .ref("recipes")
-  .on("value", (snapshot) => {
-    snapshot.forEach((childSnapshot) => {
-      recipesListObject.push(childSnapshot.val());
-    });
-  });
+let db = firebase.database().ref("recipes");
+
+db.on("child_added", (snapshot) => {
+  recipesListObject.push(snapshot.val());
+});
+
+db.on("child_removed", (snapshot) => {
+  let index = recipesListObject.findIndex(
+    (recipe) => recipe.recipeId === snapshot.val().recipeId
+  );
+  recipesListObject.splice(index, 1);
+});
 
 const routes = [
   {
@@ -110,7 +114,7 @@ const routes = [
           clearInterval(checkExist);
           next();
         }
-      }, 400); // check every 100ms
+      }, 400);
     },
   },
   {
@@ -129,7 +133,7 @@ const routes = [
           clearInterval(checkExist);
           next();
         }
-      }, 400); // check every 100ms
+      }, 400);
     },
   },
   {
@@ -149,7 +153,7 @@ const routes = [
           clearInterval(checkExist);
           next();
         }
-      }, 400); // check every 100ms
+      }, 400);
     },
   },
   {

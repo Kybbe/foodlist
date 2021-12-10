@@ -49,8 +49,6 @@ export default {
   data() {
     return {
       loggedIn: false,
-      email: "",
-      password: "",
     };
   },
   methods: {
@@ -68,7 +66,6 @@ export default {
         .auth()
         .signOut()
         .then(() => {
-          alert("Successfully logged out");
           this.loggedIn = false;
           this.$router.push("/");
         })
