@@ -72,6 +72,7 @@ h1 {
   position: relative;
   margin-bottom: 10px;
   cursor: pointer;
+  box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
 }
 
 .backgroundIMG {

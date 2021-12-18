@@ -4,7 +4,7 @@
     <p class="description">{{ description }}</p>
   </div>
   <div id="imgContainer">
-    <img :src="imgLink" alt="image of the dish" />
+    <img :src="imgLinkAndTemplate" alt="image of the dish" />
   </div>
 </template>
 
@@ -29,7 +29,15 @@ export default {
     return {
       templateImg:
         "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
+      imgLinkAndTemplate: "",
     };
+  },
+  mounted() {
+    if (this.imgLink == "") {
+      this.imgLinkAndTemplate = this.templateImg;
+    } else {
+      this.imgLinkAndTemplate = this.imgLink;
+    }
   },
 };
 </script>

@@ -72,8 +72,6 @@ export default {
         ) {
           this.admin = true;
         }
-      } else {
-        console.log("not admin :(");
       }
     },
     deleteRecipe() {
