@@ -127,7 +127,7 @@ a {
   margin: auto 10px;
 
   &:hover {
-  text-decoration: underline;
+    text-decoration: underline;
   }
 }
 
