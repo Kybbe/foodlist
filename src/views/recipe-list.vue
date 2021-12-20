@@ -1,8 +1,15 @@
 <template>
   <navbar></navbar>
 
+  <input
+    type="text"
+    v-model="searchValue"
+    placeholder="Search Recipe"
+    id="search-input"
+  />
+
   <div class="cardList">
-    <div class="card" v-for="recipe in recipesList" :key="recipe.title">
+    <div class="card" v-for="recipe in searchResult" :key="recipe.title">
       <router-link :to="'/recipe/' + recipe.recipeId">
         <div class="imgPart" :style="backgroundimg(recipe.imgLink)">
           <div class="plateIcon">
@@ -54,6 +61,11 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      searchValue: "",
+    };
+  },
   methods: {
     backgroundimg(specificLink) {
       if (specificLink == "") {
@@ -65,12 +77,36 @@ export default {
       };
     },
   },
+  computed: {
+    searchResult() {
+      var tempRecipes = this.recipesList;
+      if (this.searchValue != "" && this.searchValue) {
+        tempRecipes = tempRecipes.filter((item) => {
+          return item.title
+            .toUpperCase()
+            .includes(this.searchValue.toUpperCase());
+        });
+      }
+      return tempRecipes;
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 h1 {
   margin-top: 0px;
+}
+
+#search-input {
+  width: calc(100% - calc(0.4em + 4em));
+  margin: 2em;
+  padding: 0.4em;
+  font-size: 1.2em;
+  border-radius: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
 }
 
 .cardList {
@@ -84,6 +120,7 @@ h1 {
   background-color: white;
   margin: 1em;
   border-radius: 10px;
+  box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
 
   &:hover svg {
     transition: 4s;
