@@ -36,7 +36,7 @@
     <div class="accountStuff">
       <router-link :to="'/login'" v-if="!loggedIn"> Login </router-link>
       <router-link :to="'/register'" v-if="!loggedIn"> Register </router-link>
-      <button @click="logout" v-if="loggedIn">logout</button>
+      <button @click="logout" v-if="loggedIn" class="logOut">logout</button>
     </div>
   </div>
 </template>
@@ -105,6 +105,18 @@ export default {
   display: flex;
 }
 
+.logOut {
+  background-color: #4a8ee7;
+  color: white;
+  border: 1px solid white;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+  border-radius: 5px;
+  padding: 5px;
+  margin: auto 10px;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
 .navStuff {
   display: flex;
 }
@@ -113,10 +125,10 @@ a {
   color: white;
   text-decoration: none;
   margin: auto 10px;
-}
 
-a:hover {
+  &:hover {
   text-decoration: underline;
+  }
 }
 
 svg * {
