@@ -1,13 +1,23 @@
 <template>
   <navbar></navbar>
 
-  <input
-    type="text"
-    v-model="searchValue"
-    placeholder="Search Recipe"
-    id="search-input"
-  />
-
+  <div class="searchArea">
+    <select name="sortBy" id="select" v-model="sortBy">
+      <option value="recipeId">Recipe Id</option>
+      <option value="alphabetically">Alphabetically</option>
+    </select>
+    <input
+      type="text"
+      v-model="searchValue"
+      placeholder="Search Recipe"
+      id="search-input"
+    />
+  </div>
+  <div id="randomContainer">
+    <router-link :to="'/recipe/' + this.randomNumber" id="randomRecipe"
+      >Go to random recipe</router-link
+    >
+  </div>
   <div class="cardList">
     <div class="card" v-for="recipe in searchResult" :key="recipe.title">
       <router-link :to="'/recipe/' + recipe.recipeId">
@@ -64,6 +74,8 @@ export default {
   data() {
     return {
       searchValue: "",
+      sortBy: "recipeId",
+      randomNumber: 0,
     };
   },
   methods: {
@@ -87,8 +99,31 @@ export default {
             .includes(this.searchValue.toUpperCase());
         });
       }
+
+      tempRecipes = tempRecipes.sort((a, b) => {
+        if (this.sortBy == "alphabetically") {
+          let fa = a.title.toLowerCase(),
+            fb = b.title.toLowerCase();
+
+          if (fa < fb) {
+            return -1;
+          }
+          if (fa > fb) {
+            return 1;
+          }
+          return 0;
+
+          // Sort by cooking time
+        } else if (this.sortBy == "recipeId") {
+          return a.recipeId - b.recipeId;
+        }
+      });
+
       return tempRecipes;
     },
+  },
+  mounted() {
+    this.randomNumber = Math.floor(Math.random() * this.recipesList.length);
   },
 };
 </script>
@@ -98,15 +133,47 @@ h1 {
   margin-top: 0px;
 }
 
-#search-input {
-  width: calc(100% - calc(0.4em + 4em));
-  margin: 2em;
-  padding: 0.4em;
-  font-size: 1.2em;
-  border-radius: 10px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
+.searchArea {
+  display: flex;
+
+  select,
+  #search-input {
+    margin: 1em 0.8em 0 0.8em;
+    padding: 0.4em;
+    border-radius: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
+    font-size: 1.2em;
+  }
+
+  select {
+    margin-right: 0px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+  }
+
+  #search-input {
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    width: 100%;
+    margin-left: 0px;
+  }
+}
+
+#randomContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.4em;
+  margin-bottom: 1em;
+
+  #randomRecipe {
+    border: 1px solid red;
+    padding: 5px;
+    border-radius: 10px;
+    margin: 0 auto;
+    background-color: white;
+  }
 }
 
 .cardList {
