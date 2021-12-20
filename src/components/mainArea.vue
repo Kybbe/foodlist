@@ -64,6 +64,7 @@ h2 {
 
   img {
     height: 100%;
+    width: calc(100% - 20px);
     border-radius: 5px;
     margin: 0 10px;
   }

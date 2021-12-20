@@ -1,7 +1,11 @@
 <template>
   <h2 style="text-align: center">Instructions</h2>
   <ol class="instruction">
-    <li v-for="instruction in instructions" :key="instruction.id">
+    <li
+      v-for="instruction in instructions"
+      :key="instruction.id"
+      v-bind:class="{ checked: instruction.checked }"
+    >
       <input
         type="checkbox"
         :name="instruction.id"

@@ -145,7 +145,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 :root {
   --background-color: white;
   --card-color: rgba(0, 0, 0, 0.01);
@@ -168,11 +168,6 @@ body {
   padding: 10px;
   width: 100%;
   margin: 7px auto 7px auto;
-}
-
-.bigCard img {
-  width: calc(100% - 20px);
-  margin: 0px 10px;
 }
 
 .mediumCard {
