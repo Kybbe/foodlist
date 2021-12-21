@@ -1121,4 +1121,4 @@ var gu="FIREBASE_DATABASE_EMULATOR_HOST",yu={},mu=!1;function bu(t,e,n,r){t.repo
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */var l=function(){function t(t){this.name=t,this.providers=new Map}return t.prototype.addComponent=function(t){var e=this.getProvider(t.name);if(e.isComponentSet())throw new Error("Component "+t.name+" has already been registered with "+this.name);e.setComponent(t)},t.prototype.addOrOverwriteComponent=function(t){var e=this.getProvider(t.name);e.isComponentSet()&&this.providers.delete(t.name),this.addComponent(t)},t.prototype.getProvider=function(t){if(this.providers.has(t))return this.providers.get(t);var e=new s(t,this);return this.providers.set(t,e),e},t.prototype.getProviders=function(){return Array.from(this.providers.values())},t}()}}]);
-//# sourceMappingURL=chunk-vendors.23f4467d.js.map
+//# sourceMappingURL=chunk-vendors.e9cfd914.js.map

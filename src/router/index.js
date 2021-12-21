@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import recipeList from "../views/recipe-list";
 import recipe from "../views/recipe";
 import addRecipe from "../views/add-recipe";
+import editRecipe from "../views/edit-recipe";
 import login from "../views/login";
 import register from "../views/register";
 
@@ -101,6 +102,26 @@ const routes = [
     meta: {
       title: "Register",
       guestRequired: true,
+    },
+  },
+  {
+    path: "/edit/:id",
+    name: "editRecipe",
+    component: editRecipe,
+    props: {
+      recipesList: recipesListObject,
+    },
+    meta: {
+      title: "Edit recipe",
+      authRequired: true,
+    },
+    beforeEnter: (to, from, next) => {
+      let checkExist = setInterval(function () {
+        if (recipesListObject.length > 0) {
+          clearInterval(checkExist);
+          next();
+        }
+      }, 400);
     },
   },
 ];

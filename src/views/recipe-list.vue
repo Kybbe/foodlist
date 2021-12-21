@@ -43,14 +43,14 @@
         <div class="card-body">
           <h2 class="card-title">{{ recipe.title }}</h2>
           <p class="card-text">{{ recipe.description }}</p>
-          <p class="card-ingredients">
-            Ingredients:
-            <span
-              v-for="ingredient in recipe.ingredients"
-              :key="ingredient.name"
-              >{{ ingredient.name }},
-            </span>
-          </p>
+          <div class="extras">
+            <p class="card-ingredients">
+              <span>{{ recipe.ingredients.length }}</span> Ingredients
+            </p>
+            <p class="card-steps">
+              <span>{{ recipe.instructions.length }}</span> Steps
+            </p>
+          </div>
         </div>
       </router-link>
     </div>
@@ -92,6 +92,7 @@ export default {
   computed: {
     searchResult() {
       var tempRecipes = this.recipesList;
+
       if (this.searchValue != "" && this.searchValue) {
         tempRecipes = tempRecipes.filter((item) => {
           return item.title
@@ -168,11 +169,11 @@ h1 {
   margin-bottom: 1em;
 
   #randomRecipe {
-    border: 1px solid red;
     padding: 5px;
     border-radius: 10px;
     margin: 0 auto;
-    background-color: white;
+    background-color: #4a8ee7;
+    color: white;
   }
 }
 
@@ -189,7 +190,8 @@ h1 {
   border-radius: 10px;
   box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
 
-  &:hover svg {
+  &:hover svg,
+  &:focus svg {
     transition: 4s;
     transform: rotate(360deg);
   }
@@ -237,9 +239,32 @@ h1 {
     margin-top: 0px;
   }
 
-  .card-ingredients {
-    font-size: 0.8em;
-    color: rgb(53, 53, 53);
+  .extras {
+    display: flex;
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+
+    .card-ingredients,
+    .card-steps {
+      background-color: #4a8ee7;
+      padding: 0.5em;
+      font-size: 1em;
+      line-height: 1em;
+      border-radius: 10px;
+      text-align: center;
+      color: rgb(230, 230, 230);
+      margin: 0;
+      flex-shrink: 0;
+      margin: 0px 5px;
+
+      span {
+        color: white;
+      }
+    }
+
+    .card-ingredients {
+      margin-left: 0px;
+    }
   }
 }
 
