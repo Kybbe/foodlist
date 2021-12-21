@@ -70,7 +70,8 @@ export default {
       let title = document.getElementById("title").value;
       let description = document.getElementById("description").value;
       let ingredients = [];
-      let ingredientsGroups = document.getElementsByClassName("ingredients");
+      let ingredientsGroups =
+        document.getElementsByClassName("editIngredients");
       for (let i = 0; i < ingredientsGroups.length; i++) {
         let ingredient = {
           amount: ingredientsGroups[i].querySelectorAll("input")[0].value,
@@ -80,7 +81,8 @@ export default {
         ingredients.push(ingredient);
       }
       let instructions = [];
-      let instructionsGroups = document.getElementsByClassName("instructions");
+      let instructionsGroups =
+        document.getElementsByClassName("editInstructions");
       for (let i = 0; i < instructionsGroups.length; i++) {
         let instruction = {
           checked: instructionsGroups[i].querySelectorAll("input")[0].value,
@@ -118,7 +120,7 @@ export default {
         let measurment = ingredient.measurment;
         let name = ingredient.name;
         let newIngredient = document.createElement("div");
-        newIngredient.classList.add("ingredients");
+        newIngredient.classList.add("editIngredients");
         newIngredient.innerHTML = `
 					<input type="text" name="amount" class="amount" value="${amount}">
 					<input type="text" name="measurment" class="measurment" value="${measurment}">
@@ -134,7 +136,7 @@ export default {
         let id = instruction.id;
         let text = instruction.text;
         let newInstruction = document.createElement("div");
-        newInstruction.classList.add("instructions");
+        newInstruction.classList.add("editInstructions");
         newInstruction.innerHTML = `
 					<input type="text" name="checked" class="checked" value="${checked}">
 					<input type="number" name="id" class="id" value="${id}">
@@ -181,8 +183,8 @@ export default {
   padding: 10px;
 }
 
-.instructions,
-.ingredients {
+.editInstructions,
+.editIngredients {
   display: flex;
   flex-direction: row;
 

@@ -29,6 +29,9 @@
     <button id="delete" @click="confirmDelete" v-if="admin">
       Delete this recipe
     </button>
+    <router-link :to="'/edit/' + currentRecipeId" v-if="admin">
+      Edit this recipe
+    </router-link>
   </div>
 </template>
 
@@ -180,12 +183,16 @@ body {
   margin: 0 auto;
   padding: 0px;
 
-  button {
+  button,
+  a {
     background-color: lightgrey;
     color: red;
     border: 1px solid rgba(0, 0, 0, 0.3);
     border-radius: 5px;
     padding: 5px 10px;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: normal;
     cursor: pointer;
   }
 }
