@@ -64,9 +64,10 @@ export default {
       }
 
       let db = firebase.database();
+      var database = firebase.database().ref("recipes");
       var dbKeys = [];
 
-      db.on("value", (snapshot) => {
+      database.on("value", (snapshot) => {
         snapshot.forEach((childSnapshot) => {
           dbKeys.push(childSnapshot.key);
         });
