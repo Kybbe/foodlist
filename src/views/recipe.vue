@@ -94,7 +94,6 @@ export default {
       database.on("value", (snapshot) => {
         snapshot.forEach((childSnapshot) => {
           if (childSnapshot.val().recipeId > this.currentRecipeId) {
-            console.log("updating recipeId");
             database.child(childSnapshot.key).update({
               recipeId: childSnapshot.val().recipeId - 1,
             });

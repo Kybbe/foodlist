@@ -28,11 +28,9 @@ db.on("child_removed", (snapshot) => {
 });
 
 db.on("child_changed", (snapshot) => {
-  console.log(snapshot.val() + "CHILD CHANGED");
   let index = recipesListObject.findIndex(
     (recipe) => recipe.recipeId === snapshot.val().recipeId
   );
-  console.log(index + " " + recipesListObject[index]);
   recipesListObject[index] = snapshot.val();
 });
 
