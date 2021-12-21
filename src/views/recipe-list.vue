@@ -45,10 +45,16 @@
           <p class="card-text">{{ recipe.description }}</p>
           <div class="extras">
             <p class="card-ingredients">
-              <span>{{ recipe.ingredients.length }}</span> Ingredients
+              <span>{{ recipe.ingredients.length }}</span> Ingredient<span
+                v-if="recipe.ingredients.length > 1"
+                >s</span
+              >
             </p>
             <p class="card-steps">
-              <span>{{ recipe.instructions.length }}</span> Steps
+              <span>{{ recipe.instructions.length }}</span> Step<span
+                v-if="recipe.instructions.length > 1"
+                >s</span
+              >
             </p>
           </div>
         </div>
