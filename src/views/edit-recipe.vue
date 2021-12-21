@@ -73,7 +73,7 @@ export default {
         });
       });
 
-      let recipeFirebase = db.ref("recipes/" + dbKeys[this.currentRecipeId]);
+      let recipeFirebase = db.ref("recipes/" + dbKeys[this.$route.params.id]);
 
       let title = document.getElementById("title").value;
       let description = document.getElementById("description").value;
