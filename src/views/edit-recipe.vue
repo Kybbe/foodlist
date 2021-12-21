@@ -62,10 +62,17 @@ export default {
       if (!this.admin) {
         return;
       }
-      let recipeId = this.$route.params.id;
 
       let db = firebase.database();
-      let recipeFirebase = db.ref("recipes/" + recipeId);
+      var dbKeys = [];
+
+      db.on("value", (snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+          dbKeys.push(childSnapshot.key);
+        });
+      });
+
+      let recipeFirebase = db.ref("recipes/" + dbKeys[this.currentRecipeId]);
 
       let title = document.getElementById("title").value;
       let description = document.getElementById("description").value;
@@ -94,7 +101,7 @@ export default {
       let servings = document.getElementById("servings").value;
       let link = document.getElementById("link").value;
       let imgLink = document.getElementById("imgLink").value;
-      let recipeIdNmr = this.$route.params.id;
+      let recipeId = this.$route.params.id;
       let recipeData = {
         title: title,
         description: description,
@@ -103,7 +110,7 @@ export default {
         servings: servings,
         link: link,
         imgLink: imgLink,
-        recipeId: recipeIdNmr,
+        recipeId: recipeId,
       };
       recipeFirebase.update(recipeData);
       alert("Recipe updated!");
