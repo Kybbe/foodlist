@@ -27,6 +27,13 @@ db.on("child_removed", (snapshot) => {
   recipesListObject.splice(index, 1);
 });
 
+db.on("child_changed", (snapshot) => {
+  let index = recipesListObject.findIndex(
+    (recipe) => recipe.recipeId === snapshot.val().recipeId
+  );
+  recipesListObject[index] = snapshot.val();
+});
+
 const routes = [
   {
     path: "/",
