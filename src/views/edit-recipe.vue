@@ -94,6 +94,7 @@ export default {
       let servings = document.getElementById("servings").value;
       let link = document.getElementById("link").value;
       let imgLink = document.getElementById("imgLink").value;
+      let recipeIdNmr = this.$route.params.id;
       let recipeData = {
         title: title,
         description: description,
@@ -102,6 +103,7 @@ export default {
         servings: servings,
         link: link,
         imgLink: imgLink,
+        recipeId: recipeIdNmr,
       };
       recipeFirebase.update(recipeData);
       alert("Recipe updated!");
