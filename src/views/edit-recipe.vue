@@ -1,39 +1,35 @@
 <template>
-  <navbar></navbar>
-
-  <form action="" id="container">
-    <input type="text" name="title" id="title" placeholder="title" />
-    <input
-      type="text"
-      name="description"
-      id="description"
-      placeholder="description"
-    />
-    <input type="text" name="imgLink" id="imgLink" placeholder="imgLink" />
-    <div id="ingredientsList"></div>
-    <div id="instructionsList"></div>
-    <input type="text" name="servings" id="servings" placeholder="servings" />
-    <input type="text" name="link" id="link" placeholder="link" />
-    <button
-      v-on:click.prevent="editFirebase"
-      type="submit"
-      id="updateRecipeBtn"
-    >
-      Update
-    </button>
-  </form>
+  <div>
+    <form action="" id="container">
+      <input type="text" name="title" id="title" placeholder="title" />
+      <input
+        type="text"
+        name="description"
+        id="description"
+        placeholder="description"
+      />
+      <input type="text" name="imgLink" id="imgLink" placeholder="imgLink" />
+      <div id="ingredientsList"></div>
+      <div id="instructionsList"></div>
+      <input type="text" name="servings" id="servings" placeholder="servings" />
+      <input type="text" name="link" id="link" placeholder="link" />
+      <button
+        v-on:click.prevent="editFirebase"
+        type="submit"
+        id="updateRecipeBtn"
+      >
+        Update
+      </button>
+    </form>
+  </div>
 </template>
 
 <script>
-import Navbar from "../components/navbar.vue";
 import firebase from "firebase/app";
 import "firebase/database";
 
 export default {
   name: "edit-recipe",
-  components: {
-    Navbar,
-  },
   props: {
     recipesList: {
       type: Array,

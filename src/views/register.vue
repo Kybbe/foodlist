@@ -1,20 +1,19 @@
 <template>
-  <navbar></navbar>
-
-  <div id="register">
-    <form @submit.prevent="register">
-      <h2>Register</h2>
-      <input type="email" placeholder="Email address..." v-model="email" />
-      <input type="password" placeholder="password..." v-model="password" />
-      <button type="submit">Register</button>
-    </form>
+  <div>
+    <div id="register">
+      <form @submit.prevent="register">
+        <h2>Register</h2>
+        <input type="email" placeholder="Email address..." v-model="email" />
+        <input type="password" placeholder="password..." v-model="password" />
+        <button type="submit">Register</button>
+      </form>
+    </div>
   </div>
 </template>
 
 <script>
 import firebase from "firebase/app";
 import "firebase/auth";
-import navbar from "../components/navbar.vue";
 export default {
   name: "Register",
   data() {
@@ -36,9 +35,6 @@ export default {
           alert(error.message);
         });
     },
-  },
-  components: {
-    navbar,
   },
 };
 </script>

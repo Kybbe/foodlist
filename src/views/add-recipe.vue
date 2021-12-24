@@ -1,113 +1,109 @@
 <template>
-  <navbar></navbar>
-
-  <div id="addRecipe">
-    <h2>Add Recipe</h2>
-    <form action="">
-      <div class="form-group">
-        <label for="recipeName">Recipe Name / Title:</label>
-        <input
-          type="text"
-          class="form-control"
-          id="recipeName"
-          placeholder="Tomatoes and Cheese Pasta"
-          v-model="recipe.title"
-          required
-        />
-      </div>
-      <div class="form-group">
-        <label for="recipeDescription">Recipe Description:</label>
-        <textarea
-          class="form-control"
-          id="recipeDescription"
-          rows="3"
-          v-model="recipe.description"
-          placeholder="A simple recipe for a tasty pasta dish with tomatoes and cheese."
-        ></textarea>
-      </div>
-      <div class="form-group">
-        <label for="recipeIngredients">Recipe Ingredients:</label>
-        <div id="labels">
-          <label for="amount">Quantity:</label>
-          <label for="ingredientUnit">Unit:</label>
-          <label for="ingredientName">Ingredient Name:</label>
-        </div>
-        <div class="ingredients">
-          <input type="number" placeholder="2" name="amount" class="amount" />
-          <input type="text" placeholder="Large" name="measurment" />
+  <div>
+    <div id="addRecipe">
+      <h2>Add Recipe</h2>
+      <form action="">
+        <div class="form-group">
+          <label for="recipeName">Recipe Name / Title:</label>
           <input
             type="text"
-            placeholder="Tomatoes"
-            name="name"
-            v-on:change="fixIngredients"
+            class="form-control"
+            id="recipeName"
+            placeholder="Tomatoes and Cheese Pasta"
+            v-model="recipe.title"
             required
           />
         </div>
-      </div>
-      <button type="button" v-on:click="addIngredient">Add Ingredient</button>
-      <button
-        type="button"
-        v-on:click="removeIngredient"
-        v-if="moreThanOneIngredient"
-      >
-        Remove Ingredient
-      </button>
-      <div class="form-group">
-        <label for="recipeServings">Recipe Servings:</label>
-        <input
-          type="number"
-          class="form-control"
-          id="recipeServings"
-          placeholder="4"
-          v-model="recipe.servings"
-          v-on:change="checkServings"
-        />
-      </div>
-      <div class="form-group">
-        <label for="recipeInstructions">Recipe Instructions: </label>
-        <textarea
-          class="form-control"
-          id="recipeInstructions"
-          rows="3"
-          v-on:change="fixInstructions"
-          placeholder="1. Preheat oven to 350 degrees. ,2. Mix ingredients. ,3. Bake for 20 minutes."
-        ></textarea>
-      </div>
-      <div class="form-group">
-        <label for="recipeImage">Original Recipe Link:</label>
-        <input
-          type="text"
-          class="form-control"
-          id="recipeImage"
-          placeholder="www.example.com/recipe.html"
-          v-model="recipe.link"
-        />
-      </div>
-      <div class="form-group">
-        <label for="recipeImage">Recipe Image (Link):</label>
-        <input
-          type="text"
-          class="form-control"
-          id="recipeImage"
-          placeholder="www.google.com(images/recipe.jpg)"
-          v-model="recipe.imgLink"
-        />
-      </div>
-      <button v-on:click.prevent="post" type="submit">Submit</button>
-    </form>
+        <div class="form-group">
+          <label for="recipeDescription">Recipe Description:</label>
+          <textarea
+            class="form-control"
+            id="recipeDescription"
+            rows="3"
+            v-model="recipe.description"
+            placeholder="A simple recipe for a tasty pasta dish with tomatoes and cheese."
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="recipeIngredients">Recipe Ingredients:</label>
+          <div id="labels">
+            <label for="amount">Quantity:</label>
+            <label for="ingredientUnit">Unit:</label>
+            <label for="ingredientName">Ingredient Name:</label>
+          </div>
+          <div class="ingredients">
+            <input type="number" placeholder="2" name="amount" class="amount" />
+            <input type="text" placeholder="Large" name="measurment" />
+            <input
+              type="text"
+              placeholder="Tomatoes"
+              name="name"
+              v-on:change="fixIngredients"
+              required
+            />
+          </div>
+        </div>
+        <button type="button" v-on:click="addIngredient">Add Ingredient</button>
+        <button
+          type="button"
+          v-on:click="removeIngredient"
+          v-if="moreThanOneIngredient"
+        >
+          Remove Ingredient
+        </button>
+        <div class="form-group">
+          <label for="recipeServings">Recipe Servings:</label>
+          <input
+            type="number"
+            class="form-control"
+            id="recipeServings"
+            placeholder="4"
+            v-model="recipe.servings"
+            v-on:change="checkServings"
+          />
+        </div>
+        <div class="form-group">
+          <label for="recipeInstructions">Recipe Instructions: </label>
+          <textarea
+            class="form-control"
+            id="recipeInstructions"
+            rows="3"
+            v-on:change="fixInstructions"
+            placeholder="1. Preheat oven to 350 degrees. ,2. Mix ingredients. ,3. Bake for 20 minutes."
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="recipeImage">Original Recipe Link:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="recipeImage"
+            placeholder="www.example.com/recipe.html"
+            v-model="recipe.link"
+          />
+        </div>
+        <div class="form-group">
+          <label for="recipeImage">Recipe Image (Link):</label>
+          <input
+            type="text"
+            class="form-control"
+            id="recipeImage"
+            placeholder="www.google.com(images/recipe.jpg)"
+            v-model="recipe.imgLink"
+          />
+        </div>
+        <button v-on:click.prevent="post" type="submit">Submit</button>
+      </form>
+    </div>
   </div>
 </template>
 
 <script>
-import Navbar from "../components/navbar.vue";
 import firebase from "firebase/app";
 import "firebase/database";
 
 export default {
   name: "AddRecipe",
-  components: {
-    Navbar,
-  },
   data() {
     return {
       recipe: {

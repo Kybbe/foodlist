@@ -1,37 +1,39 @@
 <template>
-  <navbar :link="recipe[currentRecipeId].link" />
-  <div id="content">
-    <div
-      class="bigCard card"
-      style="
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-evenly;
-        padding: 0px;
-      "
-    >
-      <mainArea
-        :title="recipe[currentRecipeId].title"
-        :description="recipe[currentRecipeId].description"
-        :imgLink="recipe[currentRecipeId].imgLink"
-      />
-    </div>
+  <div>
+    <div id="content">
+      <div
+        class="bigCard card"
+        style="
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-evenly;
+          padding: 0px;
+        "
+      >
+        <mainArea
+          :title="recipe[currentRecipeId].title"
+          :description="recipe[currentRecipeId].description"
+          :imgLink="recipe[currentRecipeId].imgLink"
+          :link="recipe[currentRecipeId].link"
+        />
+      </div>
 
-    <div class="mediumCard card">
-      <ingredients :ingredients="recipe[currentRecipeId].ingredients" />
-    </div>
+      <div class="mediumCard card">
+        <ingredients :ingredients="recipe[currentRecipeId].ingredients" />
+      </div>
 
-    <div class="mediumCard card">
-      <instruction :instructions="recipe[currentRecipeId].instructions" />
+      <div class="mediumCard card">
+        <instruction :instructions="recipe[currentRecipeId].instructions" />
+      </div>
     </div>
-  </div>
-  <div id="footer">
-    <button id="delete" @click="confirmDelete" v-if="admin">
-      Delete this recipe
-    </button>
-    <router-link :to="'/edit/' + currentRecipeId" v-if="admin">
-      Edit this recipe
-    </router-link>
+    <div id="footer">
+      <button id="delete" @click="confirmDelete" v-if="admin">
+        Delete this recipe
+      </button>
+      <router-link :to="'/edit/' + currentRecipeId" v-if="admin">
+        Edit this recipe
+      </router-link>
+    </div>
   </div>
 </template>
 
@@ -39,7 +41,6 @@
 import mainArea from "../components/mainArea.vue";
 import instruction from "../components/instructions.vue";
 import ingredients from "../components/ingredients.vue";
-import Navbar from "../components/navbar.vue";
 import firebase from "firebase/app";
 import "firebase/database";
 import "firebase/auth";
@@ -50,7 +51,6 @@ export default {
     mainArea,
     instruction,
     ingredients,
-    Navbar,
   },
   props: {
     recipe: {

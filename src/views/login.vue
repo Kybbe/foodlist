@@ -1,24 +1,22 @@
 <template>
-  <navbar></navbar>
+  <div>
+    <div id="login">
+      <form @submit.prevent="login">
+        <h2>Login</h2>
+        <input type="email" placeholder="Email address..." v-model="email" />
+        <input type="password" placeholder="password..." v-model="password" />
+        <button type="submit">Login</button>
+      </form>
 
-  <div id="login">
-    <form @submit.prevent="login">
-      <h2>Login</h2>
-      <input type="email" placeholder="Email address..." v-model="email" />
-      <input type="password" placeholder="password..." v-model="password" />
-      <button type="submit">Login</button>
-    </form>
-
-    <button @click="loginWithGoogle">Sign In with Google</button>
+      <button @click="loginWithGoogle">Sign In with Google</button>
+    </div>
   </div>
 </template>
 
 <script>
 import firebase from "firebase/app";
 import "firebase/auth";
-import navbar from "../components/navbar.vue";
 export default {
-  components: { navbar },
   name: "login",
   data() {
     return {

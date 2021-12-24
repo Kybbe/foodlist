@@ -2,6 +2,9 @@
   <div id="descriptionContainer">
     <h2>{{ title }}</h2>
     <p class="description">{{ description }}</p>
+    <a v-if="this.link" :href="link" target="_blank" id="ogLink"
+      >Original Recipe</a
+    >
   </div>
   <div id="imgContainer">
     <img :src="imgLinkAndTemplate" alt="image of the dish" />
@@ -24,6 +27,9 @@ export default {
       type: String,
       required: true,
     },
+    link: {
+      type: String,
+    },
   },
   data() {
     return {
@@ -38,11 +44,20 @@ export default {
     } else {
       this.imgLinkAndTemplate = this.imgLink;
     }
+
+    if (this.link != null) {
+      document.getElementsByClassName("description")[0].style.marginBottom =
+        "10px";
+    }
   },
 };
 </script>
 
 <style lang="scss" scoped>
+* {
+  box-sizing: border-box;
+}
+
 h2 {
   width: 100%;
   text-align: center;
@@ -53,9 +68,21 @@ h2 {
 #descriptionContainer {
   width: 100%;
   padding: 10px;
+  position: relative;
 
-  p {
-    height: 100%;
+  #ogLink {
+    text-decoration: none;
+    color: white;
+    background-color: #4a8ee7;
+    padding: 5px 10px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
+    display: inline-block;
+
+    @media (min-width: 800px) {
+      position: absolute;
+      bottom: 20px;
+    }
   }
 }
 
@@ -63,7 +90,6 @@ h2 {
   width: 100%;
 
   img {
-    height: 100%;
     width: calc(100% - 20px);
     border-radius: 5px;
     margin: 0 10px;
@@ -77,13 +103,17 @@ h2 {
   }
 
   #descriptionContainer {
-    width: calc(50% - 42px);
+    width: 50%;
     border-right: 1px solid rgba(128, 128, 128, 0.4);
     font-size: 1.3em;
   }
 
   #imgContainer {
-    width: calc(50% - 40px);
+    width: 50%;
+
+    img {
+      margin: 0px !important;
+    }
   }
 }
 </style>

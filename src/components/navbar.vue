@@ -29,7 +29,6 @@
           </g>
         </svg>
       </router-link>
-      <a v-if="this.link" :href="link" target="_blank">Original Recipe</a>
       <router-link :to="'/add'" v-if="loggedIn"> Add Recipe </router-link>
     </div>
 
@@ -65,6 +64,7 @@ export default {
       } else {
         this.loggedIn = false; // If it doesn't
       }
+      console.log("checking if logged in");
     },
     logout() {
       firebase
@@ -84,6 +84,9 @@ export default {
     setTimeout(() => {
       this.IsLoggedIn();
     }, 10);
+    firebase.auth().onAuthStateChanged(() => {
+      this.IsLoggedIn();
+    });
   },
 };
 </script>
