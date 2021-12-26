@@ -156,7 +156,7 @@ export default {
       document.getElementById("imgLink").value = currentRecipe.imgLink;
 
       let ingredients = currentRecipe.ingredients;
-      if(ingredients.length > 1) {
+      if (ingredients.length > 1) {
         this.moreThanOneIngredient = true;
       }
       for (let i = 0; i < ingredients.length; i++) {
