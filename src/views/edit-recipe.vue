@@ -93,6 +93,12 @@ export default {
           id: instructionsGroups[i].querySelectorAll("input")[1].value,
           text: instructionsGroups[i].querySelectorAll("input")[2].value,
         };
+        if (instruction.checked == "true") {
+          instruction.checked = true;
+        }
+        if (instruction.checked == "false") {
+          instruction.checked = false;
+        }
         instructions.push(instruction);
       }
       let servings = document.getElementById("servings").value;
