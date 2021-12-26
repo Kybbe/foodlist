@@ -11,6 +11,14 @@
       <input type="text" name="imgLink" id="imgLink" placeholder="imgLink" />
       <div id="ingredientsList"></div>
       <div id="instructionsList"></div>
+      <button type="button" v-on:click="addIngredient">Add Ingredient</button>
+      <button
+        type="button"
+        v-on:click="removeIngredient"
+        v-if="moreThanOneIngredient"
+      >
+        Remove Ingredient
+      </button>
       <input type="text" name="servings" id="servings" placeholder="servings" />
       <input type="text" name="link" id="link" placeholder="link" />
       <button
@@ -52,6 +60,27 @@ export default {
         ) {
           this.admin = true;
         }
+      }
+    },
+    addIngredient() {
+      let ingredientTemplate = document
+        .getElementsByClassName("editIngredients")[0]
+        .cloneNode(true);
+
+      // set value of all inputs in ingredientTemplate to empty string
+      document
+        .getElementsByClassName("editIngredients")[0]
+        .parentNode.appendChild(ingredientTemplate);
+
+      this.moreThanOneIngredient = true;
+    },
+    removeIngredient() {
+      let ingredients = document.getElementsByClassName("editIngredients");
+      if (ingredients.length > 1) {
+        ingredients[ingredients.length - 1].remove();
+      }
+      if (ingredients.length == 1) {
+        this.moreThanOneIngredient = false;
       }
     },
     editFirebase() {
