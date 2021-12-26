@@ -10,7 +10,6 @@
       />
       <input type="text" name="imgLink" id="imgLink" placeholder="imgLink" />
       <div id="ingredientsList"></div>
-      <div id="instructionsList"></div>
       <button type="button" v-on:click="addIngredient">Add Ingredient</button>
       <button
         type="button"
@@ -28,6 +27,7 @@
       >
         Update
       </button>
+      <div id="instructionsList"></div>
     </form>
   </div>
 </template>
@@ -47,6 +47,7 @@ export default {
   data() {
     return {
       admin: false,
+      moreThanOneIngredient: false,
     };
   },
   methods: {
@@ -155,6 +156,9 @@ export default {
       document.getElementById("imgLink").value = currentRecipe.imgLink;
 
       let ingredients = currentRecipe.ingredients;
+      if(ingredients.length > 1) {
+        this.moreThanOneIngredient = true;
+      }
       for (let i = 0; i < ingredients.length; i++) {
         let ingredient = ingredients[i];
         let amount = ingredient.amount;
