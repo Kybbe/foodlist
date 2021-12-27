@@ -64,7 +64,6 @@ export default {
       } else {
         this.loggedIn = false; // If it doesn't
       }
-      console.log("checking if logged in");
     },
     logout() {
       firebase

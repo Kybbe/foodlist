@@ -10,14 +10,17 @@
       />
       <input type="text" name="imgLink" id="imgLink" placeholder="imgLink" />
       <div id="ingredientsList"></div>
-      <button type="button" v-on:click="addIngredient">Add Ingredient</button>
-      <button
-        type="button"
-        v-on:click="removeIngredient"
-        v-if="moreThanOneIngredient"
-      >
-        Remove Ingredient
-      </button>
+      <div id="ingredientsButtons">
+        <button type="button" v-on:click="addIngredient">Add Ingredient</button>
+        <button
+          type="button"
+          v-on:click="removeIngredient"
+          v-if="moreThanOneIngredient"
+        >
+          Remove Ingredient
+        </button>
+      </div>
+      <div id="instructionsList"></div>
       <input type="text" name="servings" id="servings" placeholder="servings" />
       <input type="text" name="link" id="link" placeholder="link" />
       <button
@@ -27,7 +30,6 @@
       >
         Update
       </button>
-      <div id="instructionsList"></div>
     </form>
   </div>
 </template>
@@ -67,6 +69,10 @@ export default {
       let ingredientTemplate = document
         .getElementsByClassName("editIngredients")[0]
         .cloneNode(true);
+
+      for (let i = 0; i < ingredientTemplate.length; i++) {
+        ingredientTemplate.querySelector("input").value = "";
+      }
 
       // set value of all inputs in ingredientTemplate to empty string
       document
@@ -223,9 +229,28 @@ export default {
 }
 
 #ingredientsList {
-  margin-bottom: 10px;
   background-color: #cbf3ff;
   padding: 10px;
+}
+
+#ingredientsButtons {
+  display: flex;
+  justify-content: space-between;
+  background-color: #cbf3ff;
+  padding: 10px;
+  padding-top: 0px;
+  margin-bottom: 10px;
+}
+
+#ingredientsButtons button {
+  display: block;
+  background-color: #4a8ee7;
+  color: white;
+  padding: 5px;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
 }
 
 .editInstructions,
