@@ -59,13 +59,52 @@
           </div>
         </router-link>
       </div>
+      <router-link :to="'/add'" v-if="loggedIn">
+        <div class="card" style="height: 350px">
+          <svg
+            enable-background="new 0 0 50 50"
+            id="Layer_1"
+            version="1.1"
+            viewBox="0 0 50 50"
+            xml:space="preserve"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+          >
+            <line
+              stroke="currentColor"
+              stroke-miterlimit="10"
+              stroke-width="4"
+              x1="9"
+              x2="41"
+              y1="25"
+              y2="25"
+            />
+            <line
+              stroke="currentColor"
+              stroke-miterlimit="10"
+              stroke-width="4"
+              x1="25"
+              x2="25"
+              y1="9"
+              y2="41"
+            />
+          </svg>
+        </div>
+      </router-link>
     </div>
+    <footerBar />
   </div>
 </template>
 
 <script>
+import firebase from "firebase/app";
+import "firebase/auth";
+import footerBar from "../components/footer.vue";
 export default {
   name: "RecipeList",
+  components: {
+    footerBar,
+  },
   props: {
     recipesList: {
       type: Array,
@@ -77,6 +116,7 @@ export default {
       searchValue: "",
       sortBy: "recipeId",
       randomNumber: 0,
+      loggedIn: false,
     };
   },
   methods: {
@@ -88,6 +128,15 @@ export default {
       return {
         "background-image": `url(${specificLink})`,
       };
+    },
+    IsLoggedIn() {
+      let user = firebase.auth().currentUser;
+
+      if (user) {
+        this.loggedIn = true; // If it exists
+      } else {
+        this.loggedIn = false; // If it doesn't
+      }
     },
   },
   computed: {
@@ -196,6 +245,17 @@ h1 {
     transition: 4s;
     transform: rotate(360deg);
   }
+}
+
+#Layer_1 {
+  width: 100%;
+  height: 100%;
+  transition: 4s;
+}
+
+#Layer_1 > * {
+  stroke: #4a8ee7;
+  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.3));
 }
 
 .imgPart {
