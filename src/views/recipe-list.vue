@@ -176,6 +176,9 @@ export default {
   mounted() {
     this.randomNumber = Math.floor(Math.random() * this.recipesList.length);
     this.IsLoggedIn();
+    firebase.auth().onAuthStateChanged(() => {
+      this.IsLoggedIn();
+    });
   },
 };
 </script>
