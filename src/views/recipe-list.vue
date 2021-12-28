@@ -175,6 +175,7 @@ export default {
   },
   mounted() {
     this.randomNumber = Math.floor(Math.random() * this.recipesList.length);
+    this.IsLoggedIn();
   },
 };
 </script>
