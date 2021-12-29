@@ -59,38 +59,44 @@
           </div>
         </router-link>
       </div>
-      <router-link :to="'/add'" v-if="loggedIn">
-        <div class="card" style="height: 350px">
-          <svg
-            enable-background="new 0 0 50 50"
-            id="Layer_1"
-            version="1.1"
-            viewBox="0 0 50 50"
-            xml:space="preserve"
-            xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink"
-          >
-            <line
-              stroke="currentColor"
-              stroke-miterlimit="10"
-              stroke-width="4"
-              x1="9"
-              x2="41"
-              y1="25"
-              y2="25"
-            />
-            <line
-              stroke="currentColor"
-              stroke-miterlimit="10"
-              stroke-width="4"
-              x1="25"
-              x2="25"
-              y1="9"
-              y2="41"
-            />
-          </svg>
-        </div>
-      </router-link>
+      <div
+        class="card"
+        style="height: 350px; box-sizing: border-box"
+        v-if="loggedIn"
+      >
+        <router-link :to="'/add'">
+          <div class="svgCardBody">
+            <svg
+              enable-background="new 0 0 50 50"
+              id="Layer_1"
+              version="1.1"
+              viewBox="0 0 50 50"
+              xml:space="preserve"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+            >
+              <line
+                stroke="currentColor"
+                stroke-miterlimit="10"
+                stroke-width="4"
+                x1="0"
+                x2="50"
+                y1="25"
+                y2="25"
+              />
+              <line
+                stroke="currentColor"
+                stroke-miterlimit="10"
+                stroke-width="4"
+                x1="25"
+                x2="25"
+                y1="0"
+                y2="50"
+              />
+            </svg>
+          </div>
+        </router-link>
+      </div>
     </div>
     <footerBar />
   </div>
@@ -251,15 +257,24 @@ h1 {
   }
 }
 
-#Layer_1 {
+.svgCardBody {
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2em;
+  box-sizing: border-box;
+}
+
+#Layer_1 {
+  height: 100%;
   transition: 4s;
+  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.3));
 }
 
 #Layer_1 > * {
   stroke: #4a8ee7;
-  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.3));
 }
 
 .imgPart {
