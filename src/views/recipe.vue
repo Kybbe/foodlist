@@ -184,10 +184,15 @@ body {
 
 #footer {
   display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
+  flex-direction: column;
   margin: 0 auto;
   padding: 0px;
+  text-align: center;
+
+  @media (min-width: 600px) {
+    flex-direction: row;
+    justify-content: space-evenly;
+  }
 }
 
 #ogLink,
@@ -203,10 +208,15 @@ body {
   font-size: 1em;
   cursor: pointer;
   transition: all 0.2s ease-in;
+  margin: 0px 20px 10px 20px;
 
   &:hover {
     background-color: #386baf;
     box-shadow: 2px 2px 10px rgba(200, 200, 200, 0.4);
+  }
+
+  @media (min-width: 600px) {
+    margin: 0px !important;
   }
 }
 
