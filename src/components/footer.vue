@@ -4,14 +4,13 @@
     <div id="footerLists">
       <ul>
         <h4>Vue:</h4>
-        <li>Vue</li>
+        <li>Vue 3</li>
         <li>Vue router</li>
         <li>Vue CLI</li>
       </ul>
 
       <ul>
         <h4>Firebase:</h4>
-        <li>Firebase</li>
         <li>Firebase Authentication</li>
         <li>Firebase Realtime database</li>
         <li>Firebase Hosting</li>

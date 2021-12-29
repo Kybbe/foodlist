@@ -14,7 +14,6 @@
           :title="recipe[currentRecipeId].title"
           :description="recipe[currentRecipeId].description"
           :imgLink="recipe[currentRecipeId].imgLink"
-          :link="recipe[currentRecipeId].link"
         />
       </div>
 
@@ -27,12 +26,19 @@
       </div>
     </div>
     <div id="footer">
+      <a
+        v-if="recipe[currentRecipeId].link"
+        :href="recipe[currentRecipeId].link"
+        target="_blank"
+        id="ogLink"
+        >Original Recipe</a
+      >
+      <router-link id="edit" :to="'/edit/' + currentRecipeId" v-if="admin">
+        Edit this recipe
+      </router-link>
       <button id="delete" @click="confirmDelete" v-if="admin">
         Delete this recipe
       </button>
-      <router-link :to="'/edit/' + currentRecipeId" v-if="admin">
-        Edit this recipe
-      </router-link>
     </div>
   </div>
 </template>
@@ -178,21 +184,36 @@ body {
 
 #footer {
   display: flex;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: space-evenly;
   margin: 0 auto;
   padding: 0px;
+}
 
-  button,
-  a {
-    background-color: lightgrey;
-    color: red;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
-    padding: 5px 10px;
-    text-decoration: none;
-    font-size: 1em;
-    font-weight: normal;
-    cursor: pointer;
+#ogLink,
+#delete,
+#edit {
+  text-decoration: none;
+  color: white;
+  background-color: #4a8ee7;
+  padding: 5px 10px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
+  border: none;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s ease-in;
+
+  &:hover {
+    background-color: #386baf;
+    box-shadow: 2px 2px 10px rgba(200, 200, 200, 0.4);
+  }
+}
+
+#delete {
+  background-color: orange;
+  &:hover {
+    background-color: red;
   }
 }
 

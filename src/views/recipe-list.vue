@@ -61,7 +61,7 @@
       </div>
       <div
         class="card"
-        style="height: 350px; box-sizing: border-box"
+        style="max-height: 350px; box-sizing: border-box"
         v-if="loggedIn"
       >
         <router-link :to="'/add'">
@@ -265,6 +265,7 @@ h1 {
   align-items: center;
   padding: 2em;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 #Layer_1 {

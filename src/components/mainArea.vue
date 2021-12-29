@@ -2,9 +2,6 @@
   <div id="descriptionContainer">
     <h2>{{ title }}</h2>
     <p class="description">{{ description }}</p>
-    <a v-if="this.link" :href="link" target="_blank" id="ogLink"
-      >Original Recipe</a
-    >
   </div>
   <div id="imgContainer">
     <img :src="imgLinkAndTemplate" alt="image of the dish" />
@@ -27,9 +24,6 @@ export default {
       type: String,
       required: true,
     },
-    link: {
-      type: String,
-    },
   },
   data() {
     return {
@@ -43,11 +37,6 @@ export default {
       this.imgLinkAndTemplate = this.templateImg;
     } else {
       this.imgLinkAndTemplate = this.imgLink;
-    }
-
-    if (this.link != null) {
-      document.getElementsByClassName("description")[0].style.marginBottom =
-        "10px";
     }
   },
 };
@@ -68,22 +57,6 @@ h2 {
 #descriptionContainer {
   width: 100%;
   padding: 10px;
-  position: relative;
-
-  #ogLink {
-    text-decoration: none;
-    color: white;
-    background-color: #4a8ee7;
-    padding: 5px 10px;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
-    display: inline-block;
-
-    @media (min-width: 800px) {
-      position: absolute;
-      bottom: 20px;
-    }
-  }
 }
 
 #imgContainer {
