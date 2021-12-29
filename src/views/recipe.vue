@@ -188,6 +188,7 @@ body {
   margin: 0 auto;
   padding: 0px;
   text-align: center;
+  margin-bottom: 30px;
 
   @media (min-width: 600px) {
     flex-direction: row;
