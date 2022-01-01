@@ -82,7 +82,7 @@ const routes = [
     },
     meta: {
       title: "Add recipe",
-      // authRequired: true,
+      authRequired: true,
     },
     beforeEnter: (to, from, next) => {
       let checkExist = setInterval(function () {
@@ -120,7 +120,7 @@ const routes = [
     },
     meta: {
       title: "Edit recipe",
-      //authRequired: true,
+      authRequired: true,
     },
     beforeEnter: (to, from, next) => {
       let checkExist = setInterval(function () {

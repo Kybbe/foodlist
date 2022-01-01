@@ -14,6 +14,7 @@
           :title="recipe[currentRecipeId].title"
           :description="recipe[currentRecipeId].description"
           :imgLink="recipe[currentRecipeId].imgLink"
+          :drink="recipe[currentRecipeId].drink"
         />
       </div>
 

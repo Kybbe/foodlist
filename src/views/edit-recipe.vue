@@ -2,6 +2,7 @@
   <div>
     <form action="" id="container">
       <input type="text" name="title" id="title" placeholder="title" />
+      <label for="drink">drink? :</label>
       <input type="checkbox" name="drink" id="drink" />
       <input
         type="text"

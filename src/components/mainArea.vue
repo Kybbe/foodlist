@@ -24,17 +24,26 @@ export default {
       type: String,
       required: true,
     },
+    drink: {
+      type: Boolean,
+    },
   },
   data() {
     return {
       templateImg:
         "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
+      drinkTemplateImg:
+        "https://www.liquor.com/thmb/fO-COKLw_iEA28v8K4XQjzMhkfw=/735x0/very-sexy-martini-720x720-primary-b1212ebf73f54f898a56f7f0b60c0a34.jpg",
       imgLinkAndTemplate: "",
     };
   },
   mounted() {
     if (this.imgLink == "") {
-      this.imgLinkAndTemplate = this.templateImg;
+      if (this.drink) {
+        this.imgLinkAndTemplate = this.drinkTemplateImg;
+      } else {
+        this.imgLinkAndTemplate = this.templateImg;
+      }
     } else {
       this.imgLinkAndTemplate = this.imgLink;
     }

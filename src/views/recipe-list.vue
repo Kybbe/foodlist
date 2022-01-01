@@ -20,7 +20,10 @@
     <div class="cardList">
       <div class="cardM" v-for="recipe in searchResult" :key="recipe.title">
         <router-link :to="'/recipe/' + recipe.recipeId">
-          <div class="imgPart" :style="backgroundimg(recipe.imgLink)">
+          <div
+            class="imgPart"
+            :style="backgroundimg(recipe.imgLink, recipe.recipeId)"
+          >
             <div class="plateIcon">
               <svg
                 aria-hidden="true"
@@ -61,7 +64,10 @@
       </div>
       <div class="cardS" v-for="drink in drinks" :key="drink.title">
         <router-link :to="'/recipe/' + drink.recipeId">
-          <div class="imgPart" :style="backgroundimg(drink.imgLink)">
+          <div
+            class="imgPart"
+            :style="backgroundimg(drink.imgLink, drink.recipeId)"
+          >
             <div class="plateIcon">
               <svg
                 aria-hidden="true"
@@ -166,12 +172,21 @@ export default {
     };
   },
   methods: {
-    backgroundimg(specificLink) {
+    backgroundimg(specificLink, thisId) {
       if (specificLink == "") {
-        specificLink =
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg";
+        // if no image is provided, give it one
+        if (this.recipesList[thisId].drink) {
+          // if it's a drink, give it a drink image
+          specificLink =
+            "https://www.liquor.com/thmb/fO-COKLw_iEA28v8K4XQjzMhkfw=/735x0/very-sexy-martini-720x720-primary-b1212ebf73f54f898a56f7f0b60c0a34.jpg";
+        } else {
+          // if it's a recipe, give it a recipe image
+          specificLink =
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg";
+        }
       }
       return {
+        // if there is an image, give it back as background image string
         "background-image": `url(${specificLink})`,
       };
     },
@@ -214,7 +229,7 @@ export default {
           }
           return 0;
 
-          // Sort by cooking time
+          // Sort by id
         } else if (this.sortBy == "recipeId") {
           return a.recipeId - b.recipeId;
         }
@@ -228,7 +243,33 @@ export default {
       tempDrinks = tempDrinks.filter((recipe) => {
         return recipe.drink;
       });
-      console.log(tempDrinks);
+
+      if (this.searchValue != "" && this.searchValue) {
+        tempDrinks = tempDrinks.filter((item) => {
+          return item.title
+            .toUpperCase()
+            .includes(this.searchValue.toUpperCase());
+        });
+      }
+
+      tempDrinks = tempDrinks.sort((a, b) => {
+        if (this.sortBy == "alphabetically") {
+          let fa = a.title.toLowerCase(),
+            fb = b.title.toLowerCase();
+
+          if (fa < fb) {
+            return -1;
+          }
+          if (fa > fb) {
+            return 1;
+          }
+          return 0;
+
+          // Sort by id
+        } else if (this.sortBy == "recipeId") {
+          return a.recipeId - b.recipeId;
+        }
+      });
 
       return tempDrinks;
     },
@@ -317,6 +358,12 @@ h1 {
 
 .cardS {
   width: 13em;
+}
+
+@media (max-width: 30em) {
+  .cardS {
+    width: 100%;
+  }
 }
 
 .svgCardBody {
