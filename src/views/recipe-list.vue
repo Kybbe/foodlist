@@ -18,7 +18,7 @@
       >
     </div>
     <div class="cardList">
-      <div class="card" v-for="recipe in searchResult" :key="recipe.title">
+      <div class="cardM" v-for="recipe in searchResult" :key="recipe.title">
         <router-link :to="'/recipe/' + recipe.recipeId">
           <div class="imgPart" :style="backgroundimg(recipe.imgLink)">
             <div class="plateIcon">
@@ -59,15 +59,55 @@
           </div>
         </router-link>
       </div>
+      <div class="cardS" v-for="drink in drinks" :key="drink.title">
+        <router-link :to="'/recipe/' + drink.recipeId">
+          <div class="imgPart" :style="backgroundimg(drink.imgLink)">
+            <div class="plateIcon">
+              <svg
+                aria-hidden="true"
+                focusable="false"
+                data-prefix="fas"
+                data-icon="cocktail"
+                class="svg-inline--fa fa-cocktail fa-w-18"
+                role="img"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 576 512"
+              >
+                <path
+                  fill="currentColor"
+                  d="M296 464h-56V338.78l168.74-168.73c15.52-15.52 4.53-42.05-17.42-42.05H24.68c-21.95 0-32.94 26.53-17.42 42.05L176 338.78V464h-56c-22.09 0-40 17.91-40 40 0 4.42 3.58 8 8 8h240c4.42 0 8-3.58 8-8 0-22.09-17.91-40-40-40zM432 0c-62.61 0-115.35 40.2-135.18 96h52.54c16.65-28.55 47.27-48 82.64-48 52.93 0 96 43.06 96 96s-43.07 96-96 96c-14.04 0-27.29-3.2-39.32-8.64l-35.26 35.26C379.23 279.92 404.59 288 432 288c79.53 0 144-64.47 144-144S511.53 0 432 0z"
+                />
+              </svg>
+            </div>
+          </div>
+          <div class="card-body">
+            <h2 class="card-title">{{ drink.title }}</h2>
+            <p class="card-text">{{ drink.description }}</p>
+            <div class="extras">
+              <p class="card-ingredients">
+                <span>{{ drink.ingredients.length }}</span> Ingredient<span
+                  v-if="drink.ingredients.length > 1"
+                  >s</span
+                >
+              </p>
+              <p class="card-steps">
+                <span>{{ drink.instructions.length }}</span> Step<span
+                  v-if="drink.instructions.length > 1"
+                  >s</span
+                >
+              </p>
+            </div>
+          </div>
+        </router-link>
+      </div>
       <div
-        class="card"
+        class="cardM"
         style="max-height: 350px; box-sizing: border-box"
         v-if="loggedIn"
       >
         <router-link :to="'/add'">
           <div class="svgCardBody">
             <svg
-              enable-background="new 0 0 50 50"
               id="Layer_1"
               version="1.1"
               viewBox="0 0 50 50"
@@ -148,6 +188,10 @@ export default {
   computed: {
     searchResult() {
       var tempRecipes = this.recipesList;
+      // remove all recipe with drink property
+      tempRecipes = tempRecipes.filter((recipe) => {
+        return !recipe.drink;
+      });
 
       if (this.searchValue != "" && this.searchValue) {
         tempRecipes = tempRecipes.filter((item) => {
@@ -177,6 +221,16 @@ export default {
       });
 
       return tempRecipes;
+    },
+    drinks() {
+      var tempDrinks = this.recipesList;
+      // keep only recipes with drink property
+      tempDrinks = tempDrinks.filter((recipe) => {
+        return recipe.drink;
+      });
+      console.log(tempDrinks);
+
+      return tempDrinks;
     },
   },
   mounted() {
@@ -243,8 +297,8 @@ h1 {
   justify-content: space-evenly;
 }
 
-.card {
-  width: 30em;
+.cardM,
+.cardS {
   background-color: white;
   margin: 1em;
   border-radius: 10px;
@@ -255,6 +309,14 @@ h1 {
     transition: 4s;
     transform: rotate(360deg);
   }
+}
+
+.cardM {
+  width: 30em;
+}
+
+.cardS {
+  width: 13em;
 }
 
 .svgCardBody {

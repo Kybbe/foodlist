@@ -15,6 +15,15 @@
           />
         </div>
         <div class="form-group">
+          <label for="drink" style="display: inline-block">Drink? :</label>
+          <input
+            type="checkbox"
+            name="drink"
+            id="drink"
+            v-model="recipe.drink"
+          />
+        </div>
+        <div class="form-group">
           <label for="recipeDescription">Recipe Description:</label>
           <textarea
             class="form-control"
@@ -108,6 +117,7 @@ export default {
     return {
       recipe: {
         recipeId: "",
+        drink: false,
         title: "",
         description: "",
         ingredients: [],
@@ -243,6 +253,7 @@ export default {
       }
 
       this.addRecipeId();
+
       firebase.database().ref("recipes").push(this.recipe);
       alert("Recipe added!");
       this.$router.push("/");

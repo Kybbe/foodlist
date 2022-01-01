@@ -2,6 +2,7 @@
   <div>
     <form action="" id="container">
       <input type="text" name="title" id="title" placeholder="title" />
+      <input type="checkbox" name="drink" id="drink" />
       <input
         type="text"
         name="description"
@@ -108,6 +109,7 @@ export default {
       let recipeFirebase = db.ref("recipes/" + dbKeys[this.$route.params.id]);
 
       let title = document.getElementById("title").value;
+      let drink = document.getElementById("drink").checked;
       let description = document.getElementById("description").value;
       let ingredients = [];
       let ingredientsGroups =
@@ -143,6 +145,7 @@ export default {
       let recipeId = this.$route.params.id;
       let recipeData = {
         title: title,
+        drink: drink,
         description: description,
         ingredients: ingredients,
         instructions: instructions,
@@ -160,6 +163,10 @@ export default {
       document.getElementById("title").value = currentRecipe.title;
       document.getElementById("description").value = currentRecipe.description;
       document.getElementById("imgLink").value = currentRecipe.imgLink;
+
+      if (currentRecipe.drink) {
+        document.getElementById("drink").checked = true;
+      }
 
       let ingredients = currentRecipe.ingredients;
       if (ingredients.length > 1) {
