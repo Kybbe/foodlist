@@ -139,6 +139,11 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
+  window.scrollTo(0, 0);
+  next();
+});
+
+router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.authRequired)) {
     if (firebase.auth().currentUser) {
       next();

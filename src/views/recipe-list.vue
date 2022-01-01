@@ -4,6 +4,17 @@
       <select name="sortBy" id="select" v-model="sortBy">
         <option value="recipeId">Recipe Id</option>
         <option value="alphabetically">Alphabetically</option>
+        <option value="drinks">Drinks</option>
+      </select>
+      <select name="ingredients" id="ingredients" v-model="selectedIngredient">
+        <option value="">All Ingredients</option>
+        <option
+          v-for="ingredient in sortAndListIngredients"
+          :key="ingredient.name"
+          :value="ingredient.name"
+        >
+          {{ ingredient.name }} ({{ ingredient.value }})
+        </option>
       </select>
       <input
         type="text"
@@ -17,8 +28,8 @@
         >Go to random recipe</router-link
       >
     </div>
-    <div class="cardList">
-      <div class="cardM" v-for="recipe in searchResult" :key="recipe.title">
+    <transition-group class="cardList" tag="div" name="cardList">
+      <div class="cardM" v-for="recipe in searchResult" :key="recipe.recipeId">
         <router-link :to="'/recipe/' + recipe.recipeId">
           <div
             class="imgPart"
@@ -62,7 +73,7 @@
           </div>
         </router-link>
       </div>
-      <div class="cardS" v-for="drink in drinks" :key="drink.title">
+      <div class="cardS" v-for="drink in drinks" :key="drink.recipeId">
         <router-link :to="'/recipe/' + drink.recipeId">
           <div
             class="imgPart"
@@ -143,7 +154,7 @@
           </div>
         </router-link>
       </div>
-    </div>
+    </transition-group>
     <footerBar />
   </div>
 </template>
@@ -167,6 +178,7 @@ export default {
     return {
       searchValue: "",
       sortBy: "recipeId",
+      selectedIngredient: "",
       randomNumber: 0,
       loggedIn: false,
     };
@@ -216,6 +228,18 @@ export default {
         });
       }
 
+      if (this.selectedIngredient != "") {
+        // filter recipes by selected ingredient
+        // ingredient name is stored in the recipe.ingredients.name property
+        tempRecipes = tempRecipes.filter((item) => {
+          return item.ingredients.some((ingredient) => {
+            return ingredient.name
+              .toUpperCase()
+              .includes(this.selectedIngredient.toUpperCase());
+          });
+        });
+      }
+
       tempRecipes = tempRecipes.sort((a, b) => {
         if (this.sortBy == "alphabetically") {
           let fa = a.title.toLowerCase(),
@@ -235,6 +259,10 @@ export default {
         }
       });
 
+      if (this.sortBy == "drinks") {
+        return null;
+      }
+
       return tempRecipes;
     },
     drinks() {
@@ -249,6 +277,18 @@ export default {
           return item.title
             .toUpperCase()
             .includes(this.searchValue.toUpperCase());
+        });
+      }
+
+      if (this.selectedIngredient != "") {
+        // filter recipes by selected ingredient
+        // ingredient name is stored in the recipe.ingredients.name property
+        tempDrinks = tempDrinks.filter((item) => {
+          return item.ingredients.some((ingredient) => {
+            return ingredient.name
+              .toUpperCase()
+              .includes(this.selectedIngredient.toUpperCase());
+          });
         });
       }
 
@@ -273,6 +313,54 @@ export default {
 
       return tempDrinks;
     },
+    sortAndListIngredients() {
+      // get all recipe ingredients and put into array
+      var tempIngredients = [];
+      this.recipesList.forEach((recipe) => {
+        recipe.ingredients.forEach((ingredient) => {
+          tempIngredients.push(ingredient.name);
+        });
+      });
+
+      // count each ingredient and put into array
+      var tempIngredientsCount = [];
+      tempIngredients.forEach((ingredient) => {
+        var count = 0;
+        tempIngredients.forEach((ingredient2) => {
+          if (ingredient == ingredient2) {
+            count++;
+          }
+        });
+        tempIngredientsCount.push({ name: ingredient, value: count });
+      });
+
+      // remove duplicates
+      var tempIngredientsCount2 = [];
+      tempIngredientsCount.forEach((ingredient) => {
+        var count = 0;
+        tempIngredientsCount2.forEach((ingredient2) => {
+          if (ingredient.name == ingredient2.name) {
+            count++;
+          }
+        });
+        if (count == 0) {
+          tempIngredientsCount2.push(ingredient);
+        }
+      });
+
+      // sort by value and if same value, sort by name
+      tempIngredientsCount2.sort((a, b) =>
+        a.value > b.value
+          ? -1
+          : a.value < b.value
+          ? 1
+          : a.name > b.name
+          ? 1
+          : -1
+      );
+
+      return tempIngredientsCount2;
+    },
   },
   mounted() {
     this.randomNumber = Math.floor(Math.random() * this.recipesList.length);
@@ -291,29 +379,35 @@ h1 {
 
 .searchArea {
   display: flex;
+  flex-wrap: wrap;
 
   select,
   #search-input {
-    margin: 1em 0.8em 0 0.8em;
+    margin: 1em;
     padding: 0.4em;
     border-radius: 10px;
     box-sizing: border-box;
     border: 1px solid #ccc;
     box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
     font-size: 1.2em;
+    width: 100%;
   }
 
   select {
-    margin-right: 0px;
-    border-top-right-radius: 0px;
+    margin-bottom: 0px;
+    border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
   }
 
+  #ingredients {
+    margin: 0px 1em;
+    border-radius: 0px;
+  }
+
   #search-input {
+    margin: 0px 1em;
     border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-    width: 100%;
-    margin-left: 0px;
+    border-top-right-radius: 0px;
   }
 }
 
@@ -337,6 +431,38 @@ h1 {
   flex-wrap: wrap;
   justify-content: space-evenly;
 }
+
+.cardList-enter-active,
+.cardList-leave-active,
+.cardList-move {
+  transition: 500ms cubic-bezier(0.59, 0.12, 0.34, 0.95);
+  transition-property: opacity, transform;
+}
+
+.cardList-enter {
+  opacity: 0;
+  transform: translateX(50px) scaleY(0.5);
+}
+
+.cardList-enter-to {
+  opacity: 1;
+  transform: translateX(0) scaleY(1);
+}
+
+.cardList-leave-active {
+  position: absolute;
+}
+
+.cardList-leave-to {
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: center top;
+}
+
+/* .cardList-enter,
+.cardList-leave-to { opacity: 0; }
+.cardList-enter-active,
+.cardList-leave-active { transition: 0.5s; } */
 
 .cardM,
 .cardS {
@@ -424,15 +550,24 @@ h1 {
 
 .card-body {
   padding: 1em 1em 0 1em;
+  position: relative;
+  height: calc(100% - 200px);
+  box-sizing: border-box;
 
   .card-title {
     margin-top: 0px;
+  }
+
+  .card-text {
+    margin-bottom: 3.5em;
   }
 
   .extras {
     display: flex;
     margin-top: 0.5em;
     margin-bottom: 1em;
+    position: absolute;
+    bottom: 0px;
 
     .card-ingredients,
     .card-steps {
@@ -466,6 +601,48 @@ a {
 
   &:hover .card-title {
     text-decoration: underline;
+  }
+}
+
+@media (min-width: 500px) {
+  .searchArea {
+    flex-wrap: nowrap;
+
+    select,
+    #search-input {
+      margin: 1em 0.8em 0 0.8em;
+      padding: 0.4em;
+      border-radius: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
+      font-size: 1.2em;
+    }
+
+    select {
+      margin-right: 0px;
+      border-top-right-radius: 0px;
+      border-bottom-right-radius: 0px;
+      width: unset;
+    }
+
+    #ingredients {
+      margin: 1em 0em 0em 0em;
+      width: 9.4em;
+    }
+
+    #search-input {
+      border-top-left-radius: 0px;
+      border-bottom-left-radius: 0px;
+      width: 100%;
+      margin-left: 0px;
+    }
+  }
+}
+
+@media (min-width: 900px) {
+  #ingredients {
+    width: unset !important;
   }
 }
 
