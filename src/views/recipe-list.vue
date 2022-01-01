@@ -126,29 +126,18 @@
           <div class="svgCardBody">
             <svg
               id="Layer_1"
-              version="1.1"
-              viewBox="0 0 50 50"
-              xml:space="preserve"
+              aria-hidden="true"
+              focusable="false"
+              data-prefix="fas"
+              data-icon="plus"
+              class="svg-inline--fa fa-plus fa-w-14"
+              role="img"
               xmlns="http://www.w3.org/2000/svg"
-              xmlns:xlink="http://www.w3.org/1999/xlink"
+              viewBox="0 0 448 512"
             >
-              <line
-                stroke="currentColor"
-                stroke-miterlimit="10"
-                stroke-width="4"
-                x1="0"
-                x2="50"
-                y1="25"
-                y2="25"
-              />
-              <line
-                stroke="currentColor"
-                stroke-miterlimit="10"
-                stroke-width="4"
-                x1="25"
-                x2="25"
-                y1="0"
-                y2="50"
+              <path
+                fill="currentColor"
+                d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
               />
             </svg>
           </div>
@@ -510,7 +499,7 @@ h1 {
 }
 
 #Layer_1 > * {
-  stroke: #4a8ee7;
+  color: #4a8ee7;
 }
 
 .imgPart {
