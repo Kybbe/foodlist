@@ -18,7 +18,7 @@
     </div>
     <div style="text-align: center">
       <h2>Font awesome</h2>
-      <p>Font awesome was used for plate and coctail svg icons.</p>
+      <p>Font awesome was used for various svg icons.</p>
       <p>The icons are not changed or altered.</p>
       <a href="https://fontawesome.com/license">Font awesome license</a>
     </div>
