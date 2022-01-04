@@ -4,6 +4,7 @@
       <select name="sortBy" id="select" v-model="sortBy">
         <option value="recipeId">Recipe Id</option>
         <option value="alphabetically">Alphabetically</option>
+        <option value="foods">Foods</option>
         <option value="drinks">Drinks</option>
       </select>
       <select name="ingredients" id="ingredients" v-model="selectedIngredient">
@@ -299,6 +300,10 @@ export default {
           return a.recipeId - b.recipeId;
         }
       });
+
+      if (this.sortBy == "foods") {
+        return null;
+      }
 
       return tempDrinks;
     },
