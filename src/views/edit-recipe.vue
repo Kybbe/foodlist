@@ -11,6 +11,11 @@
         placeholder="description"
       />
       <input type="text" name="imgLink" id="imgLink" placeholder="imgLink" />
+      <div id="labels">
+        <label for="amount" style="flex: 0.25">Quantity:</label>
+        <label for="ingredientUnit" style="flex: 0.25">Unit:</label>
+        <label for="ingredientName" style="flex: 0.8">Ingredient Name:</label>
+      </div>
       <div id="ingredientsList"></div>
       <div id="ingredientsButtons">
         <button type="button" v-on:click="addIngredient">Add Ingredient</button>
@@ -22,7 +27,24 @@
           Remove Ingredient
         </button>
       </div>
+      <div id="labels">
+        <label for="checked" style="flex: 0.25">Checked:</label>
+        <label for="id" style="flex: 0.25">Id:</label>
+        <label for="name" style="flex: 0.8">Instruction:</label>
+      </div>
       <div id="instructionsList"></div>
+      <div id="instructionsButtons">
+        <button type="button" v-on:click="addInstruction">
+          Add Instruction
+        </button>
+        <button
+          type="button"
+          v-on:click="removeInstruction"
+          v-if="moreThanOneInstruction"
+        >
+          Remove Instruction
+        </button>
+      </div>
       <input type="text" name="servings" id="servings" placeholder="servings" />
       <input type="text" name="link" id="link" placeholder="link" />
       <button
@@ -52,6 +74,7 @@ export default {
     return {
       admin: false,
       moreThanOneIngredient: false,
+      moreThanOneInstruction: false,
     };
   },
   methods: {
@@ -90,6 +113,30 @@ export default {
       }
       if (ingredients.length == 1) {
         this.moreThanOneIngredient = false;
+      }
+    },
+    addInstruction() {
+      let list = document.getElementById("instructionsList");
+
+      let newInstruction = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
+
+      list.insertBefore(newInstruction.cloneNode(true), newInstruction); // add the new ingredient to the top of the list
+
+      let instructionInputs = newInstruction.getElementsByTagName("input");
+      for (let i = 0; i < instructionInputs.length; i++) {
+        //for all inputs in ingredientInputs, set value as ""
+        instructionInputs[i].value = "";
+      }
+
+      this.moreThanOneInstruction = true;
+    },
+    removeInstruction() {
+      let instructions = document.getElementsByClassName("editInstructions");
+      if (instructions.length > 1) {
+        instructions[instructions.length - 1].remove();
+      }
+      if (instructions.length == 1) {
+        this.moreThanOneInstruction = false;
       }
     },
     editFirebase() {
@@ -189,6 +236,9 @@ export default {
       }
 
       let instructions = currentRecipe.instructions;
+      if (instructions.length > 1) {
+        this.moreThanOneInstruction = true;
+      }
       for (let i = 0; i < instructions.length; i++) {
         let instruction = instructions[i];
         let checked = instruction.checked;
@@ -236,12 +286,14 @@ export default {
   margin-bottom: 10px;
 }
 
-#ingredientsList {
+#ingredientsList,
+#instructionsList {
   background-color: #cbf3ff;
   padding: 10px;
 }
 
-#ingredientsButtons {
+#ingredientsButtons,
+#instructionsButtons {
   display: flex;
   justify-content: space-between;
   background-color: #cbf3ff;
@@ -250,7 +302,8 @@ export default {
   margin-bottom: 10px;
 }
 
-#ingredientsButtons button {
+#ingredientsButtons button,
+#instructionsButtons button {
   display: block;
   background-color: #4a8ee7;
   color: white;
@@ -287,6 +340,16 @@ export default {
 
   &:hover {
     background-color: #3a7dd6;
+  }
+}
+
+#labels {
+  display: flex;
+  flex-direction: row;
+  margin: 10px 0;
+
+  label {
+    flex: 1;
   }
 }
 </style>

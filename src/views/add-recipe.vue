@@ -40,26 +40,35 @@
             <label for="ingredientUnit">Unit:</label>
             <label for="ingredientName">Ingredient Name:</label>
           </div>
-          <div class="ingredients">
-            <input type="number" placeholder="2" name="amount" class="amount" />
-            <input type="text" placeholder="Large" name="measurment" />
-            <input
-              type="text"
-              placeholder="Tomatoes"
-              name="name"
-              v-on:change="fixIngredients"
-              required
-            />
+          <div id="ingredientsList">
+            <div class="ingredients">
+              <input
+                type="number"
+                placeholder="2"
+                name="amount"
+                class="amount"
+              />
+              <input type="text" placeholder="Large" name="measurment" />
+              <input
+                type="text"
+                placeholder="Tomatoes"
+                name="name"
+                v-on:change="fixIngredients"
+                required
+              />
+            </div>
           </div>
+          <button type="button" v-on:click="addIngredient">
+            Add Ingredient
+          </button>
+          <button
+            type="button"
+            v-on:click="removeIngredient"
+            v-if="moreThanOneIngredient"
+          >
+            Remove Ingredient
+          </button>
         </div>
-        <button type="button" v-on:click="addIngredient">Add Ingredient</button>
-        <button
-          type="button"
-          v-on:click="removeIngredient"
-          v-if="moreThanOneIngredient"
-        >
-          Remove Ingredient
-        </button>
         <div class="form-group">
           <label for="recipeServings">Recipe Servings:</label>
           <input
@@ -73,13 +82,45 @@
         </div>
         <div class="form-group">
           <label for="recipeInstructions">Recipe Instructions: </label>
-          <textarea
-            class="form-control"
-            id="recipeInstructions"
-            rows="3"
-            v-on:change="fixInstructions"
-            placeholder="1. Preheat oven to 350 degrees. ,2. Mix ingredients. ,3. Bake for 20 minutes."
-          ></textarea>
+          <div id="labels">
+            <label for="id" style="flex: 0.25">Id:</label>
+            <label for="checked" style="flex: 0.25">Checked:</label>
+            <label for="name" style="flex: 0.8">Instruction:</label>
+          </div>
+          <div id="instructionsList">
+            <div class="instructions">
+              <input
+                type="number"
+                placeholder="1"
+                name="id"
+                style="width: 25%"
+              />
+              <input
+                type="text"
+                placeholder="false"
+                name="checked"
+                style="width: 25%"
+              />
+              <input
+                type="text"
+                placeholder="1. Preheat oven to 350 degrees."
+                name="name"
+                v-on:change="fixInstructions"
+                required
+                style="width: 90%"
+              />
+            </div>
+          </div>
+          <button type="button" v-on:click="addInstruction">
+            Add Instruction
+          </button>
+          <button
+            type="button"
+            v-on:click="removeInstruction"
+            v-if="moreThanOneInstruction"
+          >
+            Remove Instruction
+          </button>
         </div>
         <div class="form-group">
           <label for="recipeImage">Original Recipe Link:</label>
@@ -127,25 +168,22 @@ export default {
         imgLink: "",
       },
       moreThanOneIngredient: false,
+      moreThanOneInstruction: false,
     };
   },
   methods: {
     addIngredient() {
-      let ingredientTemplate = document
-        .getElementsByClassName("ingredients")[0]
-        .cloneNode(true);
+      let list = document.getElementById("ingredientsList");
 
-      // set value of all inputs in ingredientTemplate to empty string
-      let inputs = document
-        .getElementsByClassName("ingredients")[0]
-        .querySelectorAll("input");
-      for (let i = 0; i < inputs.length; i++) {
-        inputs[i].value = "";
+      let newIngredient = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
+
+      list.insertBefore(newIngredient.cloneNode(true), newIngredient); // add the new ingredient to the top of the list
+
+      let ingredientInputs = newIngredient.getElementsByTagName("input");
+      for (let i = 0; i < ingredientInputs.length; i++) {
+        //for all inputs in ingredientInputs, set value as ""
+        ingredientInputs[i].value = "";
       }
-
-      document
-        .getElementsByClassName("ingredients")[0]
-        .parentNode.appendChild(ingredientTemplate);
 
       this.moreThanOneIngredient = true;
     },
@@ -172,18 +210,51 @@ export default {
       this.recipe.ingredients = ingredients;
       this.checkServings();
     },
+    addInstruction() {
+      let list = document.getElementById("instructionsList");
+
+      let newInstruction = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
+
+      list.insertBefore(newInstruction.cloneNode(true), newInstruction); // add the new ingredient to the top of the list
+
+      let instructionInputs = newInstruction.getElementsByTagName("input");
+      for (let i = 0; i < instructionInputs.length; i++) {
+        //for all inputs in ingredientInputs, set value as ""
+        instructionInputs[i].value = "";
+      }
+
+      this.moreThanOneInstruction = true;
+    },
+    removeInstruction() {
+      let instructions = document.getElementsByClassName("instructions");
+      if (instructions.length > 1) {
+        instructions[instructions.length - 1].remove();
+      }
+      if (instructions.length == 1) {
+        this.moreThanOneInstruction = false;
+      }
+    },
     fixInstructions() {
-      let instructionsRaw = document.getElementById("recipeInstructions").value;
-      let instructions = instructionsRaw
-        .split(",")
-        .map((instruction, index) => {
-          return {
-            id: index,
-            checked: false,
-            text: instruction,
-          };
-        });
+      let instructions = [];
+      let instructionsGroups = document.getElementsByClassName("instructions");
+      for (let i = 0; i < instructionsGroups.length; i++) {
+        let instruction = {};
+        let inputs = instructionsGroups[i].querySelectorAll("input");
+        for (let j = 0; j < inputs.length; j++) {
+          if (inputs[0].value == "") {
+            // if inputs[0].value is empty, then add the id of current position to the id of the instruction
+            inputs[0].value = i + 1;
+          } else if (inputs[1].value == "") {
+            // if inputs[1].value is empty, then add "false" to the checked of the instruction
+            inputs[1].value = "false";
+          } else {
+            instruction[inputs[j].name] = inputs[j].value;
+          }
+        }
+        instructions.push(instruction);
+      }
       this.recipe.instructions = instructions;
+      console.log(this.recipe.instructions);
     },
     checkServings() {
       // servings is 4 by default,
@@ -253,6 +324,8 @@ export default {
       }
 
       this.addRecipeId();
+      this.fixIngredients();
+      this.fixInstructions();
 
       firebase.database().ref("recipes").push(this.recipe);
       alert("Recipe added!");
@@ -329,7 +402,8 @@ button[type="submit"] {
   cursor: pointer;
 }
 
-.ingredients {
+.ingredients,
+.instructions {
   display: flex;
   flex-direction: row;
   margin: 10px 0;
