@@ -85,7 +85,7 @@
           <div id="labels">
             <label for="id" style="flex: 0.25">Id:</label>
             <label for="checked" style="flex: 0.25">Checked:</label>
-            <label for="name" style="flex: 0.8">Instruction:</label>
+            <label for="text" style="flex: 0.8">Instruction:</label>
           </div>
           <div id="instructionsList">
             <div class="instructions">
@@ -243,18 +243,17 @@ export default {
         for (let j = 0; j < inputs.length; j++) {
           if (inputs[0].value == "") {
             // if inputs[0].value is empty, then add the id of current position to the id of the instruction
-            inputs[0].value = i + 1;
+            inputs[0].value = i;
           } else if (inputs[1].value == "") {
-            // if inputs[1].value is empty, then add "false" to the checked of the instruction
+            // if inputs[1].value is empty, then add false to the checked of the instruction
             inputs[1].value = false;
           } else {
-            instruction[inputs[j].text] = inputs[j].value;
+            instruction[inputs[j].name] = inputs[j].value;
           }
         }
         instructions.push(instruction);
       }
       this.recipe.instructions = instructions;
-      console.log(this.recipe.instructions);
     },
     checkServings() {
       // servings is 4 by default,
