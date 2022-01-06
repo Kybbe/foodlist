@@ -246,9 +246,9 @@ export default {
             inputs[0].value = i + 1;
           } else if (inputs[1].value == "") {
             // if inputs[1].value is empty, then add "false" to the checked of the instruction
-            inputs[1].value = "false";
+            inputs[1].value = false;
           } else {
-            instruction[inputs[j].name] = inputs[j].value;
+            instruction[inputs[j].text] = inputs[j].value;
           }
         }
         instructions.push(instruction);
