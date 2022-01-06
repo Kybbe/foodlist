@@ -284,29 +284,7 @@ export default {
     },
     post() {
       if (this.recipe.title == "Test JKL") {
-        this.recipe.title = "Test";
-        this.recipe.description = "Test";
-        this.addRecipeId();
-        this.recipe.ingredients = [
-          {
-            name: "Test",
-            amount: "1",
-            measurment: "Test",
-          },
-        ];
-        this.recipe.instructions = [
-          {
-            id: 0,
-            checked: true,
-            text: "Test",
-          },
-        ];
-        this.recipe.servings = "4";
-        this.recipe.link = "www.google.com";
-        this.recipe.imgLink = "";
-
-        firebase.database().ref("recipes").push(this.recipe);
-        alert("Recipe added!");
+        this.testPost();
         this.$router.push("/");
         return;
       }
@@ -329,6 +307,36 @@ export default {
       firebase.database().ref("recipes").push(this.recipe);
       alert("Recipe added!");
       this.$router.push("/");
+    },
+    testPost() {
+      this.recipe.title = "Test";
+      this.recipe.description = "Test";
+      this.addRecipeId();
+      this.recipe.ingredients = [
+        {
+          name: "Test",
+          amount: "1",
+          measurment: "Test",
+        },
+      ];
+      this.recipe.instructions = [
+        {
+          id: 0,
+          checked: true,
+          text: "Test",
+        },
+        {
+          id: 1,
+          checked: false,
+          text: "Test2",
+        },
+      ];
+      this.recipe.servings = "4";
+      this.recipe.link = "www.google.com";
+      this.recipe.imgLink = "";
+
+      firebase.database().ref("recipes").push(this.recipe);
+      alert("Test recipe added!");
     },
     addRecipeId() {
       this.recipe.recipeId = this.recipesList.length;
