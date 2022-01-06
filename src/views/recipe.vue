@@ -155,12 +155,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-:root {
-  --background-color: white;
-  --card-color: rgba(0, 0, 0, 0.01);
-  --text-color: black;
-}
-
 body {
   margin: 0;
 }
@@ -180,7 +174,7 @@ body {
 }
 
 .mediumCard {
-  background-color: var(--card-color);
+  background-color: rgba(0, 0, 0, 0.01);
 }
 
 #footer {
@@ -236,7 +230,7 @@ body {
 
   .card {
     border-radius: 10px;
-    background-color: var(--card-color);
+    background-color: white;
     border: solid rgb(192, 192, 192) 1px;
     height: 100%;
   }

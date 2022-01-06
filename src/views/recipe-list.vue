@@ -275,9 +275,10 @@ export default {
         // ingredient name is stored in the recipe.ingredients.name property
         tempDrinks = tempDrinks.filter((item) => {
           return item.ingredients.some((ingredient) => {
-            return ingredient.name
-              .toUpperCase()
-              .includes(this.selectedIngredient.toUpperCase());
+            return (
+              ingredient.name.toUpperCase() ==
+              this.selectedIngredient.toUpperCase()
+            );
           });
         });
       }
