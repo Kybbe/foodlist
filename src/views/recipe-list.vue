@@ -522,10 +522,35 @@ h1 {
 
 .cardM {
   width: 30em;
+
+  .card-body {
+    padding: 1em 1em 0 1em;
+  }
+
+  .card-text {
+    margin-bottom: 3.5em;
+  }
+
+  .extras {
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+  }
 }
 
 .cardS {
   width: 13em;
+
+  .card-body {
+    padding: 0.8em 0.5em 0em 0.5em;
+  }
+
+  .card-text {
+    margin-bottom: 3em;
+  }
+
+  .extras {
+    margin: 0.5em 0em;
+  }
 }
 
 @media (max-width: 30em) {
@@ -591,23 +616,17 @@ h1 {
 }
 
 .card-body {
-  padding: 1em 1em 0 1em;
   position: relative;
   height: calc(100% - 200px);
   box-sizing: border-box;
+  word-break: break-word;
 
   .card-title {
     margin-top: 0px;
   }
 
-  .card-text {
-    margin-bottom: 3.5em;
-  }
-
   .extras {
     display: flex;
-    margin-top: 0.5em;
-    margin-bottom: 1em;
     position: absolute;
     bottom: 0px;
 
