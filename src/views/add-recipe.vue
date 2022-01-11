@@ -323,7 +323,7 @@ export default {
 
       firebase.database().ref("recipes").push(this.recipe);
       alert("Recipe added!");
-      this.deleteDraft();
+      this.removeDraft();
       this.$router.push("/");
     },
     testPost() {
