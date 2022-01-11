@@ -638,7 +638,7 @@ h1 {
       line-height: 1em;
       border-radius: 10px;
       text-align: center;
-      color: rgb(230, 230, 230);
+      color: white;
       margin: 0;
       flex-shrink: 0;
       margin: 0px 5px;

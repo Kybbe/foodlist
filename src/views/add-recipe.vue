@@ -1,5 +1,17 @@
 <template>
-  <div>
+  <div style="display: flex">
+    <div id="draft" v-if="draft.length != 0">
+      <ul>
+        <li v-for="input in draft" :key="input.name">
+          <p>{{ input }}</p>
+        </li>
+      </ul>
+      <button v-on:click="putBackDraft">Input draft!</button>
+      <button style="background-color: red" v-on:click="removeDraft">
+        Remove draft!
+      </button>
+    </div>
+
     <div id="addRecipe">
       <h2>Add Recipe</h2>
       <form action="">
@@ -104,7 +116,7 @@
               <input
                 type="text"
                 placeholder="1. Preheat oven to 350 degrees."
-                name="name"
+                name="text"
                 v-on:change="fixInstructions"
                 required
                 style="width: 90%"
@@ -169,6 +181,7 @@ export default {
       },
       moreThanOneIngredient: false,
       moreThanOneInstruction: false,
+      draft: [],
     };
   },
   methods: {
@@ -338,12 +351,129 @@ export default {
       firebase.database().ref("recipes").push(this.recipe);
       alert("Test recipe added!");
     },
+    saveAsDraft() {
+      // save all inputs to localstorage as a draft
+      this.addRecipeId();
+      this.fixIngredients();
+      this.fixInstructions();
+
+      let draft = {
+        title: this.recipe.title,
+        description: this.recipe.description,
+        ingredients: this.recipe.ingredients,
+        instructions: this.recipe.instructions,
+        servings: this.recipe.servings,
+        link: this.recipe.link,
+        imgLink: this.recipe.imgLink,
+      };
+
+      localStorage.setItem("draft", JSON.stringify(draft));
+    },
+    getDraft() {
+      // get draft from localstorage
+      let draft = JSON.parse(localStorage.getItem("draft"));
+      if (draft) {
+        this.draft = draft;
+      }
+    },
+    putBackDraft() {
+      // put draft back to inputs
+      this.recipe.title = this.draft.title;
+      this.recipe.description = this.draft.description;
+      this.recipe.servings = this.draft.servings;
+      this.recipe.link = this.draft.link;
+      this.recipe.imgLink = this.draft.imgLink;
+
+      this.recipe.ingredients = this.draft.ingredients;
+      this.recipe.instructions = this.draft.instructions;
+
+      this.putBackIngredients();
+      this.putBackInstructions();
+
+      this.removeDraft();
+    },
+    putBackIngredients() {
+      // if ingredients is more than 1 ingredient, add needed input fields with this.addIngredient()
+      if (this.recipe.ingredients.length > 1) {
+        for (let i = 1; i < this.recipe.ingredients.length; i++) {
+          this.addIngredient();
+        }
+      }
+      // fill in the inputs with the values from draft
+      //get all inputs in all ingredients class
+      let ingredients = document.getElementsByClassName("ingredients");
+      //loop through all ingredients
+      for (let i = 0; i < ingredients.length; i++) {
+        //get all inputs in current ingredient
+        let inputs = ingredients[i].querySelectorAll("input");
+        //loop through all inputs
+        for (let j = 0; j < inputs.length; j++) {
+          //if the input name is text, then put the name from the draft in the input
+          if (inputs[j].name == "name") {
+            inputs[j].value = this.recipe.ingredients[i].name;
+          }
+          //if the input name is amount, then put the amount from the draft in the input
+          if (inputs[j].name == "amount") {
+            inputs[j].value = this.recipe.ingredients[i].amount;
+          }
+          //if the input name is measurment, then put the measurment from the draft in the input
+          if (inputs[j].name == "measurment") {
+            inputs[j].value = this.recipe.ingredients[i].measurment;
+          }
+        }
+      }
+    },
+    putBackInstructions() {
+      // if instructions is more than 1 instruction, add needed input fields with this.addInstruction()
+      if (this.recipe.instructions.length > 1) {
+        for (let i = 1; i < this.recipe.instructions.length; i++) {
+          this.addInstruction();
+        }
+      }
+      // fill in the inputs with the values from draft
+      //get all inputs in all instructions class
+      let instructions = document.getElementsByClassName("instructions");
+      //loop through all instructions
+      for (let i = 0; i < instructions.length; i++) {
+        //get all inputs in current instruction
+        let inputs = instructions[i].querySelectorAll("input");
+        //loop through all inputs
+        for (let j = 0; j < inputs.length; j++) {
+          //if the input name is text, then put the text from the draft in the input
+          if (inputs[j].name == "text") {
+            inputs[j].value = this.recipe.instructions[i].text;
+          }
+          //if the input name is checked, then put the checked from the draft in the input
+          if (inputs[j].name == "checked") {
+            inputs[j].value = this.recipe.instructions[i].checked;
+          }
+          //if the input name is id, then put the id from the draft in the input
+          if (inputs[j].name == "id") {
+            inputs[j].value = this.recipe.instructions[i].id;
+          }
+        }
+      }
+    },
+    removeDraft() {
+      // remove draft from localstorage
+      this.draft = [];
+      localStorage.removeItem("draft");
+    },
     addRecipeId() {
       this.recipe.recipeId = this.recipesList.length;
     },
   },
   mounted() {
     this.addRecipeId();
+    this.getDraft();
+    let inputs = document.getElementsByTagName("input");
+    let textareas = document.getElementsByTagName("textarea");
+    for (let i = 0; i < inputs.length; i++) {
+      inputs[i].addEventListener("change", this.saveAsDraft);
+    }
+    for (let i = 0; i < textareas.length; i++) {
+      textareas[i].addEventListener("change", this.saveAsDraft);
+    }
   },
   props: {
     recipesList: Array,
