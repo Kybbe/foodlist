@@ -260,6 +260,10 @@ export default {
           } else if (inputs[1].value == "") {
             // if inputs[1].value is empty, then add false to the checked of the instruction
             inputs[1].value = false;
+          } else if (inputs[1].value == "true") {
+            inputs[1].value = true;
+          } else if (inputs[1].value == "false") {
+            inputs[1].value = false;
           } else {
             instruction[inputs[j].name] = inputs[j].value;
           }
@@ -319,6 +323,7 @@ export default {
 
       firebase.database().ref("recipes").push(this.recipe);
       alert("Recipe added!");
+      this.deleteDraft();
       this.$router.push("/");
     },
     testPost() {
