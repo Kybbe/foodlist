@@ -248,10 +248,8 @@ export default {
       }
     },
     fixInstructions() {
-      let instructions = [];
       let instructionsGroups = document.getElementsByClassName("instructions");
       for (let i = 0; i < instructionsGroups.length; i++) {
-        let instruction = {};
         let inputs = instructionsGroups[i].querySelectorAll("input");
         for (let j = 0; j < inputs.length; j++) {
           if (inputs[0].value == "") {
@@ -260,13 +258,24 @@ export default {
           } else if (inputs[1].value == "") {
             // if inputs[1].value is empty, then add false to the checked of the instruction
             inputs[1].value = false;
-          } else if (inputs[1].value == "true") {
-            inputs[1].value = true;
-          } else if (inputs[1].value == "false") {
-            inputs[1].value = false;
-          } else {
-            instruction[inputs[j].name] = inputs[j].value;
           }
+        }
+        this.populateInstruction();
+      }
+    },
+    populateInstruction() {
+      let instructions = [];
+      let instructionsGroups = document.getElementsByClassName("instructions");
+      for (let i = 0; i < instructionsGroups.length; i++) {
+        let instruction = {};
+        let inputs = instructionsGroups[i].querySelectorAll("input");
+        for (let j = 0; j < inputs.length; j++) {
+          if (inputs[1].value == "true") {
+            instruction[inputs[1].name] = true;
+          } else if (inputs[1].value == "false") {
+            instruction[inputs[1].name] = false;
+          }
+          instruction[inputs[j].name] = inputs[j].value;
         }
         instructions.push(instruction);
       }
