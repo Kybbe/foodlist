@@ -191,6 +191,7 @@ export default {
       let link = document.getElementById("link").value;
       let imgLink = document.getElementById("imgLink").value;
       let recipeId = this.$route.params.id;
+      recipeId = parseInt(recipeId);
       let recipeData = {
         title: title,
         drink: drink,

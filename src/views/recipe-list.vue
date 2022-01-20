@@ -136,12 +136,11 @@
           <div style="display: flex; justify-content: center">
             <svg
               style="width: 9em; text-align: center"
-              id="Layer_1"
               aria-hidden="true"
               focusable="false"
               data-prefix="fas"
               data-icon="cookie"
-              class="svg-inline--fa fa-cookie fa-w-16"
+              class="svg-inline--fa fa-cookie fa-w-16 Layer_1"
               role="img"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 512 512"
@@ -162,12 +161,11 @@
         <router-link :to="'/add'">
           <div class="svgCardBody">
             <svg
-              id="Layer_1"
               aria-hidden="true"
               focusable="false"
               data-prefix="fas"
               data-icon="plus"
-              class="svg-inline--fa fa-plus fa-w-14"
+              class="svg-inline--fa fa-plus fa-w-14 Layer_1"
               role="img"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 448 512"
@@ -570,13 +568,13 @@ h1 {
   overflow: hidden;
 }
 
-#Layer_1 {
+.Layer_1 {
   height: 100%;
   transition: 4s;
   filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.3));
 }
 
-#Layer_1 > * {
+.Layer_1 > * {
   color: #4a8ee7;
 }
 
