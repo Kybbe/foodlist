@@ -608,13 +608,7 @@ h1 {
   }
 }
 
-@media (max-width: 550px) {
-  .cardS {
-    width: 40%;
-  }
-}
-
-@media (max-width: 250px) {
+@media (max-width: 30em) {
   .cardS {
     width: 100%;
   }
