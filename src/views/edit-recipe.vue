@@ -269,6 +269,7 @@ export default {
 <style lang="scss">
 body {
   font-family: Arial, Helvetica, sans-serif;
+  scroll-behavior: smooth;
 }
 
 #container * {

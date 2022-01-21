@@ -28,6 +28,9 @@
       <router-link :to="'/recipe/' + this.randomNumber" id="randomRecipe"
         >Go to random recipe</router-link
       >
+      <button id="minMaxBtn" v-on:click="this.minMaxCards">
+        Hide recipe text
+      </button>
     </div>
     <transition-group class="cardList" tag="div" name="cardList">
       <div class="cardM" v-for="recipe in searchResult" :key="recipe.recipeId">
@@ -153,33 +156,26 @@
           </div>
         </div>
       </div>
-      <div
-        class="cardM"
-        style="max-height: 350px; box-sizing: border-box"
-        v-if="loggedIn"
-      >
-        <router-link :to="'/add'">
-          <div class="svgCardBody">
-            <svg
-              aria-hidden="true"
-              focusable="false"
-              data-prefix="fas"
-              data-icon="plus"
-              class="svg-inline--fa fa-plus fa-w-14 Layer_1"
-              role="img"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 448 512"
-            >
-              <path
-                fill="currentColor"
-                d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-              />
-            </svg>
-          </div>
-        </router-link>
-      </div>
     </transition-group>
-    <footerBar />
+    <footerBar></footerBar>
+    <button id="goToTop" v-on:click="goToTop">
+      <svg
+        style="width: 100%; height: 100%"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
+        data-prefix="fas"
+        data-icon="arrow-up"
+        class="svg-inline--fa fa-arrow-up fa-w-14"
+        role="img"
+        viewBox="0 0 448 512"
+      >
+        <path
+          fill="currentColor"
+          d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"
+        />
+      </svg>
+    </button>
   </div>
 </template>
 
@@ -205,6 +201,7 @@ export default {
       selectedIngredient: "",
       randomNumber: 0,
       loggedIn: false,
+      minimized: false,
     };
   },
   methods: {
@@ -225,6 +222,49 @@ export default {
         // if there is an image, give it back as background image string
         "background-image": `url(${specificLink})`,
       };
+    },
+    minMaxCards() {
+      let cardImgs = document.querySelectorAll(".imgPart");
+      let icons = document.querySelectorAll(".plateIcon");
+      let cardBodys = document.querySelectorAll(".card-body");
+      let btn = document.querySelector("#minMaxBtn");
+
+      if (!this.minimized) {
+        cardBodys.forEach((cardBody) => {
+          cardBody.style.display = "none";
+        });
+
+        cardImgs.forEach((cardImg) => {
+          cardImg.style.borderRadius = "10px";
+        });
+
+        icons.forEach((icon) => {
+          icon.style.bottom = "1em";
+        });
+
+        btn.innerHTML = "Show card text";
+
+        this.minimized = true;
+      } else {
+        cardBodys.forEach((cardBody) => {
+          cardBody.style.display = null;
+        });
+
+        cardImgs.forEach((cardImg) => {
+          cardImg.style.borderRadius = null;
+        });
+
+        icons.forEach((icon) => {
+          icon.style.bottom = null;
+        });
+
+        btn.innerHTML = "Hide card text";
+
+        this.minimized = false;
+      }
+    },
+    goToTop() {
+      window.scrollTo(0, 0);
     },
     IsLoggedIn() {
       let user = firebase.auth().currentUser;
@@ -254,12 +294,12 @@ export default {
 
       if (this.selectedIngredient != "") {
         // filter recipes by selected ingredient
-        // ingredient name is stored in the recipe.ingredients.name property
         tempRecipes = tempRecipes.filter((item) => {
           return item.ingredients.some((ingredient) => {
-            return ingredient.name
-              .toUpperCase()
-              .includes(this.selectedIngredient.toUpperCase());
+            return (
+              ingredient.name.toUpperCase() ==
+              this.selectedIngredient.toUpperCase()
+            );
           });
         });
       }
@@ -437,6 +477,7 @@ h1 {
     margin-bottom: 0px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
+    cursor: pointer;
   }
 
   #ingredients {
@@ -457,12 +498,22 @@ h1 {
   margin-top: 0.4em;
   margin-bottom: 1em;
 
-  #randomRecipe {
+  #randomRecipe,
+  #minMaxBtn {
     padding: 5px;
     border-radius: 10px;
-    margin: 0 auto;
+    border: none;
+    margin: 0 2em;
     background-color: #4a8ee7;
     color: white;
+    box-shadow: 1px 1px 4px rgba(128, 128, 128, 0.2);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      background-color: #1e74e4;
+      box-shadow: 1px 1px 4px rgba(128, 128, 128, 0.5);
+    }
   }
 }
 
@@ -510,6 +561,7 @@ h1 {
   margin: 1em;
   border-radius: 10px;
   box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
+  transition: all 0.2s ease-in-out;
 
   &:hover svg,
   &:focus svg {
@@ -551,9 +603,22 @@ h1 {
   }
 }
 
-@media (max-width: 30em) {
+@media (max-width: 550px) {
+  .cardS {
+    width: 40%;
+  }
+}
+
+@media (max-width: 250px) {
   .cardS {
     width: 100%;
+  }
+}
+
+@media (max-width: 650px) {
+  .cardM,
+  .cardS {
+    margin: 0.3em;
   }
 }
 
@@ -661,6 +726,26 @@ a {
 
   &:hover .card-title {
     text-decoration: underline;
+  }
+}
+
+#goToTop {
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+  width: 2em;
+  height: 2em;
+  border: none;
+  border-radius: 50%;
+  background-color: #4a8ee7;
+  color: white;
+  box-shadow: 1px 1px 4px rgba(128, 128, 128, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #1e74e4;
+    box-shadow: 1px 1px 4px rgba(128, 128, 128, 0.5);
   }
 }
 
