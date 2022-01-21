@@ -128,7 +128,7 @@
         </router-link>
       </div>
       <div class="cardM" v-if="noResults">
-        <div class="card-body">
+        <div class="noResultCard-body">
           <h1 class="card-title" style="text-align: center">
             No results found
           </h1>
@@ -136,7 +136,9 @@
             Sorry, we couldn't find any results for your search. :(
           </h3>
           <h3 style="text-align: center">Have a cookie instead!</h3>
-          <div style="display: flex; justify-content: center">
+          <div
+            style="display: flex; justify-content: center; margin-bottom: 20px"
+          >
             <svg
               style="width: 9em; text-align: center"
               aria-hidden="true"
@@ -160,7 +162,6 @@
     <footerBar></footerBar>
     <button id="goToTop" v-on:click="goToTop">
       <svg
-        style="width: 100%; height: 100%"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
         focusable="false"
@@ -502,6 +503,8 @@ h1 {
   #minMaxBtn {
     padding: 5px;
     border-radius: 10px;
+    font-size: 1rem;
+    text-align: center;
     border: none;
     margin: 0 2em;
     background-color: #4a8ee7;
@@ -573,7 +576,8 @@ h1 {
 .cardM {
   width: 30em;
 
-  .card-body {
+  .card-body,
+  .noResultCard-body {
     padding: 1em 1em 0 1em;
   }
 
@@ -590,7 +594,8 @@ h1 {
 .cardS {
   width: 13em;
 
-  .card-body {
+  .card-body,
+  .noResultCard-body {
     padding: 0.8em 0.5em 0em 0.5em;
   }
 
@@ -633,15 +638,19 @@ h1 {
   overflow: hidden;
 }
 
-.Layer_1 {
+.Layer_1,
+.fa-arrow-up {
   width: 100%;
   height: 100%;
   transition: 4s;
-  filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.3));
 }
 
 .Layer_1 > * {
   color: #4a8ee7;
+}
+
+.fa-arrow-up > * {
+  color: white;
 }
 
 .imgPart {
@@ -679,7 +688,8 @@ h1 {
   }
 }
 
-.card-body {
+.card-body,
+.noResultCard-body {
   position: relative;
   height: calc(100% - 200px);
   box-sizing: border-box;
@@ -733,8 +743,8 @@ a {
   position: fixed;
   bottom: 1em;
   right: 1em;
-  width: 2em;
-  height: 2em;
+  width: 3em;
+  height: 3em;
   border: none;
   border-radius: 50%;
   background-color: #4a8ee7;
