@@ -41,6 +41,7 @@ export default {
   box-sizing: border-box;
   bottom: 0px;
   position: relative;
+  word-break: break-word;
 }
 
 #footerLists {
