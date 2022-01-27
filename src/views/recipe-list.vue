@@ -25,8 +25,12 @@
       />
     </div>
     <div id="randomContainer">
-      <router-link :to="'/recipe/' + this.randomNumber" id="randomRecipe"
-        >Go to random recipe</router-link
+      <router-link
+        :to="'/recipe/' + randomNumberGenerator"
+        id="randomRecipe"
+        v-if="randomNumberGenerator != null"
+      >
+        Go to random recipe</router-link
       >
       <button id="minMaxBtn" v-on:click="this.minMaxCards">
         Hide recipe text
@@ -200,7 +204,6 @@ export default {
       searchValue: "",
       sortBy: "recipeId",
       selectedIngredient: "",
-      randomNumber: 0,
       loggedIn: false,
       minimized: false,
     };
@@ -442,9 +445,29 @@ export default {
         return false;
       }
     },
+    randomNumberGenerator() {
+      // make a array of all shown recipes (searchResult + drinks)
+      // get a random number between 0 and the length of the array
+      // get the recipe at that number
+
+      var allShownRecipes = [];
+      if (this.searchResult != null) {
+        allShownRecipes = allShownRecipes.concat(this.searchResult);
+      }
+      if (this.drinks != null) {
+        allShownRecipes = allShownRecipes.concat(this.drinks);
+      }
+
+      let randomNumber = Math.floor(Math.random() * allShownRecipes.length);
+
+      if (allShownRecipes.length == 0) {
+        return null;
+      } else {
+        return allShownRecipes[randomNumber].recipeId;
+      }
+    },
   },
   mounted() {
-    this.randomNumber = Math.floor(Math.random() * this.recipesList.length);
     this.IsLoggedIn();
     firebase.auth().onAuthStateChanged(() => {
       this.IsLoggedIn();
