@@ -14,13 +14,21 @@
         v-on:click="checkInstruction(instruction)"
       />
       <label :for="instruction.id"> {{ instruction.text }} </label>
+      <timer
+        :instruction="instruction.text"
+        v-if="instruction.text.includes('minuter')"
+      ></timer>
     </li>
   </ol>
 </template>
 
 <script>
+import timer from "./timer.vue";
 export default {
   name: "instruction",
+  components: {
+    timer,
+  },
   props: {
     instructions: {
       type: Array,
@@ -28,7 +36,7 @@ export default {
     },
   },
   methods: {
-    checkInstruction: function (instruction) {
+    checkInstruction(instruction) {
       var parent = document.getElementById(instruction.id).parentElement;
       if (instruction.checked) {
         parent.classList.remove("checked");
@@ -57,13 +65,14 @@ li {
   margin-bottom: 10px;
   background-color: white;
   display: flex;
+  flex-wrap: wrap;
   cursor: pointer;
   box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
   opacity: 0.999;
 
   label {
     padding: 15px 25px 15px 10px;
-    width: 100%;
+    width: calc(100% - 75px);
     cursor: pointer;
   }
 
@@ -77,8 +86,13 @@ li {
   }
 }
 
-.checked {
+.checked input,
+.checked label:nth-child(2) {
   opacity: 0.7 !important;
   text-decoration: line-through;
+}
+
+.checked label:nth-child(3) {
+  display: none;
 }
 </style>

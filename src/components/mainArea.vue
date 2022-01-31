@@ -95,6 +95,8 @@ h2 {
 
     img {
       margin: 0px !important;
+      width: 100%;
+      height: 100%;
     }
   }
 }
