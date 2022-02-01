@@ -90,9 +90,9 @@ export default {
         const newMinutes = parseInt(minutes, 10);
         const newHours = parseInt(hours, 10);
 
-        if (newSeconds < 0) {
-          if (newMinutes < 0) {
-            if (newHours < 0) {
+        if (newSeconds <= 0) {
+          if (newMinutes <= 0) {
+            if (newHours <= 0) {
               clearInterval(timer);
               this.timerDone();
               return;
@@ -114,11 +114,13 @@ export default {
       this.started = false;
     },
     timerDone() {
-      alert("Time's up!");
-      this.resetTimer();
-
-      var audio = new Audio("/audio/alarm.wav");
+      var audio = new Audio(
+        "https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
+      );
       audio.play();
+      alert("Time's up!");
+      audio.pause();
+      this.resetTimer();
     },
   },
   mounted() {
