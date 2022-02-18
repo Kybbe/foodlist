@@ -1,10 +1,10 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import recipeList from "../views/recipe-list";
-import recipe from "../views/recipe";
-import addRecipe from "../views/add-recipe";
-import editRecipe from "../views/edit-recipe";
-import login from "../views/login";
-import register from "../views/register";
+import recipeList from "../views/recipe-list.vue";
+import recipe from "../views/recipe.vue";
+import addRecipe from "../views/add-recipe.vue";
+import editRecipe from "../views/edit-recipe.vue";
+import login from "../views/login.vue";
+import register from "../views/register.vue";
 
 import "../../firebaseConfigInit";
 
