@@ -4,7 +4,7 @@
     <p class="description">{{ description }}</p>
   </div>
   <div id="imgContainer">
-    <img :src="imgLink" alt="image of the dish" />
+    <img :src="imgLinkAndTemplate" alt="image of the dish" />
   </div>
 </template>
 
@@ -24,11 +24,38 @@ export default {
       type: String,
       required: true,
     },
+    drink: {
+      type: Boolean,
+    },
+  },
+  data() {
+    return {
+      templateImg:
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
+      drinkTemplateImg:
+        "https://www.liquor.com/thmb/fO-COKLw_iEA28v8K4XQjzMhkfw=/735x0/very-sexy-martini-720x720-primary-b1212ebf73f54f898a56f7f0b60c0a34.jpg",
+      imgLinkAndTemplate: "",
+    };
+  },
+  mounted() {
+    if (this.imgLink == "") {
+      if (this.drink) {
+        this.imgLinkAndTemplate = this.drinkTemplateImg;
+      } else {
+        this.imgLinkAndTemplate = this.templateImg;
+      }
+    } else {
+      this.imgLinkAndTemplate = this.imgLink;
+    }
   },
 };
 </script>
 
 <style lang="scss" scoped>
+* {
+  box-sizing: border-box;
+}
+
 h2 {
   width: 100%;
   text-align: center;
@@ -38,19 +65,16 @@ h2 {
 
 #descriptionContainer {
   width: 100%;
-
-  p {
-    height: 100%;
-  }
+  padding: 10px;
 }
 
 #imgContainer {
   width: 100%;
 
   img {
-    width: 100%;
-    height: 100%;
+    width: calc(100% - 20px);
     border-radius: 5px;
+    margin: 0 10px;
   }
 }
 
@@ -61,13 +85,19 @@ h2 {
   }
 
   #descriptionContainer {
-    width: calc(50% - 42px);
+    width: 50%;
     border-right: 1px solid rgba(128, 128, 128, 0.4);
     font-size: 1.3em;
   }
 
   #imgContainer {
-    width: calc(50% - 40px);
+    width: 50%;
+
+    img {
+      margin: 0px !important;
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 </style>
