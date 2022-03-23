@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="navStuff">
-      <router-link :to="'/'" v-on:click="reloadOnHomepage">
+      <router-link :to="'/'">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -77,11 +77,6 @@ export default {
           alert(error.message);
           this.$router.push("/");
         });
-    },
-    reloadOnHomepage() {
-      if (document.getElementsByClassName("searchArea")[0]) {
-        this.$router.go();
-      }
     },
   },
   mounted() {

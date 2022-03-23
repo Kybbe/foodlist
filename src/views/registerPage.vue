@@ -12,10 +12,10 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
+import { useStore } from "vuex";
+var store = useStore();
 export default {
-  name: "Register",
+  name: "RegisterPage",
   data() {
     return {
       email: "",
@@ -24,15 +24,10 @@ export default {
   },
   methods: {
     register() {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(this.email, this.password)
+      store
+        .dispatch("register", { email: this.email, password: this.password })
         .then(() => {
-          alert("Successfully registered! Welcome!");
           this.$router.push("/");
-        })
-        .catch((error) => {
-          alert(error.message);
         });
     },
   },

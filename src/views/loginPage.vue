@@ -14,10 +14,12 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
+import { useStore } from "vuex";
+
+var store = useStore();
+
 export default {
-  name: "login",
+  name: "loginPage",
   data() {
     return {
       email: "",
@@ -26,27 +28,16 @@ export default {
   },
   methods: {
     login() {
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(this.email, this.password)
+      store
+        .dispatch("login", { email: this.email, password: this.password })
         .then(() => {
           this.$router.push("/");
-        })
-        .catch((error) => {
-          alert(error.message);
         });
     },
     loginWithGoogle() {
-      let provider = new firebase.auth.GoogleAuthProvider();
-      firebase
-        .auth()
-        .signInWithPopup(provider)
-        .then(() => {
-          this.$router.push("/");
-        })
-        .catch((err) => {
-          console.log(`Error: ${err}`);
-        });
+      store.dispatch("loginWithGoogle").then(() => {
+        this.$router.push("/");
+      });
     },
   },
 };

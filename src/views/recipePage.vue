@@ -11,33 +11,37 @@
         "
       >
         <mainArea
-          :title="recipe[currentRecipeId].title"
-          :description="recipe[currentRecipeId].description"
-          :imgLink="recipe[currentRecipeId].imgLink"
-          :drink="recipe[currentRecipeId].drink"
+          :title="this.currentRecipe.title"
+          :description="this.currentRecipe.description"
+          :imgLink="this.currentRecipe.imgLink"
+          :drink="this.currentRecipe.drink"
         />
       </div>
 
       <div class="mediumCard card">
-        <ingredients :ingredients="recipe[currentRecipeId].ingredients" />
+        <ingredients :ingredients="this.currentRecipe.ingredients" />
       </div>
 
       <div class="mediumCard card">
-        <instruction :instructions="recipe[currentRecipeId].instructions" />
+        <instruction :instructions="this.currentRecipe.instructions" />
       </div>
     </div>
     <div id="footer">
       <a
-        v-if="recipe[currentRecipeId].link"
-        :href="recipe[currentRecipeId].link"
+        v-if="this.currentRecipe.link"
+        :href="this.currentRecipe.link"
         target="_blank"
         id="ogLink"
         >Original Recipe</a
       >
-      <router-link id="edit" :to="'/edit/' + currentRecipeId" v-if="admin">
+      <router-link
+        id="edit"
+        :to="'/edit/' + this.currentRecipeId"
+        v-if="this.$store.state.admin"
+      >
         Edit this recipe
       </router-link>
-      <button id="delete" @click="confirmDelete" v-if="admin">
+      <button id="delete" @click="confirmDelete" v-if="this.$store.state.admin">
         Delete this recipe
       </button>
     </div>
@@ -50,40 +54,17 @@ import instruction from "../components/instructions.vue";
 import ingredients from "../components/ingredients.vue";
 import firebase from "firebase/app";
 import "firebase/database";
-import "firebase/auth";
+
+import { useStore } from "vuex";
 
 export default {
-  name: "recipe",
+  name: "recipePage",
   components: {
     mainArea,
     instruction,
     ingredients,
   },
-  props: {
-    recipe: {
-      type: Object,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      currentRecipeId: this.$route.params.id,
-      admin: false,
-    };
-  },
   methods: {
-    IsAdmin() {
-      let user = firebase.auth().currentUser;
-
-      if (user) {
-        if (
-          user.email == "jacob.klaren@me.com" ||
-          user.email == "klarenjacob00@gmail.com"
-        ) {
-          this.admin = true;
-        }
-      }
-    },
     deleteRecipe() {
       var dbKeys = [];
       var database = firebase.database().ref("recipes");
@@ -148,8 +129,16 @@ export default {
       }
     },
   },
-  mounted() {
-    this.IsAdmin();
+  computed: {
+    currentRecipeId() {
+      return this.$route.params.id;
+    },
+    currentRecipe() {
+      return this.$store.state.recipesList[this.currentRecipeId];
+    },
+    store() {
+      return useStore();
+    },
   },
 };
 </script>

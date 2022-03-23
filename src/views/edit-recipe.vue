@@ -64,32 +64,13 @@ import "firebase/database";
 
 export default {
   name: "edit-recipe",
-  props: {
-    recipesList: {
-      type: Array,
-      required: true,
-    },
-  },
   data() {
     return {
-      admin: false,
       moreThanOneIngredient: false,
       moreThanOneInstruction: false,
     };
   },
   methods: {
-    IsAdmin() {
-      let user = firebase.auth().currentUser;
-
-      if (user) {
-        if (
-          user.email == "jacob.klaren@me.com" ||
-          user.email == "klarenjacob00@gmail.com"
-        ) {
-          this.admin = true;
-        }
-      }
-    },
     addIngredient() {
       let ingredientTemplate = document
         .getElementsByClassName("editIngredients")[0]
@@ -140,7 +121,7 @@ export default {
       }
     },
     editFirebase() {
-      if (!this.admin) {
+      if (!this.$store.state.admin) {
         return;
       }
 
@@ -208,16 +189,16 @@ export default {
       this.$router.push("/recipe/" + this.$route.params.id);
     },
     putRecipeDetailsInInputs() {
-      let currentRecipe = this.recipesList[this.$route.params.id];
-      document.getElementById("title").value = currentRecipe.title;
-      document.getElementById("description").value = currentRecipe.description;
-      document.getElementById("imgLink").value = currentRecipe.imgLink;
+      console.log("putRecipeDetailsInInputs", this.currentRecipe);
+      document.getElementById("title").value = this.currentRecipe.title;
+      document.getElementById("description").value = this.currentRecipe.description;
+      document.getElementById("imgLink").value = this.currentRecipe.imgLink;
 
-      if (currentRecipe.drink) {
+      if (this.currentRecipe.drink) {
         document.getElementById("drink").checked = true;
       }
 
-      let ingredients = currentRecipe.ingredients;
+      let ingredients = this.currentRecipe.ingredients;
       if (ingredients.length > 1) {
         this.moreThanOneIngredient = true;
       }
@@ -236,7 +217,7 @@ export default {
         document.getElementById("ingredientsList").appendChild(newIngredient);
       }
 
-      let instructions = currentRecipe.instructions;
+      let instructions = this.currentRecipe.instructions;
       if (instructions.length > 1) {
         this.moreThanOneInstruction = true;
       }
@@ -255,13 +236,22 @@ export default {
         document.getElementById("instructionsList").appendChild(newInstruction);
       }
 
-      document.getElementById("servings").value = currentRecipe.servings;
-      document.getElementById("link").value = currentRecipe.link;
+      document.getElementById("servings").value = this.currentRecipe.servings;
+      document.getElementById("link").value = this.currentRecipe.link;
     },
   },
   mounted() {
-    this.IsAdmin();
-    this.putRecipeDetailsInInputs();
+    setInterval(() => {
+      if (this.currentRecipe) {
+        this.putRecipeDetailsInInputs();
+        clearInterval();
+      } 
+    }, 500);
+    let current = this.currentRecipe;
+  },
+  currentRecipe() {
+    console.log(this.$store.state)
+    return this.$store.state.recipesList[this.$route.params.id];
   },
 };
 </script>

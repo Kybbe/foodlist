@@ -1,102 +1,43 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import recipeList from "../views/recipe-list.vue";
-import recipe from "../views/recipe.vue";
+import recipePage from "../views/recipePage.vue";
 import addRecipe from "../views/add-recipe.vue";
 import editRecipe from "../views/edit-recipe.vue";
-import login from "../views/login.vue";
-import register from "../views/register.vue";
+import loginPage from "../views/loginPage.vue";
+import registerPage from "../views/registerPage.vue";
 
-import "../../firebaseConfigInit";
-
-import firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/database";
-
-var recipesListObject = [];
-
-let db = firebase.database().ref("recipes");
-
-db.on("child_added", (snapshot) => {
-  recipesListObject.push(snapshot.val());
-});
-
-db.on("child_removed", (snapshot) => {
-  let index = recipesListObject.findIndex(
-    (recipe) => recipe.recipeId === snapshot.val().recipeId
-  );
-  recipesListObject.splice(index, 1);
-});
-
-db.on("child_changed", (snapshot) => {
-  let index = recipesListObject.findIndex(
-    (recipe) => recipe.recipeId === snapshot.val().recipeId
-  );
-  recipesListObject[index] = snapshot.val();
-});
+import store from "../store/index";
 
 const routes = [
   {
     path: "/",
     name: "recipeList",
     component: recipeList,
-    props: {
-      recipesList: recipesListObject,
-    },
     meta: {
       title: "RecipeList",
-    },
-    beforeEnter: (to, from, next) => {
-      let checkExist = setInterval(function () {
-        if (recipesListObject.length > 0) {
-          clearInterval(checkExist);
-          next();
-        }
-      }, 400);
     },
   },
   {
     path: "/recipe/:id",
     name: "recipe",
-    component: recipe,
-    props: {
-      recipe: recipesListObject,
-    },
+    component: recipePage,
     meta: {
       title: "Recipe",
-    },
-    beforeEnter: (to, from, next) => {
-      let checkExist = setInterval(function () {
-        if (recipesListObject.length > 0) {
-          clearInterval(checkExist);
-          next();
-        }
-      }, 400);
     },
   },
   {
     path: "/add",
     name: "addRecipe",
     component: addRecipe,
-    props: {
-      recipesList: recipesListObject,
-    },
     meta: {
       title: "Add recipe",
       authRequired: true,
-    },
-    beforeEnter: (to, from, next) => {
-      let checkExist = setInterval(function () {
-        if (recipesListObject.length > 0) {
-          clearInterval(checkExist);
-          next();
-        }
-      }, 400);
     },
   },
   {
     path: "/Login",
     name: "Login",
-    component: login,
+    component: loginPage,
     meta: {
       title: "Login",
       guestRequired: true,
@@ -105,7 +46,7 @@ const routes = [
   {
     path: "/Register",
     name: "Register",
-    component: register,
+    component: registerPage,
     meta: {
       title: "Register",
       guestRequired: true,
@@ -115,20 +56,9 @@ const routes = [
     path: "/edit/:id",
     name: "editRecipe",
     component: editRecipe,
-    props: {
-      recipesList: recipesListObject,
-    },
     meta: {
       title: "Edit recipe",
       authRequired: true,
-    },
-    beforeEnter: (to, from, next) => {
-      let checkExist = setInterval(function () {
-        if (recipesListObject.length > 0) {
-          clearInterval(checkExist);
-          next();
-        }
-      }, 400);
     },
   },
 ];
@@ -145,7 +75,8 @@ router.beforeEach((to, from, next) => {
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.authRequired)) {
-    if (firebase.auth().currentUser) {
+    //wait until store.state.authIsReady is true
+    if (store.state.authIsReady && store.state.currentUser) {
       next();
     } else {
       alert("You must be logged in to see this page");
@@ -160,7 +91,7 @@ router.beforeEach((to, from, next) => {
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.guestRequired)) {
-    if (!firebase.auth().currentUser) {
+    if (!store.state.currentUser) {
       next();
     }
   } else {
