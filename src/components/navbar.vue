@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="navStuff">
-      <router-link :to="'/'" v-on:click="reloadOnHomepage">
+      <router-link :to="'/'">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -41,8 +41,6 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
 export default {
   name: "Navbar",
   props: {
@@ -50,47 +48,17 @@ export default {
       type: String,
     },
   },
-  data() {
-    return {
-      loggedIn: false,
-    };
-  },
   methods: {
-    IsLoggedIn() {
-      let user = firebase.auth().currentUser;
-
-      if (user) {
-        this.loggedIn = true; // If it exists
-      } else {
-        this.loggedIn = false; // If it doesn't
-      }
-    },
     logout() {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          this.loggedIn = false;
-          this.$router.push("/");
-        })
-        .catch((error) => {
-          alert(error.message);
-          this.$router.push("/");
-        });
-    },
-    reloadOnHomepage() {
-      if (document.getElementsByClassName("searchArea")[0]) {
-        this.$router.go();
-      }
+      this.$store.dispatch("logout").then(() => {
+        this.$router.push("/");
+      });
     },
   },
-  mounted() {
-    setTimeout(() => {
-      this.IsLoggedIn();
-    }, 10);
-    firebase.auth().onAuthStateChanged(() => {
-      this.IsLoggedIn();
-    });
+  computed: {
+    loggedIn() {
+      return this.$store.state.currentUser;
+    },
   },
 };
 </script>

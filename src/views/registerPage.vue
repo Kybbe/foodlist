@@ -1,23 +1,19 @@
 <template>
   <div>
-    <div id="login">
-      <form @submit.prevent="login">
-        <h2>Login</h2>
+    <div id="register">
+      <form @submit.prevent="register">
+        <h2>Register</h2>
         <input type="email" placeholder="Email address..." v-model="email" />
         <input type="password" placeholder="password..." v-model="password" />
-        <button type="submit">Login</button>
+        <button type="submit">Register</button>
       </form>
-
-      <button @click="loginWithGoogle">Sign In with Google</button>
     </div>
   </div>
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
 export default {
-  name: "login",
+  name: "RegisterPage",
   data() {
     return {
       email: "",
@@ -25,27 +21,11 @@ export default {
     };
   },
   methods: {
-    login() {
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(this.email, this.password)
+    register() {
+      this.$store
+        .dispatch("register", { email: this.email, password: this.password })
         .then(() => {
           this.$router.push("/");
-        })
-        .catch((error) => {
-          alert(error.message);
-        });
-    },
-    loginWithGoogle() {
-      let provider = new firebase.auth.GoogleAuthProvider();
-      firebase
-        .auth()
-        .signInWithPopup(provider)
-        .then(() => {
-          this.$router.push("/");
-        })
-        .catch((err) => {
-          console.log(`Error: ${err}`);
         });
     },
   },
@@ -53,11 +33,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#login {
+#register {
   margin: 20px auto;
   padding: 10px;
   max-width: 500px;
-  background-color: lightsteelblue;
+  background-color: lightskyblue;
   border-radius: 10px;
 
   * {

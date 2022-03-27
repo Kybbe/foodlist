@@ -1,21 +1,21 @@
 <template>
   <div>
-    <div id="register">
-      <form @submit.prevent="register">
-        <h2>Register</h2>
+    <div id="login">
+      <form @submit.prevent="login">
+        <h2>Login</h2>
         <input type="email" placeholder="Email address..." v-model="email" />
         <input type="password" placeholder="password..." v-model="password" />
-        <button type="submit">Register</button>
+        <button type="submit">Login</button>
       </form>
+
+      <button @click="loginWithGoogle">Sign In with Google</button>
     </div>
   </div>
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
 export default {
-  name: "Register",
+  name: "loginPage",
   data() {
     return {
       email: "",
@@ -23,28 +23,28 @@ export default {
     };
   },
   methods: {
-    register() {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(this.email, this.password)
+    login() {
+      this.$store
+        .dispatch("login", { email: this.email, password: this.password })
         .then(() => {
-          alert("Successfully registered! Welcome!");
           this.$router.push("/");
-        })
-        .catch((error) => {
-          alert(error.message);
         });
+    },
+    loginWithGoogle() {
+      this.$store.dispatch("loginWithGoogle").then(() => {
+        this.$router.push("/");
+      });
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-#register {
+#login {
   margin: 20px auto;
   padding: 10px;
   max-width: 500px;
-  background-color: lightskyblue;
+  background-color: lightsteelblue;
   border-radius: 10px;
 
   * {

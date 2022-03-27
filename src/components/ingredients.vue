@@ -100,17 +100,15 @@ export default {
         return;
       }
 
-      if (number % 2 == 0) {
-        if (this.portions != number) {
-          let oldPortions = this.portions;
-          this.portions = number;
-          this.ingredients.forEach((ingredient) => {
-            if (ingredient.amount != "") {
-              ingredient.amount /= oldPortions;
-              Math.round((ingredient.amount *= this.portions));
-            }
-          });
-        }
+      if (this.portions != number) {
+        let oldPortions = this.portions;
+        this.portions = number;
+        this.ingredients.forEach((ingredient) => {
+          if (ingredient.amount != "") {
+            ingredient.amount /= oldPortions;
+            Math.round((ingredient.amount *= this.portions));
+          }
+        });
       }
     },
     checkServings(portions) {
@@ -122,10 +120,10 @@ export default {
         document.getElementById("portions").value = 98;
         this.changeToPortions(98);
         return false;
-      } else if (portions < 2) {
-        alert("You can't have less than 2 servings!");
-        document.getElementById("portions").value = 2;
-        this.changeToPortions(2);
+      } else if (portions < 1) {
+        alert("You can't have less than 1 serving!");
+        document.getElementById("portions").value = 1;
+        this.changeToPortions(1);
         return false;
       } else if (isNaN(portions)) {
         document.getElementById("portions").value = this.portions;
