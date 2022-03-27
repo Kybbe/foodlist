@@ -14,10 +14,6 @@
 </template>
 
 <script>
-import { useStore } from "vuex";
-
-var store = useStore();
-
 export default {
   name: "loginPage",
   data() {
@@ -28,14 +24,14 @@ export default {
   },
   methods: {
     login() {
-      store
+      this.$store
         .dispatch("login", { email: this.email, password: this.password })
         .then(() => {
           this.$router.push("/");
         });
     },
     loginWithGoogle() {
-      store.dispatch("loginWithGoogle").then(() => {
+      this.$store.dispatch("loginWithGoogle").then(() => {
         this.$router.push("/");
       });
     },

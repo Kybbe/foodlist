@@ -69,14 +69,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  window.scrollTo(0, 0);
-  next();
-});
-
-router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.authRequired)) {
     //wait until store.state.authIsReady is true
-    if (store.state.authIsReady && store.state.currentUser) {
+    if (store.state.currentUser) {
       next();
     } else {
       alert("You must be logged in to see this page");
@@ -97,6 +92,28 @@ router.beforeEach((to, from, next) => {
   } else {
     next();
   }
+});
+
+router.beforeEach((to, from, next) => {
+  if (from.matched.some((record) => record.meta.title === "RecipeList")) {
+    localStorage.setItem(
+      "scrollLength",
+      window.pageYOffset ||
+        (document.documentElement || document.body.parentNode || document.body)
+          .scrollTop
+    );
+    console.log("Scrolled to: " + localStorage.getItem("scrollLength"));
+  }
+  next();
+});
+
+router.beforeEach((to, from, next) => {
+  // Go to top of page before loading new page
+  if (to.matched.some((record) => record.meta.title !== "RecipeList")) {
+    window.scrollTo(0, 0);
+  }
+  // in RecipeList, scroll goes to last position
+  next();
 });
 
 router.beforeEach((to, from, next) => {

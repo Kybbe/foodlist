@@ -132,7 +132,12 @@
         </a>
       </div>
       <div class="cardM" v-if="noResults">
-        <div class="noResultCard-body">
+        <div class="noResultCard-body" v-if="!this.$store.state.recipesReady">
+          <h1 class="card-title" style="text-align: center">
+            Loading Recipes...
+          </h1>
+        </div>
+        <div class="noResultCard-body" v-if="this.$store.state.recipesReady">
           <h1 class="card-title" style="text-align: center">
             No results found
           </h1>
@@ -452,6 +457,9 @@ export default {
         return allShownRecipes[randomNumber].recipeId;
       }
     },
+  },
+  mounted() {
+    window.scrollTo(0, localStorage.getItem("scrollLength"));
   },
 };
 </script>

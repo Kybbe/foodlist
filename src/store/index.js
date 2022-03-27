@@ -8,6 +8,7 @@ import "firebase/database";
 const store = createStore({
   state: {
     recipesList: [],
+    recipesReady: false,
     currentUser: null,
     authIsReady: false,
     selectedRecipe: null,
@@ -26,6 +27,9 @@ const store = createStore({
     changeRecipeList(state, payload) {
       state.recipesList[payload.index] = payload.recipe;
     },
+    setRecipesReady(state, payload) {
+      state.recipesReady = payload;
+    },
     setSelectedRecipe(state, payload) {
       state.selectedRecipe = payload;
     },
@@ -41,11 +45,11 @@ const store = createStore({
   },
   actions: {
     async fetchRecipesList(context) {
-      console.log("fetchRecipesList");
       let db = firebase.database().ref("recipes");
 
       db.on("child_added", (snapshot) => {
         context.commit("addToRecipesList", snapshot.val());
+        context.commit("setRecipesReady", true);
       });
 
       db.on("child_removed", (snapshot) => {
@@ -66,7 +70,6 @@ const store = createStore({
       });
     },
     async login(context, payload) {
-      console.log("login");
       let user = await firebase
         .auth()
         .signInWithEmailAndPassword(payload.email, payload.password);
@@ -77,7 +80,6 @@ const store = createStore({
       }
     },
     async loginWithGoogle(context) {
-      console.log("loginWithGoogle");
       let provider = new firebase.auth.GoogleAuthProvider();
       let user = await firebase.auth().signInWithPopup(provider);
       if (user) {
@@ -97,7 +99,6 @@ const store = createStore({
       }
     },
     async register(context, payload) {
-      console.log("register");
       let user = await firebase
         .auth()
         .createUserWithEmailAndPassword(payload.email, payload.password);
@@ -106,6 +107,10 @@ const store = createStore({
       } else {
         throw new Error("Register failed");
       }
+    },
+    async logout(context) {
+      await firebase.auth().signOut();
+      context.commit("setCurrentUser", null);
     },
   },
   getters: {},

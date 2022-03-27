@@ -189,9 +189,9 @@ export default {
       this.$router.push("/recipe/" + this.$route.params.id);
     },
     putRecipeDetailsInInputs() {
-      console.log("putRecipeDetailsInInputs", this.currentRecipe);
       document.getElementById("title").value = this.currentRecipe.title;
-      document.getElementById("description").value = this.currentRecipe.description;
+      document.getElementById("description").value =
+        this.currentRecipe.description;
       document.getElementById("imgLink").value = this.currentRecipe.imgLink;
 
       if (this.currentRecipe.drink) {
@@ -241,17 +241,12 @@ export default {
     },
   },
   mounted() {
-    setInterval(() => {
-      if (this.currentRecipe) {
-        this.putRecipeDetailsInInputs();
-        clearInterval();
-      } 
-    }, 500);
-    let current = this.currentRecipe;
+    this.putRecipeDetailsInInputs();
   },
-  currentRecipe() {
-    console.log(this.$store.state)
-    return this.$store.state.recipesList[this.$route.params.id];
+  computed: {
+    currentRecipe() {
+      return this.$store.state.recipesList[this.$route.params.id];
+    },
   },
 };
 </script>
@@ -280,6 +275,11 @@ body {
   border-radius: 3px;
   padding: 4px;
   margin-bottom: 10px;
+}
+
+#drink {
+  display: inline-block !important;
+  width: unset !important;
 }
 
 #ingredientsList,

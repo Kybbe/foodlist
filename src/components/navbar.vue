@@ -41,8 +41,6 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
 export default {
   name: "Navbar",
   props: {
@@ -50,42 +48,17 @@ export default {
       type: String,
     },
   },
-  data() {
-    return {
-      loggedIn: false,
-    };
-  },
   methods: {
-    IsLoggedIn() {
-      let user = firebase.auth().currentUser;
-
-      if (user) {
-        this.loggedIn = true; // If it exists
-      } else {
-        this.loggedIn = false; // If it doesn't
-      }
-    },
     logout() {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          this.loggedIn = false;
-          this.$router.push("/");
-        })
-        .catch((error) => {
-          alert(error.message);
-          this.$router.push("/");
-        });
+      this.$store.dispatch("logout").then(() => {
+        this.$router.push("/");
+      });
     },
   },
-  mounted() {
-    setTimeout(() => {
-      this.IsLoggedIn();
-    }, 10);
-    firebase.auth().onAuthStateChanged(() => {
-      this.IsLoggedIn();
-    });
+  computed: {
+    loggedIn() {
+      return this.$store.state.currentUser;
+    },
   },
 };
 </script>

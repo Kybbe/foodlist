@@ -12,8 +12,6 @@
 </template>
 
 <script>
-import { useStore } from "vuex";
-var store = useStore();
 export default {
   name: "RegisterPage",
   data() {
@@ -24,7 +22,7 @@ export default {
   },
   methods: {
     register() {
-      store
+      this.$store
         .dispatch("register", { email: this.email, password: this.password })
         .then(() => {
           this.$router.push("/");
