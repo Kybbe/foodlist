@@ -16,6 +16,17 @@ const routes = [
     meta: {
       title: "RecipeList",
     },
+    meta: {
+      title: "RecipeList",
+    },
+    beforeEnter: (to, from, next) => {
+      let checkExist = setInterval(function () {
+        if (recipesListObject.length > 0) {
+          clearInterval(checkExist);
+          next();
+        }
+      }, 400);
+    },
   },
   {
     path: "/recipe/:id",
@@ -59,6 +70,75 @@ const routes = [
     meta: {
       title: "Edit recipe",
       authRequired: true,
+    },
+    meta: {
+      title: "Recipe",
+    },
+    beforeEnter: (to, from, next) => {
+      let checkExist = setInterval(function () {
+        if (recipesListObject.length > 0) {
+          clearInterval(checkExist);
+          next();
+        }
+      }, 400);
+    },
+  },
+  {
+    path: "/add",
+    name: "addRecipe",
+    component: addRecipe,
+    props: {
+      recipesList: recipesListObject,
+    },
+    meta: {
+      title: "Add recipe",
+      authRequired: true,
+    },
+    beforeEnter: (to, from, next) => {
+      let checkExist = setInterval(function () {
+        if (recipesListObject.length > 0) {
+          clearInterval(checkExist);
+          next();
+        }
+      }, 400);
+    },
+  },
+  {
+    path: "/Login",
+    name: "Login",
+    component: login,
+    meta: {
+      title: "Login",
+      guestRequired: true,
+    },
+  },
+  {
+    path: "/Register",
+    name: "Register",
+    component: register,
+    meta: {
+      title: "Register",
+      guestRequired: true,
+    },
+  },
+  {
+    path: "/edit/:id",
+    name: "editRecipe",
+    component: editRecipe,
+    props: {
+      recipesList: recipesListObject,
+    },
+    meta: {
+      title: "Edit recipe",
+      authRequired: true,
+    },
+    beforeEnter: (to, from, next) => {
+      let checkExist = setInterval(function () {
+        if (recipesListObject.length > 0) {
+          clearInterval(checkExist);
+          next();
+        }
+      }, 400);
     },
   },
 ];
