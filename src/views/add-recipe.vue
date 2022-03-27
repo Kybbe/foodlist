@@ -474,7 +474,7 @@ export default {
       localStorage.removeItem("draft");
     },
     addRecipeId() {
-      this.recipe.recipeId = this.recipesList.length;
+      this.recipe.recipeId = this.$store.state.recipesList.length;
     },
   },
   mounted() {
@@ -488,9 +488,6 @@ export default {
     for (let i = 0; i < textareas.length; i++) {
       textareas[i].addEventListener("change", this.saveAsDraft);
     }
-  },
-  props: {
-    recipesList: Array,
   },
 };
 </script>

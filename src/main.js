@@ -4,9 +4,6 @@ import router from "./router";
 import firebase from "firebase/app";
 import "firebase/auth";
 
-let app;
-firebase.auth().onAuthStateChanged(() => {
-  if (!app) {
-    app = createApp(App).use(router).mount("#app");
-  }
-});
+import store from "./store/index"; // short for @/store/index.js
+
+createApp(App).use(router).use(store).mount("#app");

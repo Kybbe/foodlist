@@ -6,7 +6,7 @@
         <h4>Vue:</h4>
         <li>Vue 3</li>
         <li>Vue router</li>
-        <li>Vue CLI</li>
+        <li>Vite</li>
       </ul>
 
       <ul>

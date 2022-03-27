@@ -1,46 +1,20 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import recipeList from "../views/recipe-list";
-import recipe from "../views/recipe";
-import addRecipe from "../views/add-recipe";
-import editRecipe from "../views/edit-recipe";
-import login from "../views/login";
-import register from "../views/register";
+import recipeList from "../views/recipe-list.vue";
+import recipePage from "../views/recipePage.vue";
+import addRecipe from "../views/add-recipe.vue";
+import editRecipe from "../views/edit-recipe.vue";
+import loginPage from "../views/loginPage.vue";
+import registerPage from "../views/registerPage.vue";
 
-import "../../firebaseConfigInit";
-
-import firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/database";
-
-var recipesListObject = [];
-
-let db = firebase.database().ref("recipes");
-
-db.on("child_added", (snapshot) => {
-  recipesListObject.push(snapshot.val());
-});
-
-db.on("child_removed", (snapshot) => {
-  let index = recipesListObject.findIndex(
-    (recipe) => recipe.recipeId === snapshot.val().recipeId
-  );
-  recipesListObject.splice(index, 1);
-});
-
-db.on("child_changed", (snapshot) => {
-  let index = recipesListObject.findIndex(
-    (recipe) => recipe.recipeId === snapshot.val().recipeId
-  );
-  recipesListObject[index] = snapshot.val();
-});
+import store from "../store/index";
 
 const routes = [
   {
     path: "/",
     name: "recipeList",
     component: recipeList,
-    props: {
-      recipesList: recipesListObject,
+    meta: {
+      title: "RecipeList",
     },
     meta: {
       title: "RecipeList",
@@ -57,9 +31,45 @@ const routes = [
   {
     path: "/recipe/:id",
     name: "recipe",
-    component: recipe,
-    props: {
-      recipe: recipesListObject,
+    component: recipePage,
+    meta: {
+      title: "Recipe",
+    },
+  },
+  {
+    path: "/add",
+    name: "addRecipe",
+    component: addRecipe,
+    meta: {
+      title: "Add recipe",
+      authRequired: true,
+    },
+  },
+  {
+    path: "/Login",
+    name: "Login",
+    component: loginPage,
+    meta: {
+      title: "Login",
+      guestRequired: true,
+    },
+  },
+  {
+    path: "/Register",
+    name: "Register",
+    component: registerPage,
+    meta: {
+      title: "Register",
+      guestRequired: true,
+    },
+  },
+  {
+    path: "/edit/:id",
+    name: "editRecipe",
+    component: editRecipe,
+    meta: {
+      title: "Edit recipe",
+      authRequired: true,
     },
     meta: {
       title: "Recipe",
@@ -139,13 +149,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  window.scrollTo(0, 0);
-  next();
-});
-
-router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.authRequired)) {
-    if (firebase.auth().currentUser) {
+    //wait until store.state.authIsReady is true
+    if (store.state.currentUser) {
       next();
     } else {
       alert("You must be logged in to see this page");
@@ -160,12 +166,34 @@ router.beforeEach((to, from, next) => {
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.guestRequired)) {
-    if (!firebase.auth().currentUser) {
+    if (!store.state.currentUser) {
       next();
     }
   } else {
     next();
   }
+});
+
+router.beforeEach((to, from, next) => {
+  if (from.matched.some((record) => record.meta.title === "RecipeList")) {
+    localStorage.setItem(
+      "scrollLength",
+      window.pageYOffset ||
+        (document.documentElement || document.body.parentNode || document.body)
+          .scrollTop
+    );
+    console.log("Scrolled to: " + localStorage.getItem("scrollLength"));
+  }
+  next();
+});
+
+router.beforeEach((to, from, next) => {
+  // Go to top of page before loading new page
+  if (to.matched.some((record) => record.meta.title !== "RecipeList")) {
+    window.scrollTo(0, 0);
+  }
+  // in RecipeList, scroll goes to last position
+  next();
 });
 
 router.beforeEach((to, from, next) => {

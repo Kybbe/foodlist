@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="navStuff">
-      <router-link :to="'/'" v-on:click="reloadOnHomepage">
+      <router-link :to="'/'">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -48,6 +48,18 @@ export default {
   props: {
     link: {
       type: String,
+    },
+  },
+  methods: {
+    logout() {
+      this.$store.dispatch("logout").then(() => {
+        this.$router.push("/");
+      });
+    },
+  },
+  computed: {
+    loggedIn() {
+      return this.$store.state.currentUser;
     },
   },
   data() {

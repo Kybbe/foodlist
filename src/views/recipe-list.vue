@@ -38,8 +38,8 @@
     </div>
     <transition-group class="cardList" tag="div" name="cardList">
       <div class="cardM" v-for="recipe in searchResult" :key="recipe.recipeId">
-        <router-link
-          :to="'/recipe/' + recipe.recipeId"
+        <a
+          @click="saveAndRedirect(recipe)"
           v-if="searchResult != null || searchResult != []"
         >
           <div
@@ -82,11 +82,11 @@
               </p>
             </div>
           </div>
-        </router-link>
+        </a>
       </div>
       <div class="cardS" v-for="drink in drinks" :key="drink.recipeId">
-        <router-link
-          :to="'/recipe/' + drink.recipeId"
+        <a
+          @click="saveAndRedirect(drink)"
           v-if="drinks != null || drinks != []"
         >
           <div
@@ -129,10 +129,15 @@
               </p>
             </div>
           </div>
-        </router-link>
+        </a>
       </div>
       <div class="cardM" v-if="noResults">
-        <div class="noResultCard-body">
+        <div class="noResultCard-body" v-if="!this.$store.state.recipesReady">
+          <h1 class="card-title" style="text-align: center">
+            Loading Recipes...
+          </h1>
+        </div>
+        <div class="noResultCard-body" v-if="this.$store.state.recipesReady">
           <h1 class="card-title" style="text-align: center">
             No results found
           </h1>
@@ -185,34 +190,29 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
 import footerBar from "../components/footer.vue";
 export default {
   name: "RecipeList",
   components: {
     footerBar,
   },
-  props: {
-    recipesList: {
-      type: Array,
-      required: true,
-    },
-  },
   data() {
     return {
       searchValue: "",
       sortBy: "recipeId",
       selectedIngredient: "",
-      loggedIn: false,
       minimized: false,
     };
   },
   methods: {
+    saveAndRedirect(recipe) {
+      this.$store.commit("setSelectedRecipe", recipe);
+      this.$router.push("/recipe/" + recipe.recipeId);
+    },
     backgroundimg(specificLink, thisId) {
       if (specificLink == "") {
         // if no image is provided, give it one
-        if (this.recipesList[thisId].drink) {
+        if (this.$store.state.recipesList[thisId].drink) {
           // if it's a drink, give it a drink image
           specificLink =
             "https://www.liquor.com/thmb/fO-COKLw_iEA28v8K4XQjzMhkfw=/735x0/very-sexy-martini-720x720-primary-b1212ebf73f54f898a56f7f0b60c0a34.jpg";
@@ -270,19 +270,10 @@ export default {
     goToTop() {
       window.scrollTo(0, 0);
     },
-    IsLoggedIn() {
-      let user = firebase.auth().currentUser;
-
-      if (user) {
-        this.loggedIn = true; // If it exists
-      } else {
-        this.loggedIn = false; // If it doesn't
-      }
-    },
   },
   computed: {
     searchResult() {
-      var tempRecipes = this.recipesList;
+      var tempRecipes = this.$store.state.recipesList;
       // remove all recipe with drink property
       tempRecipes = tempRecipes.filter((recipe) => {
         return !recipe.drink;
@@ -334,7 +325,7 @@ export default {
       return tempRecipes;
     },
     drinks() {
-      var tempDrinks = this.recipesList;
+      var tempDrinks = this.$store.state.recipesList;
       // keep only recipes with drink property
       tempDrinks = tempDrinks.filter((recipe) => {
         return recipe.drink;
@@ -389,7 +380,7 @@ export default {
     sortAndListIngredients() {
       // get all recipe ingredients and put into array
       var tempIngredients = [];
-      this.recipesList.forEach((recipe) => {
+      this.$store.state.recipesList.forEach((recipe) => {
         recipe.ingredients.forEach((ingredient) => {
           tempIngredients.push(ingredient.name);
         });
@@ -468,10 +459,7 @@ export default {
     },
   },
   mounted() {
-    this.IsLoggedIn();
-    firebase.auth().onAuthStateChanged(() => {
-      this.IsLoggedIn();
-    });
+    window.scrollTo(0, localStorage.getItem("scrollLength"));
   },
 };
 </script>
