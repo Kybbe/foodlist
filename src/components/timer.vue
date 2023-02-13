@@ -38,13 +38,15 @@
     <button class="timerStop" v-on:click="this.stopTimer" v-if="this.started">
       Stop
     </button>
-    <button class="timerReset" v-on:click="this.resetTimer">Reset</button>
+    <button class="timerReset" v-on:click="this.resetTimer" v-if="this.started">
+      Reset
+    </button>
   </label>
 </template>
 
 <script>
 export default {
-  name: "timer",
+  name: "timerComponent",
   props: {
     instruction: {
       type: String,
@@ -135,6 +137,8 @@ export default {
   border-top: 1px solid lightgrey;
   display: flex;
   align-items: center;
+  box-sizing: border-box;
+  justify-content: center;
 
   span {
     margin: auto 10px;

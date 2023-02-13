@@ -16,17 +16,6 @@ const routes = [
     meta: {
       title: "RecipeList",
     },
-    meta: {
-      title: "RecipeList",
-    },
-    beforeEnter: (to, from, next) => {
-      let checkExist = setInterval(function () {
-        if (recipesListObject.length > 0) {
-          clearInterval(checkExist);
-          next();
-        }
-      }, 400);
-    },
   },
   {
     path: "/recipe/:id",
@@ -71,74 +60,13 @@ const routes = [
       title: "Edit recipe",
       authRequired: true,
     },
-    meta: {
-      title: "Recipe",
-    },
-    beforeEnter: (to, from, next) => {
-      let checkExist = setInterval(function () {
-        if (recipesListObject.length > 0) {
-          clearInterval(checkExist);
-          next();
-        }
-      }, 400);
-    },
   },
   {
-    path: "/add",
-    name: "addRecipe",
-    component: addRecipe,
-    props: {
-      recipesList: recipesListObject,
-    },
+    path: "/:catchAll(.*)",
+    name: "NotFound",
+    component: recipeList,
     meta: {
-      title: "Add recipe",
-      authRequired: true,
-    },
-    beforeEnter: (to, from, next) => {
-      let checkExist = setInterval(function () {
-        if (recipesListObject.length > 0) {
-          clearInterval(checkExist);
-          next();
-        }
-      }, 400);
-    },
-  },
-  {
-    path: "/Login",
-    name: "Login",
-    component: login,
-    meta: {
-      title: "Login",
-      guestRequired: true,
-    },
-  },
-  {
-    path: "/Register",
-    name: "Register",
-    component: register,
-    meta: {
-      title: "Register",
-      guestRequired: true,
-    },
-  },
-  {
-    path: "/edit/:id",
-    name: "editRecipe",
-    component: editRecipe,
-    props: {
-      recipesList: recipesListObject,
-    },
-    meta: {
-      title: "Edit recipe",
-      authRequired: true,
-    },
-    beforeEnter: (to, from, next) => {
-      let checkExist = setInterval(function () {
-        if (recipesListObject.length > 0) {
-          clearInterval(checkExist);
-          next();
-        }
-      }, 400);
+      title: "RecipeList",
     },
   },
 ];
@@ -148,17 +76,36 @@ const router = createRouter({
   routes,
 });
 
+function checkAuthIsReady() {
+  return new Promise((resolve) => {
+    if (store.state.authIsReady) {
+      resolve();
+    } else {
+      const unsubscribe = store.watch(
+        (state) => state.authIsReady,
+        (authIsReady) => {
+          if (authIsReady) {
+            unsubscribe();
+            resolve();
+          }
+        }
+      );
+    }
+  });
+}
+
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.authRequired)) {
-    //wait until store.state.authIsReady is true
-    if (store.state.currentUser) {
-      next();
-    } else {
-      alert("You must be logged in to see this page");
-      next({
-        path: "/Login",
-      });
-    }
+    checkAuthIsReady().then(() => {
+      if (store.state.currentUser) {
+        next();
+      } else {
+        alert("You must be logged in to see this page");
+        next({
+          path: "/Login",
+        });
+      }
+    });
   } else {
     next();
   }
