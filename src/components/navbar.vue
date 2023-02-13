@@ -42,7 +42,7 @@
 
 <script>
 export default {
-  name: "Navbar",
+  name: "NavbarComponent",
   props: {
     link: {
       type: String,

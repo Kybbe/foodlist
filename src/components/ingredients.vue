@@ -50,7 +50,7 @@
 
 <script>
 export default {
-  name: "ingredients",
+  name: "ingredientsComponent",
   props: {
     ingredients: {
       type: Array,

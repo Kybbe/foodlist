@@ -61,6 +61,14 @@ const routes = [
       authRequired: true,
     },
   },
+  {
+    path: "/:catchAll(.*)",
+    name: "NotFound",
+    component: recipeList,
+    meta: {
+      title: "RecipeList",
+    },
+  },
 ];
 
 const router = createRouter({
@@ -68,17 +76,36 @@ const router = createRouter({
   routes,
 });
 
+function checkAuthIsReady() {
+  return new Promise((resolve) => {
+    if (store.state.authIsReady) {
+      resolve();
+    } else {
+      const unsubscribe = store.watch(
+        (state) => state.authIsReady,
+        (authIsReady) => {
+          if (authIsReady) {
+            unsubscribe();
+            resolve();
+          }
+        }
+      );
+    }
+  });
+}
+
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.authRequired)) {
-    //wait until store.state.authIsReady is true
-    if (store.state.currentUser) {
-      next();
-    } else {
-      alert("You must be logged in to see this page");
-      next({
-        path: "/Login",
-      });
-    }
+    checkAuthIsReady().then(() => {
+      if (store.state.currentUser) {
+        next();
+      } else {
+        alert("You must be logged in to see this page");
+        next({
+          path: "/Login",
+        });
+      }
+    });
   } else {
     next();
   }

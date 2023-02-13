@@ -14,10 +14,19 @@
         v-on:click="checkInstruction(instruction)"
       />
       <label :for="instruction.id"> {{ instruction.text }} </label>
-      <timer
-        :instruction="instruction.text"
-        v-if="instruction.text.includes('minuter')"
-      ></timer>
+      <div
+        v-for="n in countAmountOfTimers(instruction.text)"
+        :key="n"
+        class="timerContainer"
+      >
+        <timer
+          :instruction="
+            splitOutTimerPlaces(instruction.text)[n - 1].value + ' minuter '
+          "
+          :id="instruction.id"
+          v-if="!instruction.checked"
+        />
+      </div>
     </li>
   </ol>
 </template>
@@ -25,7 +34,7 @@
 <script>
 import timer from "./timer.vue";
 export default {
-  name: "instruction",
+  name: "instructionComponent",
   components: {
     timer,
   },
@@ -43,6 +52,27 @@ export default {
       } else {
         parent.classList.add("checked");
       }
+    },
+    countAmountOfTimers(instructionText) {
+      var amountOfTimers = 0;
+      if (instructionText.includes("minuter")) {
+        amountOfTimers = instructionText.match(/minuter/g).length;
+      }
+      return amountOfTimers;
+    },
+    splitOutTimerPlaces(instructionText) {
+      let timeValues = [];
+      let timeRegExp = /(\d+) minuter/g;
+
+      let match;
+      while ((match = timeRegExp.exec(instructionText))) {
+        timeValues.push({
+          value: parseInt(match[1], 10),
+          unit: "minuter",
+        });
+      }
+
+      return timeValues;
     },
   },
 };
@@ -68,7 +98,8 @@ li {
   flex-wrap: wrap;
   cursor: pointer;
   box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
-  opacity: 0.999;
+  opacity: 1;
+  width: 100%;
 
   label {
     padding: 15px 25px 15px 10px;
@@ -92,7 +123,7 @@ li {
   text-decoration: line-through;
 }
 
-.checked label:nth-child(3) {
-  display: none;
+.timerContainer {
+  width: 100%;
 }
 </style>
