@@ -80,8 +80,12 @@ export default {
       document.querySelector(".time").innerHTML = time;
     },
     countdownTimer() {
+      // first check if already started
+      if (this.started) return;
+      // then start the timer
       this.started = true;
       var timer = setInterval(() => {
+        // check if timer is stopped every second
         if (!this.started) {
           clearInterval(timer);
           return;
