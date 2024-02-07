@@ -32,12 +32,20 @@
       >
         Go to random recipe</router-link
       >
-      <button id="minMaxBtn" v-on:click="this.minMaxCards">
-        Hide recipe text
+      <button id="minMaxBtn" v-on:click="minMaxCards">
+        {{ this.$store.state.minimizeRecipeCards ? "Show" : "Hide" }} recipe
+        text
       </button>
     </div>
     <transition-group class="cardList" tag="div" name="cardList">
-      <div class="cardM" v-for="recipe in searchResult" :key="recipe.recipeId">
+      <div
+        :class="{
+          cardM: true,
+          minimized: this.$store.state.minimizeRecipeCards,
+        }"
+        v-for="recipe in searchResult"
+        :key="recipe.recipeId"
+      >
         <a
           @click="saveAndRedirect(recipe)"
           v-if="searchResult != null || searchResult != []"
@@ -84,7 +92,14 @@
           </div>
         </a>
       </div>
-      <div class="cardS" v-for="drink in drinks" :key="drink.recipeId">
+      <div
+        :class="{
+          cardS: true,
+          minimized: this.$store.state.minimizeRecipeCards,
+        }"
+        v-for="drink in drinks"
+        :key="drink.recipeId"
+      >
         <a
           @click="saveAndRedirect(drink)"
           v-if="drinks != null || drinks != []"
@@ -131,77 +146,35 @@
           </div>
         </a>
       </div>
-      <div class="cardM" v-if="noResults">
-        <div class="noResultCard-body" v-if="!this.$store.state.recipesReady">
-          <h1 class="card-title" style="text-align: center">
-            Loading Recipes...
-          </h1>
-        </div>
-        <div class="noResultCard-body" v-if="this.$store.state.recipesReady">
-          <h1 class="card-title" style="text-align: center">
-            No results found
-          </h1>
-          <h3 style="text-align: center">
-            Sorry, we couldn't find any results for your search. :(
-          </h3>
-          <h3 style="text-align: center">Have a cookie instead!</h3>
-          <div
-            style="display: flex; justify-content: center; margin-bottom: 20px"
-          >
-            <svg
-              style="width: 9em; text-align: center"
-              aria-hidden="true"
-              focusable="false"
-              data-prefix="fas"
-              data-icon="cookie"
-              class="svg-inline--fa fa-cookie fa-w-16 Layer_1"
-              role="img"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 512 512"
-            >
-              <path
-                fill="currentColor"
-                d="M510.37 254.79l-12.08-76.26a132.493 132.493 0 0 0-37.16-72.95l-54.76-54.75c-19.73-19.72-45.18-32.7-72.71-37.05l-76.7-12.15c-27.51-4.36-55.69.11-80.52 12.76L107.32 49.6a132.25 132.25 0 0 0-57.79 57.8l-35.1 68.88a132.602 132.602 0 0 0-12.82 80.94l12.08 76.27a132.493 132.493 0 0 0 37.16 72.95l54.76 54.75a132.087 132.087 0 0 0 72.71 37.05l76.7 12.14c27.51 4.36 55.69-.11 80.52-12.75l69.12-35.21a132.302 132.302 0 0 0 57.79-57.8l35.1-68.87c12.71-24.96 17.2-53.3 12.82-80.96zM176 368c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32zm32-160c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32zm160 128c-17.67 0-32-14.33-32-32s14.33-32 32-32 32 14.33 32 32-14.33 32-32 32z"
-              />
-            </svg>
-          </div>
-        </div>
-      </div>
+
+      <LoadedAndNoResult
+        :recipeOrShoppingList="recipe"
+        :noResults="noResults"
+      />
     </transition-group>
-    <footerBar></footerBar>
-    <button id="goToTop" v-on:click="goToTop">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-        focusable="false"
-        data-prefix="fas"
-        data-icon="arrow-up"
-        class="svg-inline--fa fa-arrow-up fa-w-14"
-        role="img"
-        viewBox="0 0 448 512"
-      >
-        <path
-          fill="currentColor"
-          d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"
-        />
-      </svg>
-    </button>
+    <footerBar />
+
+    <GoToTop />
   </div>
 </template>
 
 <script>
 import footerBar from "../components/footer.vue";
+import LoadedAndNoResult from "../components/loadedAndNoResult.vue";
+import GoToTop from "../components/goToTop.vue";
+
 export default {
   name: "RecipeList",
   components: {
     footerBar,
+    LoadedAndNoResult,
+    GoToTop,
   },
   data() {
     return {
       searchValue: "",
       sortBy: "recipeId",
       selectedIngredient: "",
-      minimized: false,
     };
   },
   methods: {
@@ -228,44 +201,10 @@ export default {
       };
     },
     minMaxCards() {
-      let cardImgs = document.querySelectorAll(".imgPart");
-      let icons = document.querySelectorAll(".plateIcon");
-      let cardBodys = document.querySelectorAll(".card-body");
-      let btn = document.querySelector("#minMaxBtn");
-
-      if (!this.minimized) {
-        cardBodys.forEach((cardBody) => {
-          cardBody.style.display = "none";
-        });
-
-        cardImgs.forEach((cardImg) => {
-          cardImg.style.borderRadius = "10px";
-        });
-
-        icons.forEach((icon) => {
-          icon.style.bottom = "1em";
-        });
-
-        btn.innerHTML = "Show card text";
-
-        this.minimized = true;
-      } else {
-        cardBodys.forEach((cardBody) => {
-          cardBody.style.display = null;
-        });
-
-        cardImgs.forEach((cardImg) => {
-          cardImg.style.borderRadius = null;
-        });
-
-        icons.forEach((icon) => {
-          icon.style.bottom = null;
-        });
-
-        btn.innerHTML = "Hide card text";
-
-        this.minimized = false;
-      }
+      this.$store.commit(
+        "setMinimizeRecipeCards",
+        !this.$store.state.minimizeRecipeCards
+      );
     },
     goToTop() {
       window.scrollTo(0, 0);
@@ -812,6 +751,18 @@ a {
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+.minimized {
+  .card-body {
+    display: none;
+  }
+  .imgPart {
+    border-radius: 10px;
+  }
+  .plateIcon {
+    bottom: 1em;
   }
 }
 </style>

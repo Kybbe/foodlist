@@ -6,6 +6,9 @@ import editRecipe from "../views/edit-recipe.vue";
 import loginPage from "../views/loginPage.vue";
 import registerPage from "../views/registerPage.vue";
 
+import shoppingLists from "../views/shoppingLists.vue";
+import shoppingList from "../views/shoppingList.vue";
+
 import store from "../store/index";
 
 const routes = [
@@ -69,6 +72,22 @@ const routes = [
       title: "RecipeList",
     },
   },
+  {
+    path: "/shoppingLists",
+    name: "shoppingLists",
+    component: shoppingLists,
+    meta: {
+      title: "ShoppingLists",
+    },
+  },
+  {
+    path: "/shoppingList/:id",
+    name: "shoppingList",
+    component: shoppingList,
+    meta: {
+      title: "ShoppingList",
+    },
+  },
 ];
 
 const router = createRouter({
@@ -130,6 +149,21 @@ router.beforeEach((to, from, next) => {
           .scrollTop
     );
     console.log("Scrolled to: " + localStorage.getItem("scrollLength"));
+  }
+  next();
+});
+
+router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.title === "ShoppingLists")) {
+    localStorage.setItem(
+      "scrollLengthShoppingLists",
+      window.pageYOffset ||
+        (document.documentElement || document.body.parentNode || document.body)
+          .scrollTop
+    );
+    console.log(
+      "Scrolled to: " + localStorage.getItem("scrollLengthShoppingLists")
+    );
   }
   next();
 });

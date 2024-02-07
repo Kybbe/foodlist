@@ -30,6 +30,9 @@
         </svg>
       </router-link>
       <router-link :to="'/add'" v-if="loggedIn"> Add Recipe </router-link>
+      <router-link :to="'/shoppingLists'" v-if="loggedIn"
+        >Shopping Lists</router-link
+      >
     </div>
 
     <div class="accountStuff">

@@ -5,7 +5,7 @@
   "description": "List of foods i can make with recipes etc, more of a VUE test site than anything",
   "author": "Jacob Klarén",
   "scripts": {
-    "serve": "vite",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",

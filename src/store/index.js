@@ -8,11 +8,19 @@ import "firebase/database";
 const store = createStore({
   state: {
     recipesList: [],
+    shoppingLists: [],
+
     recipesReady: false,
+    shoppingListsReady: false,
+
+    selectedRecipe: null,
+    selectedList: null,
+
     currentUser: null,
     authIsReady: false,
-    selectedRecipe: null,
     admin: false,
+
+    minimizeRecipeCards: false,
   },
   mutations: {
     setRecipesList(state, payload) {
@@ -27,12 +35,34 @@ const store = createStore({
     changeRecipeList(state, payload) {
       state.recipesList[payload.index] = payload.recipe;
     },
+
+    setShoppingLists(state, payload) {
+      state.shoppingLists = payload;
+    },
+    addShoppingList(state, payload) {
+      state.shoppingLists.push(payload);
+    },
+    removeShoppingList(state, payload) {
+      state.shoppingLists.splice(payload, 1);
+    },
+    changeShoppingList(state, payload) {
+      state.shoppingLists[payload.index] = payload.shoppingList;
+    },
+
+    setShoppingListsReady(state, payload) {
+      state.shoppingListsReady = payload;
+    },
+    setSelectedList(state, payload) {
+      state.selectedList = payload;
+    },
+
     setRecipesReady(state, payload) {
       state.recipesReady = payload;
     },
     setSelectedRecipe(state, payload) {
       state.selectedRecipe = payload;
     },
+
     setCurrentUser(state, payload) {
       state.currentUser = payload;
     },
@@ -41,6 +71,12 @@ const store = createStore({
     },
     setAdmin(state, payload) {
       state.admin = payload;
+    },
+
+    setMinimizeRecipeCards(state, payload) {
+      state.minimizeRecipeCards = payload;
+
+      localStorage.setItem("cardsMinimized", state.minimizeRecipeCards);
     },
   },
   actions: {
@@ -66,6 +102,33 @@ const store = createStore({
         context.commit("changeRecipeList", {
           index: index,
           recipe: snapshot.val(),
+        });
+      });
+    },
+    async fetchShoppingLists(context) {
+      let db = firebase.database().ref("shoppingLists");
+
+      db.on("child_added", (snapshot) => {
+        context.commit("addShoppingList", snapshot.val());
+        context.commit("setShoppingListsReady", true);
+      });
+
+      db.on("child_removed", (snapshot) => {
+        let index = store.state.shoppingLists.findIndex(
+          (shoppingList) =>
+            shoppingList.shoppingListId === snapshot.val().shoppingListId
+        );
+        context.commit("removeShoppingList", index);
+      });
+
+      db.on("child_changed", (snapshot) => {
+        let index = store.state.shoppingLists.findIndex(
+          (shoppingList) =>
+            shoppingList.shoppingListId === snapshot.val().shoppingListId
+        );
+        context.commit("changeShoppingList", {
+          index: index,
+          shoppingList: snapshot.val(),
         });
       });
     },
@@ -112,6 +175,14 @@ const store = createStore({
       await firebase.auth().signOut();
       context.commit("setCurrentUser", null);
     },
+
+    async getLocalStorageMinimizeRecipeCards(context) {
+      let minimizeRecipeCards = localStorage.getItem("cardsMinimized");
+      let parsedMin = JSON.parse(minimizeRecipeCards);
+      if (parsedMin) {
+        context.commit("setMinimizeRecipeCards", parsedMin);
+      }
+    },
   },
   getters: {},
 });
@@ -124,5 +195,7 @@ firebase.auth().onAuthStateChanged((user) => {
 });
 
 store.dispatch("fetchRecipesList");
+store.dispatch("fetchShoppingLists");
+store.dispatch("getLocalStorageMinimizeRecipeCards");
 
 export default store;
