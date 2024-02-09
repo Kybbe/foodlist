@@ -238,6 +238,17 @@ export default {
   }
 }
 
+.card-body-link {
+  box-sizing: border-box;
+  text-decoration: none;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
 .addCard {
   display: flex;
   flex-direction: column;
