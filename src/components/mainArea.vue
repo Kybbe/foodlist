@@ -10,44 +10,54 @@
 
 <script>
 export default {
-  name: "mainArea",
-  props: {
-    title: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    imgLink: {
-      type: String,
-      required: true,
-    },
-    drink: {
-      type: Boolean,
-    },
-  },
-  data() {
-    return {
-      templateImg:
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
-      drinkTemplateImg:
-        "https://www.liquor.com/thmb/fO-COKLw_iEA28v8K4XQjzMhkfw=/735x0/very-sexy-martini-720x720-primary-b1212ebf73f54f898a56f7f0b60c0a34.jpg",
-      imgLinkAndTemplate: "",
-    };
-  },
-  mounted() {
-    if (this.imgLink == "") {
-      if (this.drink) {
-        this.imgLinkAndTemplate = this.drinkTemplateImg;
-      } else {
-        this.imgLinkAndTemplate = this.templateImg;
-      }
-    } else {
-      this.imgLinkAndTemplate = this.imgLink;
-    }
-  },
+	name: "mainArea",
+	props: {
+		title: {
+			type: String,
+			required: true,
+		},
+		description: {
+			type: String,
+			required: true,
+		},
+		imgLink: {
+			type: String,
+			required: true,
+		},
+		drink: {
+			type: Boolean,
+		},
+	},
+	data() {
+		return {
+			templateImg:
+				"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
+			drinkTemplateImg:
+				"https://www.liquor.com/thmb/fO-COKLw_iEA28v8K4XQjzMhkfw=/735x0/very-sexy-martini-720x720-primary-b1212ebf73f54f898a56f7f0b60c0a34.jpg",
+			imgLinkAndTemplate: "",
+		};
+	},
+	mounted() {
+		//if imagelink does not start with http or https, check if a relative link to the image is provided
+		//if not, use the template image
+		if (
+			this.imageLink &&
+			!this.imageLink.startsWith("http") &&
+			!this.imageLink.startsWith("https")
+		) {
+			this.imgLink = require(`@/assets/${this.imageLink}`);
+		}
+
+		if (this.imgLink === "") {
+			if (this.drink) {
+				this.imgLinkAndTemplate = this.drinkTemplateImg;
+			} else {
+				this.imgLinkAndTemplate = this.templateImg;
+			}
+		} else {
+			this.imgLinkAndTemplate = this.imgLink;
+		}
+	},
 };
 </script>
 
