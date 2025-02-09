@@ -68,6 +68,11 @@
                 v-on:change="fixIngredients"
                 required
               />
+              <input
+                type="text"
+                placeholder="Salad"
+                name="section"
+              />
             </div>
           </div>
           <button type="button" v-on:click="addIngredient">
@@ -165,330 +170,336 @@ import firebase from "firebase/app";
 import "firebase/database";
 
 export default {
-  name: "AddRecipe",
-  data() {
-    return {
-      recipe: {
-        recipeId: "",
-        drink: false,
-        title: "",
-        description: "",
-        ingredients: [],
-        instructions: [],
-        servings: "",
-        link: "",
-        imgLink: "",
-      },
-      moreThanOneIngredient: false,
-      moreThanOneInstruction: false,
-      draft: [],
-    };
-  },
-  methods: {
-    addIngredient() {
-      let list = document.getElementById("ingredientsList");
+	name: "AddRecipe",
+	data() {
+		return {
+			recipe: {
+				recipeId: "",
+				drink: false,
+				title: "",
+				description: "",
+				ingredients: [],
+				instructions: [],
+				servings: "",
+				link: "",
+				imgLink: "",
+			},
+			moreThanOneIngredient: false,
+			moreThanOneInstruction: false,
+			draft: [],
+		};
+	},
+	methods: {
+		addIngredient() {
+			let list = document.getElementById("ingredientsList");
 
-      let newIngredient = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
+			let newIngredient = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
 
-      list.insertBefore(newIngredient.cloneNode(true), newIngredient); // add the new ingredient to the top of the list
+			list.insertBefore(newIngredient.cloneNode(true), newIngredient); // add the new ingredient to the top of the list
 
-      let ingredientInputs = newIngredient.getElementsByTagName("input");
-      for (let i = 0; i < ingredientInputs.length; i++) {
-        //for all inputs in ingredientInputs, set value as ""
-        ingredientInputs[i].value = "";
-      }
+			let ingredientInputs = newIngredient.getElementsByTagName("input");
+			for (let i = 0; i < ingredientInputs.length; i++) {
+				//for all inputs in ingredientInputs, set value as ""
+				ingredientInputs[i].value = "";
+			}
 
-      this.moreThanOneIngredient = true;
-    },
-    removeIngredient() {
-      let ingredients = document.getElementsByClassName("ingredients");
-      if (ingredients.length > 1) {
-        ingredients[ingredients.length - 1].remove();
-      }
-      if (ingredients.length == 1) {
-        this.moreThanOneIngredient = false;
-      }
-    },
-    fixIngredients() {
-      let ingredients = [];
-      let ingredientsGroups = document.getElementsByClassName("ingredients");
-      for (let i = 0; i < ingredientsGroups.length; i++) {
-        let ingredient = {};
-        let inputs = ingredientsGroups[i].querySelectorAll("input");
-        for (let j = 0; j < inputs.length; j++) {
-          ingredient[inputs[j].name] = inputs[j].value;
-        }
-        ingredients.push(ingredient);
-      }
-      this.recipe.ingredients = ingredients;
-      this.checkServings();
-    },
-    addInstruction() {
-      let list = document.getElementById("instructionsList");
+			this.moreThanOneIngredient = true;
+		},
+		removeIngredient() {
+			let ingredients = document.getElementsByClassName("ingredients");
+			if (ingredients.length > 1) {
+				ingredients[ingredients.length - 1].remove();
+			}
+			if (ingredients.length == 1) {
+				this.moreThanOneIngredient = false;
+			}
+		},
+		fixIngredients() {
+			let ingredients = [];
+			let ingredientsGroups = document.getElementsByClassName("ingredients");
+			for (let i = 0; i < ingredientsGroups.length; i++) {
+				let ingredient = {};
+				let inputs = ingredientsGroups[i].querySelectorAll("input");
+				for (let j = 0; j < inputs.length; j++) {
+					ingredient[inputs[j].name] = inputs[j].value;
+				}
+				ingredients.push(ingredient);
+			}
+			this.recipe.ingredients = ingredients;
+			this.checkServings();
+		},
+		addInstruction() {
+			let list = document.getElementById("instructionsList");
 
-      let newInstruction = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
+			let newInstruction = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
 
-      list.insertBefore(newInstruction.cloneNode(true), newInstruction); // add the new ingredient to the top of the list
+			list.insertBefore(newInstruction.cloneNode(true), newInstruction); // add the new ingredient to the top of the list
 
-      let instructionInputs = newInstruction.getElementsByTagName("input");
-      for (let i = 0; i < instructionInputs.length; i++) {
-        //for all inputs in ingredientInputs, set value as ""
-        instructionInputs[i].value = "";
-      }
+			let instructionInputs = newInstruction.getElementsByTagName("input");
+			for (let i = 0; i < instructionInputs.length; i++) {
+				//for all inputs in ingredientInputs, set value as ""
+				instructionInputs[i].value = "";
+			}
 
-      this.moreThanOneInstruction = true;
-    },
-    removeInstruction() {
-      let instructions = document.getElementsByClassName("instructions");
-      if (instructions.length > 1) {
-        instructions[instructions.length - 1].remove();
-      }
-      if (instructions.length == 1) {
-        this.moreThanOneInstruction = false;
-      }
-    },
-    fixInstructions() {
-      let instructionsGroups = document.getElementsByClassName("instructions");
-      for (let i = 0; i < instructionsGroups.length; i++) {
-        let inputs = instructionsGroups[i].querySelectorAll("input");
-        for (let j = 0; j < inputs.length; j++) {
-          if (inputs[0].value == "") {
-            // if inputs[0].value is empty, then add the id of current position to the id of the instruction
-            inputs[0].value = i;
-          } else if (inputs[1].value == "") {
-            // if inputs[1].value is empty, then add false to the checked of the instruction
-            inputs[1].value = false;
-          }
-        }
-        this.populateInstruction();
-      }
-    },
-    populateInstruction() {
-      let instructions = [];
-      let instructionsGroups = document.getElementsByClassName("instructions");
-      for (let i = 0; i < instructionsGroups.length; i++) {
-        let instruction = {};
-        let inputs = instructionsGroups[i].querySelectorAll("input");
-        for (let j = 0; j < inputs.length; j++) {
-          if (inputs[1].value == "true") {
-            instruction[inputs[1].name] = true;
-          } else if (inputs[1].value == "false") {
-            instruction[inputs[1].name] = false;
-          }
-          instruction[inputs[j].name] = inputs[j].value;
-        }
-        instructions.push(instruction);
-      }
-      this.recipe.instructions = instructions;
-    },
-    checkServings() {
-      // servings is 4 by default,
-      // if user inputs a number, it will be the number
-      // if users number is less or more than 4, divide all ingredient amounts by input and multiply by 4.
-      let servings = document.getElementById("recipeServings").value;
-      if (servings == "") {
-        return;
-      }
-      if (servings) {
-        if (document.getElementsByClassName("amount")[0].value == "") {
-          return;
-        }
-        let ingredients = this.recipe.ingredients;
-        let amounts = document.getElementsByClassName("amount");
-        for (let i = 0; i < ingredients.length; i++) {
-          if (amounts[i].value == "") {
-            return;
-          }
-          let oneServing = ingredients[i].amount / servings;
-          let fourServings = oneServing * 4;
-          fourServings = Number(fourServings.toFixed(1));
-          ingredients[i].amount = fourServings;
-          amounts[i].value = fourServings;
-        }
-        this.recipe.ingredients = ingredients;
-      }
-    },
-    post() {
-      if (this.recipe.title == "Test JKL") {
-        this.testPost();
-        this.$router.push("/");
-        return;
-      }
+			this.moreThanOneInstruction = true;
+		},
+		removeInstruction() {
+			let instructions = document.getElementsByClassName("instructions");
+			if (instructions.length > 1) {
+				instructions[instructions.length - 1].remove();
+			}
+			if (instructions.length == 1) {
+				this.moreThanOneInstruction = false;
+			}
+		},
+		fixInstructions() {
+			let instructionsGroups = document.getElementsByClassName("instructions");
+			for (let i = 0; i < instructionsGroups.length; i++) {
+				let inputs = instructionsGroups[i].querySelectorAll("input");
+				for (let j = 0; j < inputs.length; j++) {
+					if (inputs[0].value == "") {
+						// if inputs[0].value is empty, then add the id of current position to the id of the instruction
+						inputs[0].value = i;
+					} else if (inputs[1].value == "") {
+						// if inputs[1].value is empty, then add false to the checked of the instruction
+						inputs[1].value = false;
+					}
+				}
+				this.populateInstruction();
+			}
+		},
+		populateInstruction() {
+			let instructions = [];
+			let instructionsGroups = document.getElementsByClassName("instructions");
+			for (let i = 0; i < instructionsGroups.length; i++) {
+				let instruction = {};
+				let inputs = instructionsGroups[i].querySelectorAll("input");
+				for (let j = 0; j < inputs.length; j++) {
+					if (inputs[1].value == "true") {
+						instruction[inputs[1].name] = true;
+					} else if (inputs[1].value == "false") {
+						instruction[inputs[1].name] = false;
+					}
+					instruction[inputs[j].name] = inputs[j].value;
+				}
+				instructions.push(instruction);
+			}
+			this.recipe.instructions = instructions;
+		},
+		checkServings() {
+			// servings is 4 by default,
+			// if user inputs a number, it will be the number
+			// if users number is less or more than 4, divide all ingredient amounts by input and multiply by 4.
+			let servings = document.getElementById("recipeServings").value;
+			if (servings == "") {
+				return;
+			}
+			if (servings) {
+				if (document.getElementsByClassName("amount")[0].value == "") {
+					return;
+				}
+				let ingredients = this.recipe.ingredients;
+				let amounts = document.getElementsByClassName("amount");
+				for (let i = 0; i < ingredients.length; i++) {
+					if (amounts[i].value == "") {
+						return;
+					}
+					let oneServing = ingredients[i].amount / servings;
+					let fourServings = oneServing * 4;
+					fourServings = Number(fourServings.toFixed(1));
+					ingredients[i].amount = fourServings;
+					amounts[i].value = fourServings;
+				}
+				this.recipe.ingredients = ingredients;
+			}
+		},
+		post() {
+			if (this.recipe.title == "Test JKL") {
+				this.testPost();
+				this.$router.push("/");
+				return;
+			}
 
-      if (
-        this.recipe.title == "" ||
-        this.recipe.description == "" ||
-        this.recipe.ingredients == "" ||
-        this.recipe.instructions == "" ||
-        this.recipe.link == ""
-      ) {
-        alert("Please fill out all fields");
-        return;
-      }
+			if (
+				this.recipe.title == "" ||
+				this.recipe.description == "" ||
+				this.recipe.ingredients == "" ||
+				this.recipe.instructions == "" ||
+				this.recipe.link == ""
+			) {
+				alert("Please fill out all fields");
+				return;
+			}
 
-      this.addRecipeId();
-      this.fixIngredients();
-      this.fixInstructions();
+			this.addRecipeId();
+			this.fixIngredients();
+			this.fixInstructions();
 
-      firebase.database().ref("recipes").push(this.recipe);
-      alert("Recipe added!");
-      this.removeDraft();
-      this.$router.push("/");
-    },
-    testPost() {
-      this.recipe.title = "Test";
-      this.recipe.description = "Test";
-      this.addRecipeId();
-      this.recipe.ingredients = [
-        {
-          name: "Test",
-          amount: "1",
-          measurment: "Test",
-        },
-      ];
-      this.recipe.instructions = [
-        {
-          id: 0,
-          checked: true,
-          text: "Test",
-        },
-        {
-          id: 1,
-          checked: false,
-          text: "Test2",
-        },
-      ];
-      this.recipe.servings = "4";
-      this.recipe.link = "www.google.com";
-      this.recipe.imgLink = "";
+			firebase.database().ref("recipes").push(this.recipe);
+			alert("Recipe added!");
+			this.removeDraft();
+			this.$router.push("/");
+		},
+		testPost() {
+			this.recipe.title = "Test";
+			this.recipe.description = "Test";
+			this.addRecipeId();
+			this.recipe.ingredients = [
+				{
+					name: "Test",
+					amount: "1",
+					measurment: "Test",
+					section: "Test section",
+				},
+			];
+			this.recipe.instructions = [
+				{
+					id: 0,
+					checked: true,
+					text: "Test",
+				},
+				{
+					id: 1,
+					checked: false,
+					text: "Test2",
+				},
+			];
+			this.recipe.servings = "4";
+			this.recipe.link = "www.google.com";
+			this.recipe.imgLink = "";
 
-      firebase.database().ref("recipes").push(this.recipe);
-      alert("Test recipe added!");
-    },
-    saveAsDraft() {
-      // save all inputs to localstorage as a draft
-      this.addRecipeId();
-      this.fixIngredients();
-      this.fixInstructions();
+			firebase.database().ref("recipes").push(this.recipe);
+			alert("Test recipe added!");
+		},
+		saveAsDraft() {
+			// save all inputs to localstorage as a draft
+			this.addRecipeId();
+			this.fixIngredients();
+			this.fixInstructions();
 
-      let draft = {
-        title: this.recipe.title,
-        description: this.recipe.description,
-        ingredients: this.recipe.ingredients,
-        instructions: this.recipe.instructions,
-        servings: this.recipe.servings,
-        link: this.recipe.link,
-        imgLink: this.recipe.imgLink,
-      };
+			let draft = {
+				title: this.recipe.title,
+				description: this.recipe.description,
+				ingredients: this.recipe.ingredients,
+				instructions: this.recipe.instructions,
+				servings: this.recipe.servings,
+				link: this.recipe.link,
+				imgLink: this.recipe.imgLink,
+			};
 
-      localStorage.setItem("draft", JSON.stringify(draft));
-    },
-    getDraft() {
-      // get draft from localstorage
-      let draft = JSON.parse(localStorage.getItem("draft"));
-      if (draft) {
-        this.draft = draft;
-      }
-    },
-    putBackDraft() {
-      // put draft back to inputs
-      this.recipe.title = this.draft.title;
-      this.recipe.description = this.draft.description;
-      this.recipe.servings = this.draft.servings;
-      this.recipe.link = this.draft.link;
-      this.recipe.imgLink = this.draft.imgLink;
+			localStorage.setItem("draft", JSON.stringify(draft));
+		},
+		getDraft() {
+			// get draft from localstorage
+			let draft = JSON.parse(localStorage.getItem("draft"));
+			if (draft) {
+				this.draft = draft;
+			}
+		},
+		putBackDraft() {
+			// put draft back to inputs
+			this.recipe.title = this.draft.title;
+			this.recipe.description = this.draft.description;
+			this.recipe.servings = this.draft.servings;
+			this.recipe.link = this.draft.link;
+			this.recipe.imgLink = this.draft.imgLink;
 
-      this.recipe.ingredients = this.draft.ingredients;
-      this.recipe.instructions = this.draft.instructions;
+			this.recipe.ingredients = this.draft.ingredients;
+			this.recipe.instructions = this.draft.instructions;
 
-      this.putBackIngredients();
-      this.putBackInstructions();
+			this.putBackIngredients();
+			this.putBackInstructions();
 
-      this.removeDraft();
-    },
-    putBackIngredients() {
-      // if ingredients is more than 1 ingredient, add needed input fields with this.addIngredient()
-      if (this.recipe.ingredients.length > 1) {
-        for (let i = 1; i < this.recipe.ingredients.length; i++) {
-          this.addIngredient();
-        }
-      }
-      // fill in the inputs with the values from draft
-      //get all inputs in all ingredients class
-      let ingredients = document.getElementsByClassName("ingredients");
-      //loop through all ingredients
-      for (let i = 0; i < ingredients.length; i++) {
-        //get all inputs in current ingredient
-        let inputs = ingredients[i].querySelectorAll("input");
-        //loop through all inputs
-        for (let j = 0; j < inputs.length; j++) {
-          //if the input name is text, then put the name from the draft in the input
-          if (inputs[j].name == "name") {
-            inputs[j].value = this.recipe.ingredients[i].name;
-          }
-          //if the input name is amount, then put the amount from the draft in the input
-          if (inputs[j].name == "amount") {
-            inputs[j].value = this.recipe.ingredients[i].amount;
-          }
-          //if the input name is measurment, then put the measurment from the draft in the input
-          if (inputs[j].name == "measurment") {
-            inputs[j].value = this.recipe.ingredients[i].measurment;
-          }
-        }
-      }
-    },
-    putBackInstructions() {
-      // if instructions is more than 1 instruction, add needed input fields with this.addInstruction()
-      if (this.recipe.instructions.length > 1) {
-        for (let i = 1; i < this.recipe.instructions.length; i++) {
-          this.addInstruction();
-        }
-      }
-      // fill in the inputs with the values from draft
-      //get all inputs in all instructions class
-      let instructions = document.getElementsByClassName("instructions");
-      //loop through all instructions
-      for (let i = 0; i < instructions.length; i++) {
-        //get all inputs in current instruction
-        let inputs = instructions[i].querySelectorAll("input");
-        //loop through all inputs
-        for (let j = 0; j < inputs.length; j++) {
-          //if the input name is text, then put the text from the draft in the input
-          if (inputs[j].name == "text") {
-            inputs[j].value = this.recipe.instructions[i].text;
-          }
-          //if the input name is checked, then put the checked from the draft in the input
-          if (inputs[j].name == "checked") {
-            inputs[j].value = this.recipe.instructions[i].checked;
-          }
-          //if the input name is id, then put the id from the draft in the input
-          if (inputs[j].name == "id") {
-            inputs[j].value = this.recipe.instructions[i].id;
-          }
-        }
-      }
-    },
-    removeDraft() {
-      // remove draft from localstorage
-      this.draft = [];
-      localStorage.removeItem("draft");
-    },
-    addRecipeId() {
-      this.recipe.recipeId = this.$store.state.recipesList.length;
-    },
-  },
-  mounted() {
-    this.addRecipeId();
-    this.getDraft();
-    let inputs = document.getElementsByTagName("input");
-    let textareas = document.getElementsByTagName("textarea");
-    for (let i = 0; i < inputs.length; i++) {
-      inputs[i].addEventListener("change", this.saveAsDraft);
-    }
-    for (let i = 0; i < textareas.length; i++) {
-      textareas[i].addEventListener("change", this.saveAsDraft);
-    }
-  },
+			this.removeDraft();
+		},
+		putBackIngredients() {
+			// if ingredients is more than 1 ingredient, add needed input fields with this.addIngredient()
+			if (this.recipe.ingredients.length > 1) {
+				for (let i = 1; i < this.recipe.ingredients.length; i++) {
+					this.addIngredient();
+				}
+			}
+			// fill in the inputs with the values from draft
+			//get all inputs in all ingredients class
+			let ingredients = document.getElementsByClassName("ingredients");
+			//loop through all ingredients
+			for (let i = 0; i < ingredients.length; i++) {
+				//get all inputs in current ingredient
+				let inputs = ingredients[i].querySelectorAll("input");
+				//loop through all inputs
+				for (let j = 0; j < inputs.length; j++) {
+					//if the input name is text, then put the name from the draft in the input
+					if (inputs[j].name == "name") {
+						inputs[j].value = this.recipe.ingredients[i].name;
+					}
+					//if the input name is amount, then put the amount from the draft in the input
+					if (inputs[j].name == "amount") {
+						inputs[j].value = this.recipe.ingredients[i].amount;
+					}
+					//if the input name is measurment, then put the measurment from the draft in the input
+					if (inputs[j].name == "measurment") {
+						inputs[j].value = this.recipe.ingredients[i].measurment;
+					}
+
+					//if the input name is section, then put the section from the draft in the input
+					if (inputs[j].name == "section") {
+						inputs[j].value = this.recipe.ingredients[i].section;
+					}
+				}
+			}
+		},
+		putBackInstructions() {
+			// if instructions is more than 1 instruction, add needed input fields with this.addInstruction()
+			if (this.recipe.instructions.length > 1) {
+				for (let i = 1; i < this.recipe.instructions.length; i++) {
+					this.addInstruction();
+				}
+			}
+			// fill in the inputs with the values from draft
+			//get all inputs in all instructions class
+			let instructions = document.getElementsByClassName("instructions");
+			//loop through all instructions
+			for (let i = 0; i < instructions.length; i++) {
+				//get all inputs in current instruction
+				let inputs = instructions[i].querySelectorAll("input");
+				//loop through all inputs
+				for (let j = 0; j < inputs.length; j++) {
+					//if the input name is text, then put the text from the draft in the input
+					if (inputs[j].name == "text") {
+						inputs[j].value = this.recipe.instructions[i].text;
+					}
+					//if the input name is checked, then put the checked from the draft in the input
+					if (inputs[j].name == "checked") {
+						inputs[j].value = this.recipe.instructions[i].checked;
+					}
+					//if the input name is id, then put the id from the draft in the input
+					if (inputs[j].name == "id") {
+						inputs[j].value = this.recipe.instructions[i].id;
+					}
+				}
+			}
+		},
+		removeDraft() {
+			// remove draft from localstorage
+			this.draft = [];
+			localStorage.removeItem("draft");
+		},
+		addRecipeId() {
+			this.recipe.recipeId = this.$store.state.recipesList.length;
+		},
+	},
+	mounted() {
+		this.addRecipeId();
+		this.getDraft();
+		let inputs = document.getElementsByTagName("input");
+		let textareas = document.getElementsByTagName("textarea");
+		for (let i = 0; i < inputs.length; i++) {
+			inputs[i].addEventListener("change", this.saveAsDraft);
+		}
+		for (let i = 0; i < textareas.length; i++) {
+			textareas[i].addEventListener("change", this.saveAsDraft);
+		}
+	},
 };
 </script>
 

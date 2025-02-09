@@ -41,98 +41,126 @@
       </svg>
     </button>
   </div>
-  <ul class="ingredients">
-    <li v-for="ingredient in ingredients" :key="ingredient.name">
-      {{ ` ${ingredient.amount} ${ingredient.measurment} ${ingredient.name} ` }}
-    </li>
-  </ul>
+ <div v-for="(sectionIngredients, section) in groupedIngredients" :key="section">
+    <h3 v-if="section">{{ section }}</h3>
+    <ul class="ingredients">
+      <li v-for="ingredient in sectionIngredients" :key="ingredient.name">
+        {{ ` ${ingredient.amount} ${ingredient.measurement} ${ingredient.name} ` }}
+      </li>
+    </ul>
+  </div>
+  <div v-if="unsectionedIngredients.length">
+    <h3>Other Ingredients</h3>
+    <ul class="ingredients">
+      <li v-for="ingredient in unsectionedIngredients" :key="ingredient.name">
+        {{ ` ${ingredient.amount} ${ingredient.measurement} ${ingredient.name} ` }}
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
 export default {
-  name: "ingredientsComponent",
-  props: {
-    ingredients: {
-      type: Array,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      portions: 4,
-    };
-  },
-  methods: {
-    add2Portions() {
-      let newPortions = this.portions + 2;
-      if (!this.checkServings(newPortions)) {
-        return;
-      }
-      this.ingredients.forEach((ingredient) => {
-        if (ingredient.amount != "") {
-          ingredient.amount /= this.portions;
-          Math.round((ingredient.amount *= newPortions));
-        }
-      });
-      this.portions += 2;
-    },
-    remove2Portions() {
-      let newPortions = this.portions - 2;
-      if (!this.checkServings(newPortions)) {
-        return;
-      }
-      this.ingredients.forEach((ingredient) => {
-        if (ingredient.amount != "") {
-          ingredient.amount /= this.portions;
-          Math.round((ingredient.amount *= newPortions));
-        }
-      });
-      this.portions -= 2;
-    },
-    changeToPortions(e) {
-      if (typeof e == "number") {
-        var number = e;
-      } else {
-        number = parseInt(e.target.value);
-      }
+	name: "ingredientsComponent",
+	props: {
+		ingredients: {
+			type: Array,
+			required: true,
+		},
+	},
+	data() {
+		return {
+			portions: 4,
+		};
+	},
+	computed: {
+		groupedIngredients() {
+			return this.ingredients.reduce((acc, ingredient) => {
+				const section = ingredient.section || "unsectioned";
+				if (!acc[section]) {
+					acc[section] = [];
+				}
+				acc[section].push(ingredient);
+				return acc;
+			}, {});
+		},
+		unsectionedIngredients() {
+			return this.groupedIngredients.unsectioned || [];
+		},
+	},
+	methods: {
+		add2Portions() {
+			const newPortions = this.portions + 2;
+			if (!this.checkServings(newPortions)) {
+				return;
+			}
+			this.ingredients.forEach((ingredient) => {
+				if (ingredient.amount != "") {
+					ingredient.amount /= this.portions;
+					Math.round((ingredient.amount *= newPortions));
+				}
+			});
+			this.portions += 2;
+		},
+		remove2Portions() {
+			const newPortions = this.portions - 2;
+			if (!this.checkServings(newPortions)) {
+				return;
+			}
+			this.ingredients.forEach((ingredient) => {
+				if (ingredient.amount != "") {
+					ingredient.amount /= this.portions;
+					Math.round((ingredient.amount *= newPortions));
+				}
+			});
+			this.portions -= 2;
+		},
+		changeToPortions(e) {
+			if (typeof e === "number") {
+				var number = e;
+			} else {
+				number = Number.parseInt(e.target.value);
+			}
 
-      if (!this.checkServings(number)) {
-        return;
-      }
+			if (!this.checkServings(number)) {
+				return;
+			}
 
-      if (this.portions != number) {
-        let oldPortions = this.portions;
-        this.portions = number;
-        this.ingredients.forEach((ingredient) => {
-          if (ingredient.amount != "") {
-            ingredient.amount /= oldPortions;
-            Math.round((ingredient.amount *= this.portions));
-          }
-        });
-      }
-    },
-    checkServings(portions) {
-      if (portions == "") {
-        document.getElementById("portions").value = this.portions;
-        return false;
-      } else if (portions > 98) {
-        alert("You can't have more than 98 servings!");
-        document.getElementById("portions").value = 98;
-        this.changeToPortions(98);
-        return false;
-      } else if (portions < 1) {
-        alert("You can't have less than 1 serving!");
-        document.getElementById("portions").value = 1;
-        this.changeToPortions(1);
-        return false;
-      } else if (isNaN(portions)) {
-        document.getElementById("portions").value = this.portions;
-        return false;
-      } else {
-        return true;
-      }
-    },
-  },
+			if (this.portions != number) {
+				let oldPortions = this.portions;
+				this.portions = number;
+				this.ingredients.forEach((ingredient) => {
+					if (ingredient.amount != "") {
+						ingredient.amount /= oldPortions;
+						Math.round((ingredient.amount *= this.portions));
+					}
+				});
+			}
+		},
+		checkServings(portions) {
+			if (portions === "") {
+				document.getElementById("portions").value = this.portions;
+				return false;
+			}
+			if (portions > 98) {
+				alert("You can't have more than 98 servings!");
+				document.getElementById("portions").value = 98;
+				this.changeToPortions(98);
+				return false;
+			}
+			if (portions < 1) {
+				alert("You can't have less than 1 serving!");
+				document.getElementById("portions").value = 1;
+				this.changeToPortions(1);
+				return false;
+			}
+			if (Number.isNaN(portions)) {
+				document.getElementById("portions").value = this.portions;
+				return false;
+			}
+			return true;
+		},
+	},
 };
 </script>
 
