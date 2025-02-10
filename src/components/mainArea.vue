@@ -38,15 +38,13 @@ export default {
 		};
 	},
 	mounted() {
-		//if imagelink does not start with http or https, check if a relative link to the image is provided
-		//if not, use the template image
 		if (
-			this.imageLink &&
-			!this.imageLink.startsWith("http") &&
-			!this.imageLink.startsWith("https")
+			this.imgLink &&
+			!this.imgLink.startsWith("http") &&
+			!this.imgLink.startsWith("https")
 		) {
-			this.imgLink = new URL(
-				`@/assets/${this.imageLink}`,
+			this.imgLinkAndTemplate = new URL(
+				`@/assets/${this.imgLink}`,
 				import.meta.url,
 			).href;
 		}
