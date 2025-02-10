@@ -44,7 +44,7 @@ export default {
 			!this.imgLink.startsWith("https")
 		) {
 			this.imgLinkAndTemplate = new URL(
-				`@/assets/${this.imgLink}`,
+				`/images/${this.imgLink}`,
 				import.meta.url,
 			).href;
 		}
