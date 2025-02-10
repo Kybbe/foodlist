@@ -50,7 +50,7 @@
     </ul>
   </div>
   <div v-if="unsectionedIngredients.length">
-    <ul class="ingredients" style="margin-top: 4em">
+    <ul class="ingredients" :style="{ marginTop: unsectionedIngredientsMargin + 'em' }">
       <li v-for="ingredient in unsectionedIngredients" :key="ingredient.name">
         {{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
       </li>
@@ -73,6 +73,9 @@ export default {
 		};
 	},
 	computed: {
+		unsectionedIngredientsMargin() {
+			return `${this.groupedIngredients.length ? "4" : "1"}em`;
+		},
 		groupedIngredients() {
 			return this.ingredients.reduce((acc, ingredient) => {
 				const section = ingredient.section;
