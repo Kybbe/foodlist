@@ -45,15 +45,14 @@
     <h3 v-if="section">{{ section }}</h3>
     <ul class="ingredients">
       <li v-for="ingredient in sectionIngredients" :key="ingredient.name">
-        {{ ` ${ingredient.amount} ${ingredient.measurement} ${ingredient.name} ` }}
+        {{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
       </li>
     </ul>
   </div>
   <div v-if="unsectionedIngredients.length">
-    <h3>Other Ingredients</h3>
-    <ul class="ingredients">
+    <ul class="ingredients" style="margin-top: 4em">
       <li v-for="ingredient in unsectionedIngredients" :key="ingredient.name">
-        {{ ` ${ingredient.amount} ${ingredient.measurement} ${ingredient.name} ` }}
+        {{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
       </li>
     </ul>
   </div>
@@ -76,7 +75,10 @@ export default {
 	computed: {
 		groupedIngredients() {
 			return this.ingredients.reduce((acc, ingredient) => {
-				const section = ingredient.section || "unsectioned";
+				const section = ingredient.section;
+				if (!section) {
+					return acc;
+				}
 				if (!acc[section]) {
 					acc[section] = [];
 				}
@@ -85,7 +87,7 @@ export default {
 			}, {});
 		},
 		unsectionedIngredients() {
-			return this.groupedIngredients.unsectioned || [];
+			return this.ingredients.filter((ingredient) => !ingredient.section);
 		},
 	},
 	methods: {
