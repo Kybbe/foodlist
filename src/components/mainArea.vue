@@ -43,10 +43,7 @@ export default {
 			!this.imgLink.startsWith("http") &&
 			!this.imgLink.startsWith("https")
 		) {
-			this.imgLinkAndTemplate = new URL(
-				`/images/${this.imgLink}`,
-				import.meta.url,
-			).href;
+			this.imgLinkAndTemplate = `${window.location.origin}/images/${this.imgLink}`;
 		}
 
 		if (this.imgLink === "") {
