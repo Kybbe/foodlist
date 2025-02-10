@@ -45,7 +45,10 @@ export default {
 			!this.imageLink.startsWith("http") &&
 			!this.imageLink.startsWith("https")
 		) {
-			this.imgLink = require(`@/assets/${this.imageLink}`);
+			this.imgLink = new URL(
+				`@/assets/${this.imageLink}`,
+				import.meta.url,
+			).href;
 		}
 
 		if (this.imgLink === "") {
