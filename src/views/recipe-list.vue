@@ -93,7 +93,7 @@
             class="imgPart"
             :style="backgroundimg(drink.imgLink, drink.recipeId)"
           >
-            <div class="plateIcon">
+            <div class="plateIcon drinkIcon">
               <svg
                 aria-hidden="true"
                 focusable="false"
@@ -669,11 +669,11 @@ h1 {
     position: absolute;
     right: 10px;
     bottom: -1em;
-    width: 2em;
-    height: 2em;
+    width: 2.5em;
+    height: 2.5em;
 
     background-color: #4a8ee7;
-    padding: 0.7em;
+    padding: 0.4em;
     border-radius: 50%;
 
     svg {
@@ -689,6 +689,10 @@ h1 {
         fill: white;
       }
     }
+  }
+
+  .drinkIcon {
+    background-color: #e74a80;
   }
 }
 
