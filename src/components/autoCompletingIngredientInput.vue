@@ -50,13 +50,14 @@ export default {
 		},
 		search(e) {
 			setTimeout(() => {
-				if (e.query.trim().length) {
-					this.filteredSuggestions = [...this.getSuggestions()];
+				if (!e.query.trim().length) {
+					this.filteredSuggestions = [...this.getSuggestions()].slice(0, 10);
 				} else {
-					this.filteredSuggestions = this.getSuggestions().filter(
-						(suggestion) =>
+					this.filteredSuggestions = this.getSuggestions()
+						.filter((suggestion) =>
 							suggestion.toLowerCase().includes(e.query.toLowerCase()),
-					);
+						)
+						.slice(0, 10);
 				}
 			}, 200);
 		},
