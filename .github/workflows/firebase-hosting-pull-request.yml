@@ -8,6 +8,14 @@ jobs:
     if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
     runs-on: ubuntu-latest
     steps:
+      - name: Build
+        run: |
+          echo "Building the project..."
+          npm install
+          npm run build
+      - name: Deploy to Firebase Hosting
+        run: |
+          echo "Deploying to Firebase Hosting..."
       - uses: actions/checkout@v2
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
