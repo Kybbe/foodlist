@@ -46,7 +46,7 @@ export default {
 	},
 	methods: {
 		checkInstruction(instruction) {
-			var parent = document.getElementById(instruction.id).parentElement;
+			const parent = document.getElementById(instruction.id).parentElement;
 			if (instruction.checked) {
 				parent.classList.remove("checked");
 			} else {
@@ -54,7 +54,7 @@ export default {
 			}
 		},
 		countAmountOfTimers(instructionText) {
-			var amountOfTimers = 0;
+			let amountOfTimers = 0;
 			if (
 				instructionText.includes("minuter") ||
 				instructionText.includes("minut") ||

@@ -73,7 +73,7 @@ export default {
 	},
 	methods: {
 		addIngredient() {
-			let ingredientTemplate = document
+			const ingredientTemplate = document
 				.getElementsByClassName("editIngredients")[0]
 				.cloneNode(true);
 
@@ -89,22 +89,22 @@ export default {
 			this.moreThanOneIngredient = true;
 		},
 		removeIngredient() {
-			let ingredients = document.getElementsByClassName("editIngredients");
+			const ingredients = document.getElementsByClassName("editIngredients");
 			if (ingredients.length > 1) {
 				ingredients[ingredients.length - 1].remove();
 			}
-			if (ingredients.length == 1) {
+			if (ingredients.length === 1) {
 				this.moreThanOneIngredient = false;
 			}
 		},
 		addInstruction() {
-			let list = document.getElementById("instructionsList");
+			const list = document.getElementById("instructionsList");
 
-			let newInstruction = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
+			const newInstruction = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
 
 			list.insertBefore(newInstruction.cloneNode(true), newInstruction); // add the new ingredient to the top of the list
 
-			let instructionInputs = newInstruction.getElementsByTagName("input");
+			const instructionInputs = newInstruction.getElementsByTagName("input");
 			for (let i = 0; i < instructionInputs.length; i++) {
 				//for all inputs in ingredientInputs, set value as ""
 				instructionInputs[i].value = "";
@@ -113,11 +113,11 @@ export default {
 			this.moreThanOneInstruction = true;
 		},
 		removeInstruction() {
-			let instructions = document.getElementsByClassName("editInstructions");
+			const instructions = document.getElementsByClassName("editInstructions");
 			if (instructions.length > 1) {
 				instructions[instructions.length - 1].remove();
 			}
-			if (instructions.length == 1) {
+			if (instructions.length === 1) {
 				this.moreThanOneInstruction = false;
 			}
 		},
@@ -126,26 +126,26 @@ export default {
 				return;
 			}
 
-			let db = firebase.database();
-			var database = firebase.database().ref("recipes");
-			var dbKeys = [];
+			const db = firebase.database();
+			const database = firebase.database().ref("recipes");
+			const dbKeys = [];
 
 			database.on("value", (snapshot) => {
-				snapshot.forEach((childSnapshot) => {
+				for (const childSnapshot of snapshot) {
 					dbKeys.push(childSnapshot.key);
-				});
+				}
 			});
 
-			let recipeFirebase = db.ref("recipes/" + dbKeys[this.$route.params.id]);
+			const recipeFirebase = db.ref(`recipes/${dbKeys[this.$route.params.id]}`);
 
-			let title = document.getElementById("title").value;
-			let drink = document.getElementById("drink").checked;
-			let description = document.getElementById("description").value;
-			let ingredients = [];
-			let ingredientsGroups =
+			const title = document.getElementById("title").value;
+			const drink = document.getElementById("drink").checked;
+			const description = document.getElementById("description").value;
+			const ingredients = [];
+			const ingredientsGroups =
 				document.getElementsByClassName("editIngredients");
 			for (let i = 0; i < ingredientsGroups.length; i++) {
-				let ingredient = {
+				const ingredient = {
 					amount: ingredientsGroups[i].querySelectorAll("input")[0].value,
 					measurment: ingredientsGroups[i].querySelectorAll("input")[1].value,
 					name: ingredientsGroups[i].querySelectorAll("input")[2].value,
@@ -153,29 +153,29 @@ export default {
 				};
 				ingredients.push(ingredient);
 			}
-			let instructions = [];
-			let instructionsGroups =
+			const instructions = [];
+			const instructionsGroups =
 				document.getElementsByClassName("editInstructions");
 			for (let i = 0; i < instructionsGroups.length; i++) {
-				let instruction = {
+				const instruction = {
 					checked: instructionsGroups[i].querySelectorAll("input")[0].value,
 					id: instructionsGroups[i].querySelectorAll("input")[1].value,
 					text: instructionsGroups[i].querySelectorAll("input")[2].value,
 				};
-				if (instruction.checked == "true") {
+				if (instruction.checked === "true") {
 					instruction.checked = true;
 				}
-				if (instruction.checked == "false") {
+				if (instruction.checked === "false") {
 					instruction.checked = false;
 				}
 				instructions.push(instruction);
 			}
-			let servings = document.getElementById("servings").value;
-			let link = document.getElementById("link").value;
-			let imgLink = document.getElementById("imgLink").value;
+			const servings = document.getElementById("servings").value;
+			const link = document.getElementById("link").value;
+			const imgLink = document.getElementById("imgLink").value;
 			let recipeId = this.$route.params.id;
-			recipeId = parseInt(recipeId);
-			let recipeData = {
+			recipeId = Number.parseInt(recipeId);
+			const recipeData = {
 				title: title,
 				drink: drink,
 				description: description,
@@ -188,7 +188,7 @@ export default {
 			};
 			recipeFirebase.update(recipeData);
 			alert("Recipe updated!");
-			this.$router.push("/recipe/" + this.$route.params.id);
+			this.$router.push(`/recipe/${this.$route.params.id}`);
 		},
 		putRecipeDetailsInInputs() {
 			document.getElementById("title").value = this.currentRecipe.title;
@@ -200,17 +200,17 @@ export default {
 				document.getElementById("drink").checked = true;
 			}
 
-			let ingredients = this.currentRecipe.ingredients;
+			const ingredients = this.currentRecipe.ingredients;
 			if (ingredients.length > 1) {
 				this.moreThanOneIngredient = true;
 			}
 			for (let i = 0; i < ingredients.length; i++) {
-				let ingredient = ingredients[i];
-				let amount = ingredient.amount;
-				let measurment = ingredient.measurment;
-				let name = ingredient.name;
-				let section = ingredient.section;
-				let newIngredient = document.createElement("div");
+				const ingredient = ingredients[i];
+				const amount = ingredient.amount;
+				const measurment = ingredient.measurment;
+				const name = ingredient.name;
+				const section = ingredient.section;
+				const newIngredient = document.createElement("div");
 				newIngredient.classList.add("editIngredients");
 				newIngredient.innerHTML = `
 					<input type="text" name="amount" class="amount" value="${amount}" />
@@ -221,16 +221,16 @@ export default {
 				document.getElementById("ingredientsList").appendChild(newIngredient);
 			}
 
-			let instructions = this.currentRecipe.instructions;
+			const instructions = this.currentRecipe.instructions;
 			if (instructions.length > 1) {
 				this.moreThanOneInstruction = true;
 			}
 			for (let i = 0; i < instructions.length; i++) {
-				let instruction = instructions[i];
-				let checked = instruction.checked;
-				let id = instruction.id;
-				let text = instruction.text;
-				let newInstruction = document.createElement("div");
+				const instruction = instructions[i];
+				const checked = instruction.checked;
+				const id = instruction.id;
+				const text = instruction.text;
+				const newInstruction = document.createElement("div");
 				newInstruction.classList.add("editInstructions");
 				newInstruction.innerHTML = `
 					<input type="text" name="checked" class="checked" value="${checked}">

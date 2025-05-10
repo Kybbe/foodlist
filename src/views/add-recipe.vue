@@ -190,13 +190,13 @@ export default {
 	},
 	methods: {
 		addIngredient() {
-			let list = document.getElementById("ingredientsList");
+			const list = document.getElementById("ingredientsList");
 
-			let newIngredient = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
+			const newIngredient = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
 
 			list.insertBefore(newIngredient.cloneNode(true), newIngredient); // add the new ingredient to the top of the list
 
-			let ingredientInputs = newIngredient.getElementsByTagName("input");
+			const ingredientInputs = newIngredient.getElementsByTagName("input");
 			for (let i = 0; i < ingredientInputs.length; i++) {
 				//for all inputs in ingredientInputs, set value as ""
 				ingredientInputs[i].value = "";
@@ -205,20 +205,20 @@ export default {
 			this.moreThanOneIngredient = true;
 		},
 		removeIngredient() {
-			let ingredients = document.getElementsByClassName("ingredients");
+			const ingredients = document.getElementsByClassName("ingredients");
 			if (ingredients.length > 1) {
 				ingredients[ingredients.length - 1].remove();
 			}
-			if (ingredients.length == 1) {
+			if (ingredients.length === 1) {
 				this.moreThanOneIngredient = false;
 			}
 		},
 		fixIngredients() {
-			let ingredients = [];
-			let ingredientsGroups = document.getElementsByClassName("ingredients");
+			const ingredients = [];
+			const ingredientsGroups = document.getElementsByClassName("ingredients");
 			for (let i = 0; i < ingredientsGroups.length; i++) {
-				let ingredient = {};
-				let inputs = ingredientsGroups[i].querySelectorAll("input");
+				const ingredient = {};
+				const inputs = ingredientsGroups[i].querySelectorAll("input");
 				for (let j = 0; j < inputs.length; j++) {
 					ingredient[inputs[j].name] = inputs[j].value;
 				}
@@ -228,13 +228,13 @@ export default {
 			this.checkServings();
 		},
 		addInstruction() {
-			let list = document.getElementById("instructionsList");
+			const list = document.getElementById("instructionsList");
 
-			let newInstruction = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
+			const newInstruction = list.children[list.children.length - 1]; // get the bar where we input text (bottom one)
 
 			list.insertBefore(newInstruction.cloneNode(true), newInstruction); // add the new ingredient to the top of the list
 
-			let instructionInputs = newInstruction.getElementsByTagName("input");
+			const instructionInputs = newInstruction.getElementsByTagName("input");
 			for (let i = 0; i < instructionInputs.length; i++) {
 				//for all inputs in ingredientInputs, set value as ""
 				instructionInputs[i].value = "";
@@ -243,23 +243,24 @@ export default {
 			this.moreThanOneInstruction = true;
 		},
 		removeInstruction() {
-			let instructions = document.getElementsByClassName("instructions");
+			const instructions = document.getElementsByClassName("instructions");
 			if (instructions.length > 1) {
 				instructions[instructions.length - 1].remove();
 			}
-			if (instructions.length == 1) {
+			if (instructions.length === 1) {
 				this.moreThanOneInstruction = false;
 			}
 		},
 		fixInstructions() {
-			let instructionsGroups = document.getElementsByClassName("instructions");
+			const instructionsGroups =
+				document.getElementsByClassName("instructions");
 			for (let i = 0; i < instructionsGroups.length; i++) {
-				let inputs = instructionsGroups[i].querySelectorAll("input");
+				const inputs = instructionsGroups[i].querySelectorAll("input");
 				for (let j = 0; j < inputs.length; j++) {
-					if (inputs[0].value == "") {
+					if (inputs[0].value === "") {
 						// if inputs[0].value is empty, then add the id of current position to the id of the instruction
 						inputs[0].value = i;
-					} else if (inputs[1].value == "") {
+					} else if (inputs[1].value === "") {
 						// if inputs[1].value is empty, then add false to the checked of the instruction
 						inputs[1].value = false;
 					}
@@ -268,15 +269,16 @@ export default {
 			}
 		},
 		populateInstruction() {
-			let instructions = [];
-			let instructionsGroups = document.getElementsByClassName("instructions");
+			const instructions = [];
+			const instructionsGroups =
+				document.getElementsByClassName("instructions");
 			for (let i = 0; i < instructionsGroups.length; i++) {
-				let instruction = {};
-				let inputs = instructionsGroups[i].querySelectorAll("input");
+				const instruction = {};
+				const inputs = instructionsGroups[i].querySelectorAll("input");
 				for (let j = 0; j < inputs.length; j++) {
-					if (inputs[1].value == "true") {
+					if (inputs[1].value === "true") {
 						instruction[inputs[1].name] = true;
-					} else if (inputs[1].value == "false") {
+					} else if (inputs[1].value === "false") {
 						instruction[inputs[1].name] = false;
 					}
 					instruction[inputs[j].name] = inputs[j].value;
@@ -289,21 +291,21 @@ export default {
 			// servings is 4 by default,
 			// if user inputs a number, it will be the number
 			// if users number is less or more than 4, divide all ingredient amounts by input and multiply by 4.
-			let servings = document.getElementById("recipeServings").value;
-			if (servings == "") {
+			const servings = document.getElementById("recipeServings").value;
+			if (servings === "") {
 				return;
 			}
 			if (servings) {
-				if (document.getElementsByClassName("amount")[0].value == "") {
+				if (document.getElementsByClassName("amount")[0].value === "") {
 					return;
 				}
-				let ingredients = this.recipe.ingredients;
-				let amounts = document.getElementsByClassName("amount");
+				const ingredients = this.recipe.ingredients;
+				const amounts = document.getElementsByClassName("amount");
 				for (let i = 0; i < ingredients.length; i++) {
-					if (amounts[i].value == "") {
+					if (amounts[i].value === "") {
 						return;
 					}
-					let oneServing = ingredients[i].amount / servings;
+					const oneServing = ingredients[i].amount / servings;
 					let fourServings = oneServing * 4;
 					fourServings = Number(fourServings.toFixed(1));
 					ingredients[i].amount = fourServings;
@@ -313,18 +315,18 @@ export default {
 			}
 		},
 		post() {
-			if (this.recipe.title == "Test JKL") {
+			if (this.recipe.title === "Test JKL") {
 				this.testPost();
 				this.$router.push("/");
 				return;
 			}
 
 			if (
-				this.recipe.title == "" ||
-				this.recipe.description == "" ||
-				this.recipe.ingredients == "" ||
-				this.recipe.instructions == "" ||
-				this.recipe.link == ""
+				this.recipe.title === "" ||
+				this.recipe.description === "" ||
+				this.recipe.ingredients === "" ||
+				this.recipe.instructions === "" ||
+				this.recipe.link === ""
 			) {
 				alert("Please fill out all fields");
 				return;
@@ -376,7 +378,7 @@ export default {
 			this.fixIngredients();
 			this.fixInstructions();
 
-			let draft = {
+			const draft = {
 				title: this.recipe.title,
 				description: this.recipe.description,
 				ingredients: this.recipe.ingredients,
@@ -390,7 +392,7 @@ export default {
 		},
 		getDraft() {
 			// get draft from localstorage
-			let draft = JSON.parse(localStorage.getItem("draft"));
+			const draft = JSON.parse(localStorage.getItem("draft"));
 			if (draft) {
 				this.draft = draft;
 			}
@@ -420,28 +422,28 @@ export default {
 			}
 			// fill in the inputs with the values from draft
 			//get all inputs in all ingredients class
-			let ingredients = document.getElementsByClassName("ingredients");
+			const ingredients = document.getElementsByClassName("ingredients");
 			//loop through all ingredients
 			for (let i = 0; i < ingredients.length; i++) {
 				//get all inputs in current ingredient
-				let inputs = ingredients[i].querySelectorAll("input");
+				const inputs = ingredients[i].querySelectorAll("input");
 				//loop through all inputs
 				for (let j = 0; j < inputs.length; j++) {
 					//if the input name is text, then put the name from the draft in the input
-					if (inputs[j].name == "name") {
+					if (inputs[j].name === "name") {
 						inputs[j].value = this.recipe.ingredients[i].name;
 					}
 					//if the input name is amount, then put the amount from the draft in the input
-					if (inputs[j].name == "amount") {
+					if (inputs[j].name === "amount") {
 						inputs[j].value = this.recipe.ingredients[i].amount;
 					}
 					//if the input name is measurment, then put the measurment from the draft in the input
-					if (inputs[j].name == "measurment") {
+					if (inputs[j].name === "measurment") {
 						inputs[j].value = this.recipe.ingredients[i].measurment;
 					}
 
 					//if the input name is section, then put the section from the draft in the input
-					if (inputs[j].name == "section") {
+					if (inputs[j].name === "section") {
 						inputs[j].value = this.recipe.ingredients[i].section;
 					}
 				}
@@ -456,23 +458,23 @@ export default {
 			}
 			// fill in the inputs with the values from draft
 			//get all inputs in all instructions class
-			let instructions = document.getElementsByClassName("instructions");
+			const instructions = document.getElementsByClassName("instructions");
 			//loop through all instructions
 			for (let i = 0; i < instructions.length; i++) {
 				//get all inputs in current instruction
-				let inputs = instructions[i].querySelectorAll("input");
+				const inputs = instructions[i].querySelectorAll("input");
 				//loop through all inputs
 				for (let j = 0; j < inputs.length; j++) {
 					//if the input name is text, then put the text from the draft in the input
-					if (inputs[j].name == "text") {
+					if (inputs[j].name === "text") {
 						inputs[j].value = this.recipe.instructions[i].text;
 					}
 					//if the input name is checked, then put the checked from the draft in the input
-					if (inputs[j].name == "checked") {
+					if (inputs[j].name === "checked") {
 						inputs[j].value = this.recipe.instructions[i].checked;
 					}
 					//if the input name is id, then put the id from the draft in the input
-					if (inputs[j].name == "id") {
+					if (inputs[j].name === "id") {
 						inputs[j].value = this.recipe.instructions[i].id;
 					}
 				}
@@ -490,8 +492,8 @@ export default {
 	mounted() {
 		this.addRecipeId();
 		this.getDraft();
-		let inputs = document.getElementsByTagName("input");
-		let textareas = document.getElementsByTagName("textarea");
+		const inputs = document.getElementsByTagName("input");
+		const textareas = document.getElementsByTagName("textarea");
 		for (let i = 0; i < inputs.length; i++) {
 			inputs[i].addEventListener("change", this.saveAsDraft);
 		}
