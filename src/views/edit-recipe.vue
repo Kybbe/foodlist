@@ -219,7 +219,7 @@ export default {
 				newIngredient.innerHTML = `
 					<input type="text" name="amount" class="amount" value="${amount}" />
 					<input type="text" name="measurment" class="measurment" value="${measurment}" />
-					<autoCompletingIngredientInput placeholder="Tomatoes" value="${name}" />
+					<AutoCompletingIngredientInput placeholder="Tomatoes" value="${name}" />
           <input type="text" name="section" class="section" value="${section}" />
 				`;
 				document.getElementById("ingredientsList").appendChild(newIngredient);

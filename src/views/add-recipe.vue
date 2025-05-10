@@ -62,7 +62,7 @@
                 class="amount"
               />
               <input type="text" placeholder="Large" name="measurment" />
-							<autoCompletingIngredientInput
+							<AutoCompletingIngredientInput
 								placeholder="Tomatoes"
 								v-on:change="fixIngredients"
 								required
