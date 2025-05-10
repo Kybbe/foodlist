@@ -21,7 +21,7 @@
       >
         <timer
           :instruction="
-            splitOutTimerPlaces(instruction.text)[n - 1].value + ' minuter '
+            instruction.text
           "
           :id="instruction.id"
           v-if="!instruction.checked"
@@ -34,47 +34,54 @@
 <script>
 import timer from "./timer.vue";
 export default {
-  name: "instructionComponent",
-  components: {
-    timer,
-  },
-  props: {
-    instructions: {
-      type: Array,
-      required: true,
-    },
-  },
-  methods: {
-    checkInstruction(instruction) {
-      var parent = document.getElementById(instruction.id).parentElement;
-      if (instruction.checked) {
-        parent.classList.remove("checked");
-      } else {
-        parent.classList.add("checked");
-      }
-    },
-    countAmountOfTimers(instructionText) {
-      var amountOfTimers = 0;
-      if (instructionText.includes("minuter")) {
-        amountOfTimers = instructionText.match(/minuter/g).length;
-      }
-      return amountOfTimers;
-    },
-    splitOutTimerPlaces(instructionText) {
-      let timeValues = [];
-      let timeRegExp = /(\d+) minuter/g;
+	name: "instructionComponent",
+	components: {
+		timer,
+	},
+	props: {
+		instructions: {
+			type: Array,
+			required: true,
+		},
+	},
+	methods: {
+		checkInstruction(instruction) {
+			var parent = document.getElementById(instruction.id).parentElement;
+			if (instruction.checked) {
+				parent.classList.remove("checked");
+			} else {
+				parent.classList.add("checked");
+			}
+		},
+		countAmountOfTimers(instructionText) {
+			var amountOfTimers = 0;
+			if (
+				instructionText.includes("minuter") ||
+				instructionText.includes("minut") ||
+				instructionText.includes("timme") ||
+				instructionText.includes("timmar")
+			) {
+				amountOfTimers += instructionText.match(/minut/g)?.length;
+				amountOfTimers += instructionText.match(/timmar/g)?.length;
+				amountOfTimers += instructionText.match(/timme/g)?.length;
+			}
+			return amountOfTimers;
+		},
+		/* splitOutTimerPlaces(instructionText) {
+			let timeValues = [];
+			let timeRegExp = /(\d+) minuter/g;
 
-      let match;
-      while ((match = timeRegExp.exec(instructionText))) {
-        timeValues.push({
-          value: parseInt(match[1], 10),
-          unit: "minuter",
-        });
-      }
+			let match;
+			while ((match = timeRegExp.exec(instructionText))) {
+				timeValues.push({
+					value: parseInt(match[1], 10),
+					unit: "minuter",
+				});
+			}
 
-      return timeValues;
-    },
-  },
+			return timeValues;
+		}, */
+	},
 };
 </script>
 
