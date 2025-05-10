@@ -94,7 +94,7 @@ export default {
 			return `${this.groupedIngredients.length ? "4" : "1"}em`;
 		},
 		groupedIngredients() {
-			return this.ingredients.reduce((acc, ingredient) => {
+			return [...this.ingredients].reduce((acc, ingredient) => {
 				const section = ingredient.section;
 				if (!section) {
 					return acc;
@@ -107,10 +107,10 @@ export default {
 			}, {});
 		},
 		unsectionedIngredients() {
-			return this.ingredients.filter((ingredient) => !ingredient.section);
+			return [...this.ingredients].filter((ingredient) => !ingredient.section);
 		},
 		ingredientsSortedAlphabetically() {
-			return this.ingredients.sort((a, b) => {
+			return [...this.ingredients].sort((a, b) => {
 				const nameA = a.name.toLowerCase();
 				const nameB = b.name.toLowerCase();
 				if (nameA < nameB) return -1;
@@ -125,12 +125,12 @@ export default {
 			if (!this.checkServings(newPortions)) {
 				return;
 			}
-			this.ingredients.forEach((ingredient) => {
-				if (ingredient.amount != "") {
+			for (const ingredient of this.ingredients) {
+				if (ingredient.amount !== "") {
 					ingredient.amount /= this.portions;
-					Math.round((ingredient.amount *= newPortions));
+					ingredient.amount = Math.round(ingredient.amount * newPortions);
 				}
-			});
+			}
 			this.portions += 2;
 		},
 		remove2Portions() {
@@ -138,17 +138,18 @@ export default {
 			if (!this.checkServings(newPortions)) {
 				return;
 			}
-			this.ingredients.forEach((ingredient) => {
-				if (ingredient.amount != "") {
+			for (const ingredient of this.ingredients) {
+				if (ingredient.amount !== "") {
 					ingredient.amount /= this.portions;
-					Math.round((ingredient.amount *= newPortions));
+					ingredient.amount = Math.round(ingredient.amount * newPortions);
 				}
-			});
+			}
 			this.portions -= 2;
 		},
 		changeToPortions(e) {
+			let number = 0;
 			if (typeof e === "number") {
-				var number = e;
+				number = e;
 			} else {
 				number = Number.parseInt(e.target.value);
 			}
@@ -157,15 +158,16 @@ export default {
 				return;
 			}
 
-			if (this.portions != number) {
-				let oldPortions = this.portions;
+			if (this.portions !== number) {
+				const oldPortions = [...this.portions];
 				this.portions = number;
-				this.ingredients.forEach((ingredient) => {
-					if (ingredient.amount != "") {
+
+				for (const ingredient of this.ingredients) {
+					if (ingredient.amount !== "") {
 						ingredient.amount /= oldPortions;
-						Math.round((ingredient.amount *= this.portions));
+						ingredient.amount = Math.round(ingredient.amount * this.portions);
 					}
-				});
+				}
 			}
 		},
 		checkServings(portions) {
