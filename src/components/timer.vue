@@ -38,7 +38,7 @@
     <button class="timerStop" v-on:click="this.stopTimer" v-if="this.started">
       Stop
     </button>
-    <button class="timerReset" v-on:click="this.resetTimer" v-if="this.started">
+    <button class="timerReset" v-on:click="this.resetTimer" v-if="this.time !== originalTime">
       Reset
     </button>
   </label>
@@ -62,12 +62,6 @@ export default {
 	},
 	methods: {
 		getTimeFromInstruction() {
-			console.log("getTimeFromInstruction", {
-				instruction: this.instruction,
-				time: this.time,
-				originalTime: this.originalTime,
-				started: this.started,
-			});
 			// Match number directly followed by unit (minut/er or timme/ar)
 			const regex = /(\d+(?:[\.,]\d+)?)\s*(timmar?|timme|minuter?|minut)/i;
 			const match = regex.exec(this.instruction);
@@ -86,13 +80,6 @@ export default {
 			const time = `0${Math.floor(minutes / 60)}:${minutes % 60}:00`;
 			this.time = time;
 			this.originalTime = time;
-
-			console.log("getTimeFromInstruction done", {
-				instruction: this.instruction,
-				time: this.time,
-				originalTime: this.originalTime,
-				started: this.started,
-			});
 
 			document.querySelector(".time").innerHTML = time;
 		},
