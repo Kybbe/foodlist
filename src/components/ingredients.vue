@@ -60,15 +60,15 @@
     <h3 v-if="section">{{ section }}</h3>
     <ul class="ingredients">
       <li v-for="ingredient in sectionIngredients" :key="ingredient.name">
-        {{ ` ${ingredient.amount} ${ingredient.measurement} ${ingredient.name} ` }}
+        {{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
       </li>
     </ul>
   </div>
   <div v-if="unsectionedIngredients.length && !sortAlphabeticallyAndIgnoreSections">
-    <h3>Other Ingredients</h3>
-    <ul class="ingredients">
+		<h3>Other Ingredients</h3>
+			<ul class="ingredients" :style="{ marginTop: unsectionedIngredientsMargin + 'em' }">
       <li v-for="ingredient in unsectionedIngredients" :key="ingredient.name">
-        {{ ` ${ingredient.amount} ${ingredient.measurement} ${ingredient.name} ` }}
+        {{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
       </li>
     </ul>
   </div>
@@ -90,9 +90,15 @@ export default {
 		};
 	},
 	computed: {
+		unsectionedIngredientsMargin() {
+			return `${this.groupedIngredients.length ? "4" : "1"}em`;
+		},
 		groupedIngredients() {
 			return this.ingredients.reduce((acc, ingredient) => {
-				const section = ingredient.section || "unsectioned";
+				const section = ingredient.section;
+				if (!section) {
+					return acc;
+				}
 				if (!acc[section]) {
 					acc[section] = [];
 				}
@@ -101,7 +107,16 @@ export default {
 			}, {});
 		},
 		unsectionedIngredients() {
-			return this.groupedIngredients.unsectioned || [];
+			return this.ingredients.filter((ingredient) => !ingredient.section);
+		},
+		ingredientsSortedAlphabetically() {
+			return this.ingredients.sort((a, b) => {
+				const nameA = a.name.toLowerCase();
+				const nameB = b.name.toLowerCase();
+				if (nameA < nameB) return -1;
+				if (nameA > nameB) return 1;
+				return 0;
+			});
 		},
 		ingredientsSortedAlphabetically() {
 			return this.ingredients.sort((a, b) => {
