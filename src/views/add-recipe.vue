@@ -62,13 +62,11 @@
                 class="amount"
               />
               <input type="text" placeholder="Large" name="measurment" />
-              <input
-                type="text"
-                placeholder="Tomatoes"
-                name="name"
-                v-on:change="fixIngredients"
-                required
-              />
+							<autoCompletingIngredientInput
+								placeholder="Tomatoes"
+								v-on:change="fixIngredients"
+								required
+							/>
               <input
                 type="text"
                 placeholder="Salad"
