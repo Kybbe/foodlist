@@ -1,4 +1,4 @@
-<template>
+<template v-if="time && originalTime">
   <label class="timer">
     <svg
       style="width: 30px; height: 30px"
