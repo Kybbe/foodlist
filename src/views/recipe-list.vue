@@ -207,10 +207,10 @@ export default {
 	methods: {
 		saveAndRedirect(recipe) {
 			this.$store.commit("setSelectedRecipe", recipe);
-			this.$router.push("/recipe/" + recipe.recipeId);
+			this.$router.push(`/recipe/${recipe.recipeId}`);
 		},
 		backgroundimg(specificLink, thisId) {
-			if (specificLink == "") {
+			if (specificLink === "") {
 				// if no image is provided, give it one
 				if (this.$store.state.recipesList[thisId].drink) {
 					// if it's a drink, give it a drink image
@@ -228,39 +228,39 @@ export default {
 			};
 		},
 		minMaxCards() {
-			let cardImgs = document.querySelectorAll(".imgPart");
-			let icons = document.querySelectorAll(".plateIcon");
-			let cardBodys = document.querySelectorAll(".card-body");
-			let btn = document.querySelector("#minMaxBtn");
+			const cardImgs = document.querySelectorAll(".imgPart");
+			const icons = document.querySelectorAll(".plateIcon");
+			const cardBodys = document.querySelectorAll(".card-body");
+			const btn = document.querySelector("#minMaxBtn");
 
 			if (!this.minimized) {
-				cardBodys.forEach((cardBody) => {
+				for (const cardBody of cardBodys) {
 					cardBody.style.display = "none";
-				});
+				}
 
-				cardImgs.forEach((cardImg) => {
+				for (const cardImg of cardImgs) {
 					cardImg.style.borderRadius = "10px";
-				});
+				}
 
-				icons.forEach((icon) => {
+				for (const icon of icons) {
 					icon.style.bottom = "1em";
-				});
+				}
 
 				btn.innerHTML = "Show card text";
 
 				this.minimized = true;
 			} else {
-				cardBodys.forEach((cardBody) => {
+				for (const cardBody of cardBodys) {
 					cardBody.style.display = null;
-				});
+				}
 
-				cardImgs.forEach((cardImg) => {
+				for (const cardImg of cardImgs) {
 					cardImg.style.borderRadius = null;
-				});
+				}
 
-				icons.forEach((icon) => {
+				for (const icon of icons) {
 					icon.style.bottom = null;
-				});
+				}
 
 				btn.innerHTML = "Hide card text";
 
@@ -273,13 +273,13 @@ export default {
 	},
 	computed: {
 		searchResult() {
-			const tempRecipes = this.$store.state.recipesList;
+			let tempRecipes = this.$store.state.recipesList;
 			// remove all recipe with drink property
 			tempRecipes = tempRecipes.filter((recipe) => {
 				return !recipe.drink;
 			});
 
-			if (this.searchValue != "" && this.searchValue) {
+			if (this.searchValue !== "" && this.searchValue) {
 				tempRecipes = tempRecipes.filter((item) => {
 					return item.title
 						.toUpperCase()
@@ -287,12 +287,12 @@ export default {
 				});
 			}
 
-			if (this.selectedIngredient != "") {
+			if (this.selectedIngredient !== "") {
 				// filter recipes by selected ingredient
 				tempRecipes = tempRecipes.filter((item) => {
 					return item.ingredients.some((ingredient) => {
 						return (
-							ingredient.name.toUpperCase() ==
+							ingredient.name.toUpperCase() ===
 							this.selectedIngredient.toUpperCase()
 						);
 					});
@@ -300,9 +300,9 @@ export default {
 			}
 
 			tempRecipes = tempRecipes.sort((a, b) => {
-				if (this.sortBy == "alphabetically") {
-					let fa = a.title.toLowerCase(),
-						fb = b.title.toLowerCase();
+				if (this.sortBy === "alphabetically") {
+					const fa = a.title.toLowerCase();
+					const fb = b.title.toLowerCase();
 
 					if (fa < fb) {
 						return -1;
@@ -313,25 +313,26 @@ export default {
 					return 0;
 
 					// Sort by id
-				} else if (this.sortBy == "recipeId") {
+				}
+				if (this.sortBy === "recipeId") {
 					return a.recipeId - b.recipeId;
 				}
 			});
 
-			if (this.sortBy == "drinks") {
+			if (this.sortBy === "drinks") {
 				return null;
 			}
 
 			return tempRecipes;
 		},
 		drinks() {
-			const tempDrinks = this.$store.state.recipesList;
+			let tempDrinks = this.$store.state.recipesList;
 			// keep only recipes with drink property
 			tempDrinks = tempDrinks.filter((recipe) => {
 				return recipe.drink;
 			});
 
-			if (this.searchValue != "" && this.searchValue) {
+			if (this.searchValue !== "" && this.searchValue) {
 				tempDrinks = tempDrinks.filter((item) => {
 					return item.title
 						.toUpperCase()
@@ -339,13 +340,13 @@ export default {
 				});
 			}
 
-			if (this.selectedIngredient != "") {
+			if (this.selectedIngredient !== "") {
 				// filter recipes by selected ingredient
 				// ingredient name is stored in the recipe.ingredients.name property
 				tempDrinks = tempDrinks.filter((item) => {
 					return item.ingredients.some((ingredient) => {
 						return (
-							ingredient.name.toUpperCase() ==
+							ingredient.name.toUpperCase() ===
 							this.selectedIngredient.toUpperCase()
 						);
 					});
@@ -353,9 +354,9 @@ export default {
 			}
 
 			tempDrinks = tempDrinks.sort((a, b) => {
-				if (this.sortBy == "alphabetically") {
-					let fa = a.title.toLowerCase(),
-						fb = b.title.toLowerCase();
+				if (this.sortBy === "alphabetically") {
+					const fa = a.title.toLowerCase();
+					const fb = b.title.toLowerCase();
 
 					if (fa < fb) {
 						return -1;
@@ -366,12 +367,13 @@ export default {
 					return 0;
 
 					// Sort by id
-				} else if (this.sortBy == "recipeId") {
+				}
+				if (this.sortBy === "recipeId") {
 					return a.recipeId - b.recipeId;
 				}
 			});
 
-			if (this.sortBy == "foods") {
+			if (this.sortBy === "foods") {
 				return null;
 			}
 
@@ -380,37 +382,37 @@ export default {
 		sortAndListIngredients() {
 			// get all recipe ingredients and put into array
 			const tempIngredients = [];
-			this.$store.state.recipesList.forEach((recipe) => {
-				recipe.ingredients.forEach((ingredient) => {
+			for (const recipe of this.$store.state.recipesList) {
+				for (const ingredient of recipe.ingredients) {
 					tempIngredients.push(ingredient.name);
-				});
-			});
+				}
+			}
 
 			// count each ingredient and put into array
 			const tempIngredientsCount = [];
-			tempIngredients.forEach((ingredient) => {
-				const count = 0;
-				tempIngredients.forEach((ingredient2) => {
-					if (ingredient == ingredient2) {
+			for (const ingredient of tempIngredients) {
+				let count = 0;
+				for (const ingredient2 of tempIngredients) {
+					if (ingredient === ingredient2) {
 						count++;
 					}
-				});
+				}
 				tempIngredientsCount.push({ name: ingredient, value: count });
-			});
+			}
 
 			// remove duplicates
 			const tempIngredientsCount2 = [];
-			tempIngredientsCount.forEach((ingredient) => {
-				const count = 0;
-				tempIngredientsCount2.forEach((ingredient2) => {
-					if (ingredient.name == ingredient2.name) {
+			for (const ingredient of tempIngredientsCount) {
+				let count = 0;
+				for (const ingredient2 of tempIngredientsCount) {
+					if (ingredient.name === ingredient2.name) {
 						count++;
 					}
-				});
-				if (count == 0) {
+				}
+				if (count === 0) {
 					tempIngredientsCount2.push(ingredient);
 				}
-			});
+			}
 
 			// sort by value and if same value, sort by name
 			tempIngredientsCount2.sort((a, b) =>
@@ -426,22 +428,20 @@ export default {
 			return tempIngredientsCount2;
 		},
 		noResults() {
-			if (this.drinks == null || this.drinks.length == 0) {
-				if (this.searchResult == null || this.searchResult.length == 0) {
+			if (this.drinks == null || this.drinks.length === 0) {
+				if (this.searchResult == null || this.searchResult.length === 0) {
 					return true;
-				} else {
-					return false;
 				}
-			} else {
 				return false;
 			}
+			return false;
 		},
 		randomNumberGenerator() {
 			// make a array of all shown recipes (searchResult + drinks)
 			// get a random number between 0 and the length of the array
 			// get the recipe at that number
 
-			const allShownRecipes = [];
+			let allShownRecipes = [];
 			if (this.searchResult != null) {
 				allShownRecipes = allShownRecipes.concat(this.searchResult);
 			}
@@ -449,13 +449,12 @@ export default {
 				allShownRecipes = allShownRecipes.concat(this.drinks);
 			}
 
-			let randomNumber = Math.floor(Math.random() * allShownRecipes.length);
+			const randomNumber = Math.floor(Math.random() * allShownRecipes.length);
 
-			if (allShownRecipes.length == 0) {
+			if (allShownRecipes.length === 0) {
 				return null;
-			} else {
-				return allShownRecipes[randomNumber].recipeId;
 			}
+			return allShownRecipes[randomNumber].recipeId;
 		},
 	},
 	mounted() {
