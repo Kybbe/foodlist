@@ -51,6 +51,7 @@
             <label for="amount">Quantity:</label>
             <label for="ingredientUnit">Unit:</label>
             <label for="ingredientName">Ingredient Name:</label>
+            <label for="ingredientSection">Section?:</label>
           </div>
           <div id="ingredientsList">
             <div class="ingredients">
