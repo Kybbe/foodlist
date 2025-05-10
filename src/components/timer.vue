@@ -62,25 +62,19 @@ export default {
 	},
 	methods: {
 		getTimeFromInstruction() {
-			// Match a number (integer or decimal) followed by optional singular/plural unit
-			const regex = /(\d+(?:[\.,]\d+)?)(?=\s*(timmar?|timme|minuter?|minut)?)/i;
+			// Match number directly followed by unit (minut/er or timme/ar)
+			const regex = /(\d+(?:[\.,]\d+)?)\s*(timmar?|timme|minuter?|minut)/i;
 			const match = regex.exec(this.instruction);
-
 			if (!match) return;
 
-			// Normalize decimal separator
-			const number = Number.parseFloat(match[1].replace(",", "."));
-			const rawUnit = match[2]?.toLowerCase();
+			const rawNumber = match[1].replace(",", ".");
+			const unit = match[2].toLowerCase();
 
-			// Normalize unit
-			let unit = "";
-			if (rawUnit?.startsWith("tim")) unit = "timmar";
-			else if (rawUnit?.startsWith("min")) unit = "minuter";
+			const number = Number.parseFloat(rawNumber);
+			if (Number.isNaN(number)) return;
 
-			// Convert to minutes if hours
-			let minutes = unit === "timmar" ? number * 60 : number;
-
-			// Round just in case
+			// Convert to minutes if it's timmar
+			let minutes = unit.startsWith("tim") ? number * 60 : number;
 			minutes = Math.round(minutes);
 
 			const time = `0${Math.floor(minutes / 60)}:${minutes % 60}:00`;
