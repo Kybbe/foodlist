@@ -46,88 +46,104 @@
 
 <script>
 export default {
-  name: "timerComponent",
-  props: {
-    instruction: {
-      type: String,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      time: "",
-      originalTime: "",
-      started: false,
-    };
-  },
-  methods: {
-    getTimeFromInstruction() {
-      //find the two digits before the word "minuter"
-      var regex = /\d\d/;
-      var minutes = parseInt(regex.exec(this.instruction));
-      if (isNaN(minutes)) {
-        regex = /\d/;
-        minutes = parseInt(regex.exec(this.instruction));
-      }
-      if (isNaN(minutes)) {
-        return;
-      }
+	name: "timerComponent",
+	props: {
+		instruction: {
+			type: String,
+			required: true,
+		},
+	},
+	data() {
+		return {
+			time: "",
+			originalTime: "",
+			started: false,
+		};
+	},
+	methods: {
+		getTimeFromInstruction() {
+			// Match a number (integer or decimal) followed by optional singular/plural unit
+			const regex = /(\d+(?:[\.,]\d+)?)(?=\s*(timmar?|timme|minuter?|minut)?)/i;
+			const match = regex.exec(this.instruction);
 
-      var time = "0" + Math.floor(minutes / 60) + ":" + (minutes % 60) + ":00";
-      this.time = time;
-      this.originalTime = time;
+			if (!match) return;
 
-      document.querySelector(".time").innerHTML = time;
-    },
-    countdownTimer() {
-      this.started = true;
-      var timer = setInterval(() => {
-        if (!this.started) {
-          clearInterval(timer);
-          return;
-        }
-        const time = this.time;
-        const [hours, minutes, seconds] = time.split(":");
-        const newSeconds = parseInt(seconds, 10) - 1;
-        const newMinutes = parseInt(minutes, 10);
-        const newHours = parseInt(hours, 10);
+			// Normalize decimal separator
+			const number = Number.parseFloat(match[1].replace(",", "."));
+			const rawUnit = match[2]?.toLowerCase();
 
-        if (newSeconds <= 0) {
-          if (newMinutes <= 0) {
-            if (newHours <= 0) {
-              clearInterval(timer);
-              this.timerDone();
-              return;
-            }
-            this.time = `${newHours - 1}:59:59`;
-          } else {
-            this.time = `${newHours}:${newMinutes - 1}:59`;
-          }
-        } else {
-          this.time = `${newHours}:${newMinutes}:${newSeconds}`;
-        }
-      }, 1000);
-    },
-    stopTimer() {
-      this.started = false;
-    },
-    resetTimer() {
-      this.time = this.originalTime;
-      this.started = false;
-    },
-    timerDone() {
-      var audio = new Audio(
-        "https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
-      );
-      audio.play();
-      alert("Time's up!");
-      audio.pause();
-      this.resetTimer();
-    },
-  },
-  mounted() {
-    this.getTimeFromInstruction();
-  },
+			// Normalize unit
+			let unit = "";
+			if (rawUnit?.startsWith("tim")) unit = "timmar";
+			else if (rawUnit?.startsWith("min")) unit = "minuter";
+
+			// Convert to minutes if hours
+			let minutes = unit === "timmar" ? number * 60 : number;
+
+			// Round just in case
+			minutes = Math.round(minutes);
+
+			const time = `0${Math.floor(minutes / 60)}:${minutes % 60}:00`;
+			this.time = time;
+			this.originalTime = time;
+
+			document.querySelector(".time").innerHTML = time;
+		},
+		countdownTimer() {
+			// first check if already started
+			if (this.started) return;
+			// then start the timer
+			this.started = true;
+			const timer = setInterval(() => {
+				// check if timer is stopped every second
+				if (!this.started) {
+					clearInterval(timer);
+					return;
+				}
+				const time = this.time;
+				const [hours, minutes, seconds] = time.split(":");
+				const newSeconds = Number.parseInt(seconds, 10) - 1;
+				const newMinutes = Number.parseInt(minutes, 10);
+				const newHours = Number.parseInt(hours, 10);
+
+				if (newSeconds <= 0) {
+					if (newMinutes <= 0) {
+						if (newHours <= 0) {
+							clearInterval(timer);
+							this.timerDone();
+							return;
+						}
+						this.time = `${newHours - 1}:59:59`;
+					} else {
+						this.time = `${newHours}:${newMinutes - 1}:59`;
+					}
+				} else {
+					this.time = `${newHours}:${newMinutes}:${newSeconds}`;
+				}
+			}, 1000);
+		},
+		stopTimer() {
+			this.started = false;
+		},
+		resetTimer() {
+			this.time = this.originalTime;
+			this.started = false;
+		},
+		timerDone() {
+			const audio = new Audio(
+				"https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg",
+			);
+			audio.play();
+			// alert the user
+			alert("Timer done!");
+			// stop the timer
+			audio.pause();
+			this.resetTimer();
+		},
+	},
+	mounted() {
+		this.getTimeFromInstruction();
+	},
 };
 </script>
 
