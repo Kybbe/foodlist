@@ -50,7 +50,6 @@
 		<label for="sortAlphabeticallyAndIgnoreSections">Sort alphabetically and ignore sections</label>
 	</div>
 	<div v-if="sortAlphabeticallyAndIgnoreSections">
-		<h3>Ingredients</h3>
 		<ul class="ingredients">
 			<li v-for="ingredient in ingredients" :key="ingredient.name">
 				{{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
@@ -65,8 +64,9 @@
       </li>
     </ul>
   </div>
-  <div v-if="unsectionedIngredients.length">
-    <ul class="ingredients" :style="{ marginTop: unsectionedIngredientsMargin + 'em' }">
+  <div v-if="unsectionedIngredients.length && !sortAlphabeticallyAndIgnoreSections">
+		<h3>Other Ingredients</h3>
+			<ul class="ingredients" :style="{ marginTop: unsectionedIngredientsMargin + 'em' }">
       <li v-for="ingredient in unsectionedIngredients" :key="ingredient.name">
         {{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
       </li>
