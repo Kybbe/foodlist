@@ -62,6 +62,12 @@ export default {
 	},
 	methods: {
 		getTimeFromInstruction() {
+			console.log("getTimeFromInstruction", {
+				instruction: this.instruction,
+				time: this.time,
+				originalTime: this.originalTime,
+				started: this.started,
+			});
 			// Match number directly followed by unit (minut/er or timme/ar)
 			const regex = /(\d+(?:[\.,]\d+)?)\s*(timmar?|timme|minuter?|minut)/i;
 			const match = regex.exec(this.instruction);
@@ -80,6 +86,13 @@ export default {
 			const time = `0${Math.floor(minutes / 60)}:${minutes % 60}:00`;
 			this.time = time;
 			this.originalTime = time;
+
+			console.log("getTimeFromInstruction done", {
+				instruction: this.instruction,
+				time: this.time,
+				originalTime: this.originalTime,
+				started: this.started,
+			});
 
 			document.querySelector(".time").innerHTML = time;
 		},
