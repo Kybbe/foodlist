@@ -51,7 +51,7 @@
 	</div>
 	<div v-if="sortAlphabeticallyAndIgnoreSections">
 		<ul class="ingredients">
-			<li v-for="ingredient in ingredients" :key="ingredient.name">
+			<li v-for="ingredient in ingredientsSortedAlphabetically" :key="ingredient.name">
 				{{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
 			</li>
 		</ul>
@@ -102,6 +102,15 @@ export default {
 		},
 		unsectionedIngredients() {
 			return this.groupedIngredients.unsectioned || [];
+		},
+		ingredientsSortedAlphabetically() {
+			return this.ingredients.sort((a, b) => {
+				const nameA = a.name.toLowerCase();
+				const nameB = b.name.toLowerCase();
+				if (nameA < nameB) return -1;
+				if (nameA > nameB) return 1;
+				return 0;
+			});
 		},
 	},
 	methods: {
