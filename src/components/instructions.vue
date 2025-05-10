@@ -61,9 +61,10 @@ export default {
 				instructionText.includes("timme") ||
 				instructionText.includes("timmar")
 			) {
-				amountOfTimers += instructionText.match(/minut/g)?.length ?? 0;
-				amountOfTimers += instructionText.match(/timmar/g)?.length ?? 0;
-				amountOfTimers += instructionText.match(/timme/g)?.length ?? 0;
+				amountOfTimers +=
+					instructionText.match(/\bminut(?:er)?\b/gi)?.length ?? 0;
+				amountOfTimers += instructionText.match(/\btimmar?\b/gi)?.length ?? 0;
+				amountOfTimers += instructionText.match(/\btimme\b/gi)?.length ?? 0;
 			}
 			return amountOfTimers;
 		},
