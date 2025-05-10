@@ -167,9 +167,13 @@
 <script>
 import firebase from "firebase/app";
 import "firebase/database";
+import AutoCompletingIngredientInput from "../components/autoCompletingIngredientInput.vue";
 
 export default {
 	name: "AddRecipe",
+	components: {
+		AutoCompletingIngredientInput,
+	},
 	data() {
 		return {
 			recipe: {
