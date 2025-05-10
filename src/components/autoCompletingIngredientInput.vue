@@ -5,8 +5,13 @@
 </template>
 
 <script>
+import AutoComplete from "primevue/autocomplete";
+
 export default {
 	name: "autoCompletingIngredientInput",
+	components: {
+		AutoComplete,
+	},
 	props: {
 		placeholder: {
 			type: String,
