@@ -66,10 +66,6 @@ export default {
 				amountOfTimers += instructionText.match(/\btimmar?\b/gi)?.length ?? 0;
 				amountOfTimers += instructionText.match(/\btimme\b/gi)?.length ?? 0;
 			}
-			console.log("amountOfTimers", {
-				instructionText: instructionText,
-				amountOfTimers: amountOfTimers,
-			});
 			return amountOfTimers;
 		},
 		/* splitOutTimerPlaces(instructionText) {
