@@ -41,7 +41,23 @@
       </svg>
     </button>
   </div>
- <div v-for="(sectionIngredients, section) in groupedIngredients" :key="section">
+	<div id="sortAlphabeticallyAndIgnoreSectionsCheckboxContainer">
+		<input
+			type="checkbox"
+			id="sortAlphabeticallyAndIgnoreSections"
+			v-model="sortAlphabeticallyAndIgnoreSections"
+		/>
+		<label for="sortAlphabeticallyAndIgnoreSections">Sort alphabetically and ignore sections</label>
+	</div>
+	<div v-if="sortAlphabeticallyAndIgnoreSections">
+		<h3>Ingredients</h3>
+		<ul class="ingredients">
+			<li v-for="ingredient in ingredients" :key="ingredient.name">
+				{{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
+			</li>
+		</ul>
+	</div>
+  <div v-else-if="!sortAlphabeticallyAndIgnoreSections" v-for="(sectionIngredients, section) in groupedIngredients" :key="section">
     <h3 v-if="section">{{ section }}</h3>
     <ul class="ingredients">
       <li v-for="ingredient in sectionIngredients" :key="ingredient.name">
@@ -70,6 +86,7 @@ export default {
 	data() {
 		return {
 			portions: 4,
+			sortAlphabeticallyAndIgnoreSections: false,
 		};
 	},
 	computed: {
