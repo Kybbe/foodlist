@@ -13,7 +13,9 @@
   },
   "main": ".eslintrc.js",
   "dependencies": {
+    "@primeuix/themes": "^1.1.1",
     "firebase": "^8.10.0",
+    "primevue": "^4.3.4",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.2"
