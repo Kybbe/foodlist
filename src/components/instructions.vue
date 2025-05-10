@@ -61,9 +61,9 @@ export default {
 				instructionText.includes("timme") ||
 				instructionText.includes("timmar")
 			) {
-				amountOfTimers += instructionText.match(/minut/g)?.length;
-				amountOfTimers += instructionText.match(/timmar/g)?.length;
-				amountOfTimers += instructionText.match(/timme/g)?.length;
+				amountOfTimers += instructionText.match(/minut/g)?.length ?? 0;
+				amountOfTimers += instructionText.match(/timmar/g)?.length ?? 0;
+				amountOfTimers += instructionText.match(/timme/g)?.length ?? 0;
 			}
 			console.log("amountOfTimers", {
 				instructionText: instructionText,
