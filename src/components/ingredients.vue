@@ -120,6 +120,9 @@ export default {
 		},
 	},
 	methods: {
+		roundToTwoDecimals(num) {
+			return Math.round(num * 100) / 100;
+		},
 		add2Portions() {
 			const newPortions = this.portions + 2;
 			if (!this.checkServings(newPortions)) {
@@ -128,7 +131,9 @@ export default {
 			for (const ingredient of this.ingredients) {
 				if (ingredient.amount !== "") {
 					ingredient.amount /= this.portions;
-					ingredient.amount = Math.round(ingredient.amount * newPortions);
+					ingredient.amount = this.roundToTwoDecimals(
+						ingredient.amount * newPortions,
+					);
 				}
 			}
 			this.portions += 2;
