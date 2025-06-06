@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import Images from "./images";
+
 export default {
 	name: "mainArea",
 	props: {
@@ -38,20 +40,22 @@ export default {
 		};
 	},
 	mounted() {
+		let localImage = null;
+
 		if (
 			this.imgLink &&
 			!this.imgLink.startsWith("http") &&
 			!this.imgLink.startsWith("https")
 		) {
-			this.imgLinkAndTemplate = `${window.location.origin}/images/${this.imgLink}`;
+			localImage = Images().getImageByName(this.imgLink);
 		}
 
-		if (this.imgLink === "") {
-			if (this.drink) {
-				this.imgLinkAndTemplate = this.drinkTemplateImg;
-			} else {
-				this.imgLinkAndTemplate = this.templateImg;
-			}
+		if (localImage) {
+      this.imgLinkAndTemplate = localImage;
+    } else if (this.imgLink === "") {
+			this.imgLinkAndTemplate = this.drink
+        ? this.drinkTemplateImg
+        : this.templateImg;
 		} else {
 			this.imgLinkAndTemplate = this.imgLink;
 		}
