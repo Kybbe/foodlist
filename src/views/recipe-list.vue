@@ -191,6 +191,8 @@
 
 <script>
 import footerBar from "../components/footer.vue";
+import Images from "../components/images";
+
 export default {
 	name: "RecipeList",
 	components: {
@@ -221,7 +223,18 @@ export default {
 					specificLink =
 						"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg";
 				}
-			}
+      }
+      if (
+        specificLink &&
+        !specificLink.startsWith("http") &&
+        !specificLink.startsWith("https")
+      ) {
+        const localImage = Images().getImageByName(specificLink);
+        return {
+          // if there is a local image, give it back as background image string
+          "background-image": `url(${localImage})`,
+        };
+      }
 			return {
 				// if there is an image, give it back as background image string
 				"background-image": `url(${specificLink})`,

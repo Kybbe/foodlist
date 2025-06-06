@@ -19,7 +19,8 @@
     </button>
     <input
       name="portions"
-      id="portions"
+			id="portions"
+			:class="{ small: this.portions < 10 }"
       :placeholder="this.portions"
       :value="this.portions"
       @change="changeToPortions"
@@ -87,7 +88,33 @@ export default {
 		return {
 			portions: 4,
 			sortAlphabeticallyAndIgnoreSections: false,
+			originalIngredients: JSON.parse(JSON.stringify(this.ingredients)), // Deep copy of ingredients
 		};
+	},
+	watch: {
+		portions(newPortions) {
+			if (newPortions === 4) {
+				// Reset ingredients to their original amounts when portions are 4
+				this.ingredients.forEach((ingredient, index) => {
+					const originalIngredient = this.originalIngredients[index];
+					if (originalIngredient) {
+						ingredient.amount = this.roundToTwoDecimals(originalIngredient.amount);
+					}
+				});
+			} else {
+				// Update ingredient amounts based on the new portions
+				for (const ingredient of this.ingredients) {
+					const originalIngredient = [...this.originalIngredients].find(
+						(orig) => orig.name === ingredient.name
+					);
+					if (originalIngredient && originalIngredient.amount !== "") {
+						ingredient.amount = this.roundToTwoDecimals(
+							(originalIngredient.amount / 4) * newPortions
+						);
+					}
+				}
+			}
+		},
 	},
 	computed: {
 		unsectionedIngredientsMargin() {
@@ -128,28 +155,14 @@ export default {
 			if (!this.checkServings(newPortions)) {
 				return;
 			}
-			for (const ingredient of this.ingredients) {
-				if (ingredient.amount !== "") {
-					ingredient.amount /= this.portions;
-					ingredient.amount = this.roundToTwoDecimals(
-						ingredient.amount * newPortions,
-					);
-				}
-			}
-			this.portions += 2;
+			this.portions = newPortions;
 		},
 		remove2Portions() {
 			const newPortions = this.portions - 2;
 			if (!this.checkServings(newPortions)) {
 				return;
 			}
-			for (const ingredient of this.ingredients) {
-				if (ingredient.amount !== "") {
-					ingredient.amount /= this.portions;
-					ingredient.amount = Math.round(ingredient.amount * newPortions);
-				}
-			}
-			this.portions -= 2;
+			this.portions = newPortions;
 		},
 		changeToPortions(e) {
 			let number = 0;
@@ -163,17 +176,7 @@ export default {
 				return;
 			}
 
-			if (this.portions !== number) {
-				const oldPortions = [...this.portions];
-				this.portions = number;
-
-				for (const ingredient of this.ingredients) {
-					if (ingredient.amount !== "") {
-						ingredient.amount /= oldPortions;
-						ingredient.amount = Math.round(ingredient.amount * this.portions);
-					}
-				}
-			}
+			this.portions = number;
 		},
 		checkServings(portions) {
 			if (portions === "") {
@@ -222,9 +225,13 @@ h4 {
   text-align: center;
 
   #portions {
-    width: 1.2em;
+    width: 1.6em;
     padding: 1px 2px;
   }
+
+	#portions.small {
+		width: 1.2em;
+	}
 
   button {
     border-radius: 50%;

@@ -233,7 +233,7 @@ body {
   }
 
   .mediumCard {
-    width: calc(50% - 32px);
+    width: calc(50% - 10px);
     margin: 7px 0px;
   }
 
