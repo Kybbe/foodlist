@@ -1,6 +1,6 @@
 <template>
   <div class="auto-completing-ingredient-input">
-    <AutoComplete name="ingredient" :suggestions="filteredSuggestions" v-model="inputValue" :placeholder="placeholder" @focus="onFocus" @blur="onBlur" @complete="search" />
+    <AutoComplete name="name" :suggestions="filteredSuggestions" v-model="inputValue" :placeholder="placeholder" @focus="onFocus" @blur="onBlur" @complete="search" />
   </div>
 </template>
 
