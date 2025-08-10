@@ -225,12 +225,12 @@ h4 {
   text-align: center;
 
   #portions {
-    width: 1.6em;
+    width: 2.5em;
     padding: 1px 2px;
   }
 
 	#portions.small {
-		width: 1.2em;
+		width: 2em;
 	}
 
   button {
