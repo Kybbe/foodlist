@@ -36,17 +36,22 @@
           <InputText type="text" v-model="ingredient.measurment" placeholder="Unit" style="flex: 0.25" />
           <AutoCompletingIngredientInput v-model="ingredient.name" placeholder="Ingredient Name" style="flex: 0.65" />
           <InputText type="text" v-model="ingredient.section" placeholder="Section" style="flex: 0.25" />
-					<Button variant="text" type="button" @click="removeIngredientAt(index)" class="removeIngredientBtn" style="flex: 0.1">-</Button>
-					<Button
-						variant="text"
-						v-if="index === recipe.ingredients.length - 1"
-						type="button"
-						@click="addIngredient"
-						class="addIngredientBtn"
-						style="flex: 0.1"
-					>
-						+
-					</Button>
+          <Button 
+            v-if="recipe.ingredients.length > 1"
+            variant="text" 
+            type="button" 
+            @click="removeIngredientAt(index)" 
+            class="removeIngredientBtn" 
+            style="flex: 0.1"
+          >-</Button>
+          <Button
+            variant="text"
+            v-if="index === recipe.ingredients.length - 1"
+            type="button"
+            @click="addIngredient"
+            class="addIngredientBtn"
+            style="flex: 0.1"
+          >+</Button>
         </div>
       </div>
       
@@ -64,7 +69,14 @@
           />
           <InputText type="number" v-model="instruction.id" placeholder="Id" style="flex: 0.15" />
           <InputText type="text" v-model="instruction.text" placeholder="Instruction" style="flex: 0.8" />
-          <Button variant="text" type="button" @click="removeInstruction" class="removeInstructionBtn" style="flex: 0.1">-</Button>
+          <Button 
+            v-if="recipe.instructions.length > 1"
+            variant="text" 
+            type="button" 
+            @click="removeInstructionAt(index)" 
+            class="removeInstructionBtn" 
+            style="flex: 0.1"
+          >-</Button>
           <Button
             variant="text"
             v-if="index === recipe.instructions.length - 1"
@@ -72,9 +84,7 @@
             @click="addInstruction"
             class="addInstructionBtn"
             style="flex: 0.1"
-          >
-            +
-          </Button>
+          >+</Button>
         </div>
       </div>
 
@@ -121,22 +131,17 @@ export default {
     addIngredient() {
       this.recipe.ingredients.push({ amount: "", measurment: "", name: "", section: "" });
     },
-    removeIngredient() {
+    removeIngredientAt(index) {
       if (this.recipe.ingredients.length > 1) {
-        this.recipe.ingredients.pop();
+        this.recipe.ingredients.splice(index, 1);
       }
-		},
-		removeIngredientAt(index) {
-			if (this.recipe.ingredients.length > 1) {
-				this.recipe.ingredients.splice(index, 1);
-			}
-		},
+    },
     addInstruction() {
       this.recipe.instructions.push({ checked: false, id: this.recipe.instructions.length, text: "" });
     },
-    removeInstruction() {
+    removeInstructionAt(index) {
       if (this.recipe.instructions.length > 1) {
-        this.recipe.instructions.pop();
+        this.recipe.instructions.splice(index, 1);
       }
     },
     editFirebase() {
@@ -190,9 +195,9 @@ body {
   padding: 10px;
   max-width: 95vw;
 
-	@media (min-width: 600px) {
-		max-width: 80vw;
-	}
+  @media (min-width: 600px) {
+    max-width: 80vw;
+  }
 }
 
 #drink {
