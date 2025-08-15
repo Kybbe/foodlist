@@ -15,27 +15,27 @@
 		<div id="addRecipe">
 			<h2>Add Recipe</h2>
 			<form action="">
-		<div class="form-group">
-			<FloatLabel variant="on">
-				<InputText id="recipeName" v-model="recipe.title" required />
-				<label for="recipeName">Recipe Name / Title</label>
-			</FloatLabel>
-		</div>
-		<div class="form-group isDrink">
-			<label for="drink" style="display: inline-block">Drink? :</label>
-			<Checkbox
-				name="drink"
-				inputId="drink"
-				v-model="recipe.drink"
-				:binary="true"
-			/>
-		</div>
-		<div class="form-group recipeDescription">
-			<FloatLabel variant="on">
-				<InputText id="recipeDescription" v-model="recipe.description" />
-				<label for="recipeDescription">Recipe Description</label>
-			</FloatLabel>
-		</div>
+				<div class="form-group">
+					<FloatLabel variant="on">
+						<InputText id="recipeName" v-model="recipe.title" required />
+						<label for="recipeName">Recipe Name / Title</label>
+					</FloatLabel>
+				</div>
+				<div class="form-group recipeDescription">
+					<FloatLabel variant="on">
+						<InputText id="recipeDescription" v-model="recipe.description" />
+						<label for="recipeDescription">Recipe Description</label>
+					</FloatLabel>
+				</div>
+				<div class="form-group isDrink">
+					<label for="drink" style="display: inline-block">Drink? :</label>
+					<Checkbox
+						name="drink"
+						inputId="drink"
+						v-model="recipe.drink"
+						:binary="true"
+					/>
+				</div>
 				<div class="form-group recipeIngredients">
 					<label for="recipeIngredients">Recipe Ingredients:</label>
 					<div id="ingredientsList">
@@ -48,7 +48,7 @@
 								<InputText id="'measurment-' + index" v-model="ingredient.measurment" />
 								<label for="'measurment-' + index">Unit (eg. st)</label>
 							</FloatLabel>
-							<AutoCompletingIngredientInput v-model="ingredient.name" placeholder="Name (eg. Tomatoes)" />
+							<AutoCompletingIngredientInput :value="ingredient.name" placeholder="Name (eg. Tomatoes)" />
 							<FloatLabel variant="on">
 								<InputText id="'section-' + index" v-model="ingredient.section" />
 								<label for="'section-' + index">Section (eg. Salad)</label>
@@ -131,6 +131,38 @@
 			</form>
 		</div>
   </div>
+
+	<div id="infoBox" class="info-box">
+		<h3>Info for ChatGPT Recipe Extraction</h3>
+		<button class="clipboard-btn" @click="copyInfoText" title="Copy to clipboard">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M192 0c-35.3 0-64 28.7-64 64l0 256c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-200.6c0-17.4-7.1-34.1-19.7-46.2L370.6 17.8C358.7 6.4 342.8 0 326.3 0L192 0zM64 128c-35.3 0-64 28.7-64 64L0 448c0 35.3 28.7 64 64 64l192 0c35.3 0 64-28.7 64-64l0-16-64 0 0 16-192 0 0-256 16 0 0-64-16 0z"/></svg>
+		</button>
+		<p id="infoText">
+        <strong>"Please extract the ingredients and instructions (if in english or with imperial measurements please translate to swedish and convert to metric) from this recipe and return them as a JSON object with the following format:<br>
+        {<br>
+          title: string,<br>
+          description: string,<br>
+					drink: boolean,<br>
+          ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurment: string (in swedish, st for pieces, specifially 'measurment, not measurement', leave as empty quotes if none), name: string, section: string (leave as empty quotes if none) } ],
+          instructions: [ { id: number, checked: boolean, text: string } ],<br>
+          servings: number,<br>
+          link: string,<br>
+          imgLink: string<br>
+        }<br>
+        Here is the recipe link: "</strong>
+		</p>
+	</div>
+	<div id="jsonBox" class="json-box">
+		<h3>Recipe JSON (Live)</h3>
+		<textarea
+			id="recipeJson"
+			v-model="recipeJsonString"
+			@input="updateRecipeFromJson"
+			rows="12"
+			style="width:100%;font-family:monospace;font-size:1em;resize:vertical;"
+			placeholder="Recipe JSON will appear here. Paste a JSON from ChatGPT to fill the form."
+		></textarea>
+	</div>
 </template>
 
 <script>
@@ -152,9 +184,9 @@ export default {
 	return {
 	  recipe: {
 		recipeId: "",
-		drink: false,
 		title: "",
 		description: "",
+		drink: false,
 		ingredients: [
 		  { amount: "", measurment: "", name: "", section: "" },
 		],
@@ -166,6 +198,7 @@ export default {
 		imgLink: "",
 	  },
 	  draft: [],
+	  recipeJsonString: "",
 	};
   },
   methods: {
@@ -203,8 +236,6 @@ export default {
 			}
 
 			this.addRecipeId();
-			this.fixIngredients();
-			this.fixInstructions();
 
 			firebase.database().ref("recipes").push(this.recipe);
 			alert("Recipe added!");
@@ -214,8 +245,6 @@ export default {
 		saveAsDraft() {
 			// save all inputs to localstorage as a draft
 			this.addRecipeId();
-			this.fixIngredients();
-			this.fixInstructions();
 
 			const draft = {
 				title: this.recipe.title,
@@ -257,6 +286,44 @@ export default {
 		addRecipeId() {
 			this.recipe.recipeId = this.$store.state.recipesList.length;
 		},
+		copyInfoText() {
+			const infoText = `Please extract the ingredients and instructions (if in english or with imperial measurements please translate to swedish and convert to metric) from this recipe and return them as a JSON object with the following format:
+			{
+				title: string,
+				description: string,
+				drink: boolean,
+				ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurment: string (in swedish, st for pieces, specifially 'measurment', leave as empty quotes if none), name: string, section: string (leave as empty quotes if none) } ] ,
+				instructions: [ { id: number, checked: boolean, text: string } ],
+				servings: number,
+				link: string,
+				imgLink: string
+			}
+			Here is the recipe link: `;
+			navigator.clipboard.writeText(infoText).then(() => {
+				// Optionally show a message
+			});
+		},
+		updateRecipeFromJson(e) {
+			try {
+				const val = typeof e === "string" ? e : e.target.value;
+				const parsed = JSON.parse(val);
+				// Only update if valid object
+				if (parsed && typeof parsed === "object") {
+					// Defensive: only update known fields
+					for (const key of Object.keys(this.recipe)) {
+						if (parsed[key] !== undefined) {
+							this.recipe[key] = parsed[key];
+						}
+					}
+				}
+
+				this.recipeJsonString = JSON.stringify(this.recipe, null, 2);
+				this.addRecipeId();
+				this.$forceUpdate();
+			} catch (err) {
+				// Ignore parse errors, don't update
+			}
+		},
 	},
 	mounted() {
 		this.addRecipeId();
@@ -269,6 +336,16 @@ export default {
 		for (let i = 0; i < textareas.length; i++) {
 			textareas[i].addEventListener("change", this.saveAsDraft);
 		}
+	},
+	watch: {
+		recipe: {
+			handler(val) {
+				// Show live JSON
+				this.recipeJsonString = JSON.stringify(val, null, 2);
+			},
+			deep: true,
+			immediate: true,
+		},
 	},
 };
 </script>
@@ -335,5 +412,85 @@ button[type="submit"] {
 	&:hover {
 		background-color: #3a6bb7;
 	}
+}
+
+.clipboard-btn {
+  background: none;
+  border: none;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  z-index: 2;
+
+	svg {
+		width: 24px;
+		height: 24px;
+		fill: #4a8ee7;
+		transition: all 0.2s ease;
+
+		&:hover {
+			fill: #3a6bb7;
+			transform: scale(1.1);
+		}
+	}
+}
+
+.info-box {
+  margin: 30px auto 0 auto;
+  padding: 16px;
+  max-width: 600px;
+  background: #f5faff;
+  border: 1px solid #4a8ee7;
+  border-radius: 10px;
+  color: #333;
+  font-size: 1em;
+  box-shadow: 2px 2px 8px rgba(128,128,128,0.1);
+  position: relative;
+  h3 {
+    margin-top: 0;
+    color: #4a8ee7;
+    font-size: 1.1em;
+    position: relative;
+  }
+  strong {
+    color: #1e74e4;
+    font-size: 0.98em;
+    font-weight: 500;
+  }
+  p {
+    margin-bottom: 0;
+    line-height: 1.5;
+  }
+}
+
+.json-box {
+  margin: 30px auto 0 auto;
+  padding: 16px;
+  max-width: 600px;
+  background: #fffbe5;
+  border: 1px solid #e7c84a;
+  border-radius: 10px;
+  color: #333;
+  font-size: 1em;
+  box-shadow: 2px 2px 8px rgba(128,128,128,0.08);
+  position: relative;
+  h3 {
+    margin-top: 0;
+    color: #e7c84a;
+    font-size: 1.1em;
+    position: relative;
+  }
+  textarea {
+    margin-top: 8px;
+    border-radius: 6px;
+    border: 1px solid #e7c84a;
+    background: #fff;
+    color: #333;
+    padding: 8px;
+    box-sizing: border-box;
+  }
 }
 </style>
