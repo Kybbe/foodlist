@@ -146,7 +146,7 @@ export default {
 			});
 		},
 		ingredientsSortedAlphabetically() {
-			return this.ingredients.sort((a, b) => {
+			return [...this.ingredients].sort((a, b) => {
 				const nameA = a.name.toLowerCase();
 				const nameB = b.name.toLowerCase();
 				if (nameA < nameB) return -1;
