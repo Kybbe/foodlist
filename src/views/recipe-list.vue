@@ -392,7 +392,7 @@ export default {
 
 			return tempDrinks;
 		},
-		sortAndListIngredients() {
+    sortAndListIngredients() {
 			// get all recipe ingredients and put into array
 			const tempIngredients = [];
 			for (const recipe of this.$store.state.recipesList) {
@@ -401,31 +401,18 @@ export default {
 				}
 			}
 
-			// count each ingredient and put into array
-			const tempIngredientsCount = [];
-			for (const ingredient of tempIngredients) {
-				let count = 0;
-				for (const ingredient2 of tempIngredients) {
-					if (ingredient === ingredient2) {
-						count++;
-					}
-				}
-				tempIngredientsCount.push({ name: ingredient, value: count });
-			}
+      // count each ingredient and put into a Map
+      const ingredientMap = new Map();
+      for (const name of tempIngredients) {
+        if (!ingredientMap.has(name)) {
+          ingredientMap.set(name, 1);
+        } else {
+          ingredientMap.set(name, ingredientMap.get(name) + 1);
+        }
+      }
 
-			// remove duplicates
-			const tempIngredientsCount2 = [];
-			for (const ingredient of tempIngredientsCount) {
-				let count = 0;
-				for (const ingredient2 of tempIngredientsCount) {
-					if (ingredient.name === ingredient2.name) {
-						count++;
-					}
-				}
-				if (count === 0) {
-					tempIngredientsCount2.push(ingredient);
-				}
-			}
+      // convert Map to array
+      const tempIngredientsCount2 = Array.from(ingredientMap, ([name, value]) => ({ name, value }));
 
 			// sort by value and if same value, sort by name
 			tempIngredientsCount2.sort((a, b) =>
@@ -507,6 +494,7 @@ h1 {
   #ingredients {
     margin: 0px 1em;
     border-radius: 0px;
+    max-width: 10em;
   }
 
   #search-input {

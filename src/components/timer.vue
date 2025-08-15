@@ -30,15 +30,15 @@
     <span class="time">{{ time }}</span>
     <button
       class="timerStart"
-      v-on:click="this.countdownTimer"
+      @click="this.countdownTimer"
       v-if="!this.started"
     >
       Start
     </button>
-    <button class="timerStop" v-on:click="this.stopTimer" v-if="this.started">
+    <button class="timerStop" @click="this.stopTimer" v-if="this.started">
       Stop
     </button>
-    <button class="timerReset" v-on:click="this.resetTimer" v-if="this.time !== originalTime">
+    <button class="timerReset" @click="this.resetTimer" v-if="this.time !== originalTime">
       Reset
     </button>
   </label>
@@ -83,7 +83,10 @@ export default {
 
 			document.querySelector(".time").innerHTML = time;
 		},
-		countdownTimer() {
+    countdownTimer(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
 			// first check if already started
 			if (this.started) return;
 			// then start the timer
@@ -116,10 +119,14 @@ export default {
 				}
 			}, 1000);
 		},
-		stopTimer() {
-			this.started = false;
+    stopTimer(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      this.started = false;
 		},
-		resetTimer() {
+    resetTimer(e) {
+      e.preventDefault();
+      e.stopPropagation();
 			this.time = this.originalTime;
 			this.started = false;
 		},
