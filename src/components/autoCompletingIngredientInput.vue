@@ -1,6 +1,6 @@
 <template>
   <div class="auto-completing-ingredient-input">
-    <AutoComplete name="name" :suggestions="filteredSuggestions" v-model="inputValue" :placeholder="placeholder" @focus="onFocus" @blur="onBlur" @complete="search" />
+    <AutoComplete name="name" :suggestions="filteredSuggestions" :modelValue="value" :placeholder="placeholder" @change="onInputChange" @focus="onFocus" @blur="onBlur" @complete="search" />
   </div>
 </template>
 
@@ -24,12 +24,15 @@ export default {
 	},
 	data() {
 		return {
-			inputValue: "",
 			showSuggestions: true,
 			filteredSuggestions: [],
 		};
 	},
 	methods: {
+		onInputChange(e) {
+			this.$emit("input", e.value);
+			this.showSuggestions = true;
+		},
 		onFocus() {
 			this.showSuggestions = true;
 		},
@@ -37,7 +40,6 @@ export default {
 			this.showSuggestions = false;
 		},
 		selectSuggestion(suggestion) {
-			this.inputValue = suggestion;
 			this.showSuggestions = false;
 		},
 		getSuggestions() {
