@@ -209,8 +209,15 @@ body {
   }
 }
 
-#delete {
+#edit {
   background-color: orange;
+  &:hover {
+    background-color: #e07b00;
+  }
+}
+
+#delete {
+  background-color: #ff4d4d;
   &:hover {
     background-color: red;
   }
