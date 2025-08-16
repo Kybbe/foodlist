@@ -53,7 +53,7 @@
 	<div v-if="sortAlphabeticallyAndIgnoreSections">
 		<ul class="ingredients">
 			<li v-for="ingredient in ingredientsSortedAlphabetically" :key="ingredient.name">
-				{{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
+				{{ `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}` }}
 			</li>
 		</ul>
 	</div>
@@ -61,17 +61,19 @@
     <h3 v-if="section">{{ section }}</h3>
     <ul class="ingredients">
       <li v-for="ingredient in sectionIngredients" :key="ingredient.name">
-        {{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
+        {{ `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}` }}
       </li>
     </ul>
   </div>
   <div v-if="unsectionedIngredients.length && !sortAlphabeticallyAndIgnoreSections">
-		<h3>Other Ingredients</h3>
-			<ul class="ingredients" :style="{ marginTop: unsectionedIngredientsMargin + 'em' }">
-      <li v-for="ingredient in unsectionedIngredients" :key="ingredient.name">
-        {{ `${ingredient.amount} ${ingredient.measurment} ${ingredient.name}` }}
-      </li>
-    </ul>
+	<template v-if="ingredients.length !== unsectionedIngredients.length">
+	  <h3>Other Ingredients</h3>
+	</template>
+	<ul class="ingredients" :style="{ marginTop: unsectionedIngredientsMargin + 'em' }">
+	  <li v-for="ingredient in unsectionedIngredients" :key="ingredient.name">
+		{{ `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}` }}
+	  </li>
+	</ul>
   </div>
 </template>
 

@@ -33,7 +33,7 @@
             <label :for="'amount-' + index">Quantity</label>
           </FloatLabel>
           <FloatLabel variant="on">
-            <InputText :id="'unit-' + index" v-model="ingredient.measurment" />
+            <InputText :id="'unit-' + index" v-model="ingredient.measurement" />
             <label :for="'unit-' + index">Unit</label>
           </FloatLabel>
 
@@ -131,7 +131,7 @@ export default {
         description: "",
         imgLink: "",
         ingredients: [
-          { amount: "", measurment: "", name: "", section: "" },
+          { amount: "", measurement: "", name: "", section: "" },
         ],
         instructions: [
           { checked: false, id: 0, text: "" },
@@ -143,7 +143,7 @@ export default {
   },
   methods: {
     addIngredient() {
-      this.recipe.ingredients.push({ amount: "", measurment: "", name: "", section: "" });
+      this.recipe.ingredients.push({ amount: "", measurement: "", name: "", section: "" });
     },
     removeIngredientAt(index) {
       if (this.recipe.ingredients.length > 1) {
