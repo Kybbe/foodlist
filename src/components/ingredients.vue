@@ -20,9 +20,9 @@
     <input
       name="portions"
 			id="portions"
-			:class="{ small: this.portions < 10 }"
-      :placeholder="this.portions"
-      :value="this.portions"
+			:class="{ small: this.livePortions < 10 }"
+      :placeholder="this.livePortions"
+      :value="this.livePortions"
       @change="changeToPortions"
     />
     <label for="portions">Servings</label>
@@ -85,36 +85,30 @@ export default {
 			type: Array,
 			required: true,
 		},
+		portions: {
+			type: Number,
+			default: 4,
+		},
 	},
-	data() {
+  data() {
 		return {
-			portions: 4,
 			sortAlphabeticallyAndIgnoreSections: false,
 			originalIngredients: JSON.parse(JSON.stringify(this.ingredients)), // Deep copy of ingredients
+			livePortions: this.portions || 4,
 		};
-	},
+  },
 	watch: {
 		portions(newPortions) {
-			if (newPortions === 4) {
-				// Reset ingredients to their original amounts when portions are 4
-				this.ingredients.forEach((ingredient, index) => {
-					const originalIngredient = this.originalIngredients[index];
-					if (originalIngredient) {
-						ingredient.amount = this.roundToTwoDecimals(originalIngredient.amount);
-					}
-				});
+			// If the prop changes, update livePortions to match
+			this.livePortions = newPortions || 4;
+			this.updateIngredientAmounts(newPortions || 4);
+		},
+		livePortions(newLive) {
+			// If live matches prop, reset to original amounts
+			if (newLive === (this.portions || 4)) {
+				this.updateIngredientAmounts(this.portions || 4);
 			} else {
-				// Update ingredient amounts based on the new portions
-				for (const ingredient of this.ingredients) {
-					const originalIngredient = [...this.originalIngredients].find(
-						(orig) => orig.name === ingredient.name
-					);
-					if (originalIngredient && originalIngredient.amount !== "") {
-						ingredient.amount = this.roundToTwoDecimals(
-							(originalIngredient.amount / 4) * newPortions
-						);
-					}
-				}
+				this.updateIngredientAmounts(newLive);
 			}
 		},
 	},
@@ -162,18 +156,18 @@ export default {
 			return Math.round(num * 100) / 100;
 		},
 		add2Portions() {
-			const newPortions = this.portions + 2;
+			const newPortions = this.livePortions + 2;
 			if (!this.checkServings(newPortions)) {
 				return;
 			}
-			this.portions = newPortions;
+			this.livePortions = newPortions;
 		},
 		remove2Portions() {
-			const newPortions = this.portions - 2;
+			const newPortions = this.livePortions - 2;
 			if (!this.checkServings(newPortions)) {
 				return;
 			}
-			this.portions = newPortions;
+			this.livePortions = newPortions;
 		},
 		changeToPortions(e) {
 			let number = 0;
@@ -187,11 +181,37 @@ export default {
 				return;
 			}
 
-			this.portions = number;
+			this.livePortions = number;
+		},
+		updateIngredientAmounts(portionCount) {
+			if (portionCount === (this.portions || 4)) {
+				// Reset ingredients to their original amounts when matching default
+				this.ingredients.forEach((ingredient, index) => {
+					const originalIngredient = this.originalIngredients[index];
+					if (originalIngredient) {
+						ingredient.amount = originalIngredient.amount;
+					}
+				});
+			} else {
+				// Update ingredient amounts based on the new portions
+				for (const ingredient of this.ingredients) {
+					const originalIngredient = [...this.originalIngredients].find(
+						(orig) => orig.name === ingredient.name
+					);
+					if (!originalIngredient) {
+						continue; // Skip if no original ingredient found
+					}
+					if (originalIngredient && originalIngredient.amount !== "") {
+						ingredient.amount = this.roundToTwoDecimals(
+							(originalIngredient.amount / (this.portions || 4)) * portionCount
+						);
+					}
+				}
+			}
 		},
 		checkServings(portions) {
 			if (portions === "") {
-				document.getElementById("portions").value = this.portions;
+				document.getElementById("portions").value = (this.portions || 4);
 				return false;
 			}
 			if (portions > 98) {
@@ -207,7 +227,7 @@ export default {
 				return false;
 			}
 			if (Number.isNaN(portions)) {
-				document.getElementById("portions").value = this.portions;
+				document.getElementById("portions").value = this.portions || 4;
 				return false;
 			}
 			return true;
