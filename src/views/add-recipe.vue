@@ -53,24 +53,29 @@
 								<InputText id="'section-' + index" v-model="ingredient.section" />
 								<label for="'section-' + index">Section (eg. Salad)</label>
 							</FloatLabel>
-							<Button
-								v-if="recipe.ingredients.length > 1"
-								type="button"
-								@click="removeIngredientAt(index)"
-								variant="text"
-								class="removeIngredientBtn"
-							>
-								-
-							</Button>
-							<Button
-								v-if="index === recipe.ingredients.length - 1"
-								variant="text"
-								type="button"
-								@click="addIngredient"
-								class="addIngredientBtn"
-							>
-								+
-							</Button>
+							<div id="ingredientsAddAndRemoveContainer">
+								<Button
+									v-if="recipe.ingredients.length > 1"
+									type="button"
+									@click="removeIngredientAt(index)"
+									variant="text"
+									class="removeIngredientBtn"
+								>
+									-
+								</Button>
+								<Button
+									v-if="index === recipe.ingredients.length - 1"
+									variant="text"
+									type="button"
+									@click="addIngredient"
+									class="addIngredientBtn"
+								>
+									+
+								</Button>
+								<div id="ingredientsAddStand-in"
+									v-if="index != recipe.ingredients.length - 1"
+								></div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -88,22 +93,28 @@
 								<InputText type="text" v-model="instruction.text" required id="'instruction-text-' + index" />
 								<label for="'instruction-text-' + index">Instruction (eg. Preheat oven to 350 degrees)</label>
 							</FloatLabel>
-							<Button
-								v-if="recipe.instructions.length > 1"
-								type="button"
-								@click="removeInstructionAt(index)"
-								class="removeInstructionBtn"
-							>
-								-
-							</Button>
-							<Button
-								v-if="index === recipe.instructions.length - 1"
-								type="button"
-								@click="addInstruction"
-								class="addInstructionBtn"
-							>
-								+
-							</Button>
+
+							<div id="instructionAddAndRemoveContainer">
+								<Button
+									v-if="recipe.instructions.length > 1"
+									type="button"
+									@click="removeInstructionAt(index)"
+									class="removeInstructionBtn"
+								>
+									-
+								</Button>
+								<Button
+									v-if="index === recipe.instructions.length - 1"
+									type="button"
+									@click="addInstruction"
+									class="addInstructionBtn"
+								>
+									+
+								</Button>
+								<div id="instructionAddStand-in"
+									v-if="index != recipe.instructions.length - 1"
+								></div>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -404,6 +415,39 @@ textarea {
 .addIngredientBtn,
 .addInstructionBtn {
 	color: green;
+}
+
+#instructionAddAndRemoveContainer,
+#ingredientsAddAndRemoveContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+
+  > * {
+    padding: 0;
+    font-size: 1.5em;
+    line-height: 0;
+
+    width: 1.5em;
+    height: 1.5em;
+
+    flex-shrink: 0;
+
+    border: none;
+  }
+
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }  
+
+  /* stand ins for the buttons when not shown, so every row is same width */
+  #instructionAddStand-in,
+  #ingredientsAddStand-in {
+    background-color: transparent;
+  }
 }
 
 button[type="submit"] {

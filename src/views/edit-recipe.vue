@@ -2,13 +2,15 @@
   <div>
     <form action="" id="container">
       <InputText type="text" name="title" id="title" placeholder="title" v-model="recipe.title" />
-      <label for="drink">drink?</label>
-      <Checkbox 
-        id="drink"
-        name="drink"
-        :value="recipe.drink"
-        v-model="recipe.drink"
-      />
+      <div id="drinkContainer">
+        <label for="drink">drink?</label>
+        <Checkbox 
+          id="drink"
+          name="drink"
+          :value="recipe.drink"
+          v-model="recipe.drink"
+        />
+      </div>
       <InputText
         type="text"
         name="description"
@@ -24,67 +26,78 @@
         v-model="recipe.imgLink"
       />
 
-      <div id="labels">
-        <label for="amount" style="flex: 0.25">Quantity:</label>
-        <label for="ingredientUnit" style="flex: 0.25">Unit:</label>
-        <label for="ingredientName" style="flex: 0.65">Ingredient Name:</label>
-        <label for="ingredientSection" style="flex: 0.25">Section:</label>
-      </div>
       <div id="ingredientsList">
         <div v-for="(ingredient, index) in recipe.ingredients" :key="index" class="editIngredients">
-          <InputText type="text" v-model="ingredient.amount" placeholder="Amount" style="flex: 0.25" />
-          <InputText type="text" v-model="ingredient.measurment" placeholder="Unit" style="flex: 0.25" />
-          <AutoCompletingIngredientInput v-model="ingredient.name" placeholder="Ingredient Name" style="flex: 0.65" />
-          <InputText type="text" v-model="ingredient.section" placeholder="Section" style="flex: 0.25" />
-          <Button 
-            v-if="recipe.ingredients.length > 1"
-            variant="text" 
-            type="button" 
-            @click="removeIngredientAt(index)" 
-            class="removeIngredientBtn" 
-            style="flex: 0.1"
-          >-</Button>
-          <Button
-            variant="text"
-            v-if="index === recipe.ingredients.length - 1"
-            type="button"
-            @click="addIngredient"
-            class="addIngredientBtn"
-            style="flex: 0.1"
-          >+</Button>
+          <FloatLabel variant="on">
+            <InputText :id="'amount-' + index" v-model="ingredient.amount" />
+            <label :for="'amount-' + index">Quantity</label>
+          </FloatLabel>
+          <FloatLabel variant="on">
+            <InputText :id="'unit-' + index" v-model="ingredient.measurment" />
+            <label :for="'unit-' + index">Unit</label>
+          </FloatLabel>
+
+          <AutoCompletingIngredientInput :id="'ingredient-' + index" :value="ingredient.name" placeholder="Name" />
+          
+          <FloatLabel variant="on">
+            <InputText :id="'section-' + index" v-model="ingredient.section" />
+            <label :for="'section-' + index">Section</label>
+          </FloatLabel>
+          <div id="ingredientsAddAndRemoveContainer">
+            <Button 
+              v-if="recipe.ingredients.length > 1"
+              variant="text" 
+              type="button" 
+              @click="removeIngredientAt(index)" 
+              class="removeIngredientBtn" 
+            >-</Button>
+            <Button
+              variant="text"
+              v-if="index === recipe.ingredients.length - 1"
+              type="button"
+              @click="addIngredient"
+              class="addIngredientBtn"
+            >+</Button>
+            <div id="ingredientsAddStand-in"
+              v-if="index != recipe.ingredients.length - 1"
+            ></div>
+          </div>
         </div>
       </div>
       
-      <div id="labels">
-        <label for="checked" style="flex: 0.15">Checked:</label>
-        <label for="id" style="flex: 0.15">Id:</label>
-        <label for="name" style="flex: 0.8">Instruction:</label>
-      </div>
       <div id="instructionsList">
         <div v-for="(instruction, index) in recipe.instructions" :key="index" class="editInstructions">
           <Checkbox
             v-model="instruction.checked"
-            :id="'instruction-' + index"
-            style="flex: 0.15"
+            :id="'instruction-checked-' + index"
           />
-          <InputText type="number" v-model="instruction.id" placeholder="Id" style="flex: 0.15" />
-          <InputText type="text" v-model="instruction.text" placeholder="Instruction" style="flex: 0.8" />
-          <Button 
-            v-if="recipe.instructions.length > 1"
-            variant="text" 
-            type="button" 
-            @click="removeInstructionAt(index)" 
-            class="removeInstructionBtn" 
-            style="flex: 0.1"
-          >-</Button>
-          <Button
-            variant="text"
-            v-if="index === recipe.instructions.length - 1"
-            type="button"
-            @click="addInstruction"
-            class="addInstructionBtn"
-            style="flex: 0.1"
-          >+</Button>
+          <FloatLabel variant="on">
+            <InputText type="number" :id="'instruction-id-' + index" v-model="instruction.id" style="width: 3em;" />
+            <label :for="'instruction-id-' + index">Id</label>
+          </FloatLabel>
+          <FloatLabel variant="on" style="width: 100%;">
+            <InputText type="text" :id="'instruction-text-' + index" v-model="instruction.text" />
+            <label :for="'instruction-text-' + index">Instruction</label>
+          </FloatLabel>
+          <div id="instructionAddAndRemoveContainer">
+            <Button 
+              v-if="recipe.instructions.length > 1"
+              variant="text" 
+              type="button" 
+              @click="removeInstructionAt(index)" 
+              class="removeInstructionBtn" 
+            >-</Button>
+            <Button
+              variant="text"
+              v-if="index === recipe.instructions.length - 1"
+              type="button"
+              @click="addInstruction"
+              class="addInstructionBtn"
+            >+</Button>
+            <div id="instructionAddStand-in"
+              v-if="index != recipe.instructions.length - 1"
+            ></div>
+          </div>
         </div>
       </div>
 
@@ -99,7 +112,7 @@
 import firebase from "firebase/app";
 import "firebase/database";
 import AutoCompletingIngredientInput from "../components/autoCompletingIngredientInput.vue";
-import { Button, Checkbox, InputText } from "primevue";
+import { Button, Checkbox, InputText, FloatLabel } from "primevue";
 
 export default {
   name: "edit-recipe",
@@ -108,6 +121,7 @@ export default {
     Button,
     InputText,
     Checkbox,
+    FloatLabel,
   },
   data() {
     return {
@@ -193,11 +207,11 @@ body {
 #container {
   margin: 20px auto;
   padding: 10px;
-  max-width: 95vw;
+  max-width: 700px;
 
-  @media (min-width: 600px) {
-    max-width: 80vw;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 #drink {
@@ -205,33 +219,65 @@ body {
   width: unset !important;
 }
 
+#drinkContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
 #ingredientsList,
 #instructionsList {
   background-color: #cbf3ff;
   padding: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  border-radius: 5px;
+
+  input {
+    width: 100%;
+  }
 }
 
 .editInstructions,
 .editIngredients {
   display: flex;
   flex-direction: row;
-
-  .amount,
-  .checked,
-  .id,
-  .section,
-  .measurment {
-    width: 25% !important;
-  }
 }
 
-#labels {
+#instructionAddAndRemoveContainer,
+#ingredientsAddAndRemoveContainer {
   display: flex;
   flex-direction: row;
-  margin: 10px 0;
+  align-items: center;
+  gap: 10px;
 
-  label {
-    flex: 1;
+  > * {
+    padding: 0;
+    font-size: 1.5em;
+    line-height: 0;
+
+    width: 1.5em;
+    height: 1.5em;
+
+    flex-shrink: 0;
+
+    border: none;
+  }
+
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }  
+
+  /* stand ins for the buttons when not shown, so every row is same width */
+  #instructionAddStand-in,
+  #ingredientsAddStand-in {
+    background-color: transparent;
   }
 }
 </style>
