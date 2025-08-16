@@ -45,8 +45,8 @@
 								<label for="'amount-' + index">Amount (eg. 2)</label>
 							</FloatLabel>
 							<FloatLabel variant="on">
-								<InputText id="'measurment-' + index" v-model="ingredient.measurment" />
-								<label for="'measurment-' + index">Unit (eg. st)</label>
+								<InputText id="'measurement-' + index" v-model="ingredient.measurement" />
+								<label for="'measurement-' + index">Unit (eg. st)</label>
 							</FloatLabel>
 							<AutoCompletingIngredientInput :value="ingredient.name" placeholder="Name (eg. Tomatoes)" />
 							<FloatLabel variant="on">
@@ -154,7 +154,7 @@
           title: string,<br>
           description: string,<br>
 					drink: boolean,<br>
-          ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurment: string (in swedish, st for pieces, specifially 'measurment, not measurement', leave as empty quotes if none), name: string, section: string (leave as empty quotes if none) } ],
+          ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurement: string (in swedish, st for pieces, leave as empty quotes if none), name: string, section: string (leave as empty quotes if none) } ],
           instructions: [ { id: number, checked: boolean, text: string } ],<br>
           servings: number,<br>
           link: string,<br>
@@ -199,7 +199,7 @@ export default {
 		description: "",
 		drink: false,
 		ingredients: [
-		  { amount: "", measurment: "", name: "", section: "" },
+		  { amount: "", measurement: "", name: "", section: "" },
 		],
 		instructions: [
 		  { id: 0, checked: false, text: "" },
@@ -214,7 +214,7 @@ export default {
   },
   methods: {
 		addIngredient() {
-			this.recipe.ingredients.push({ amount: "", measurment: "", name: "", section: "" });
+			this.recipe.ingredients.push({ amount: "", measurement: "", name: "", section: "" });
 		},
 		removeIngredientAt(index) {
 			if (this.recipe.ingredients.length > 1) {
@@ -303,7 +303,7 @@ export default {
 				title: string,
 				description: string,
 				drink: boolean,
-				ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurment: string (in swedish, st for pieces, specifially 'measurment', leave as empty quotes if none), name: string, section: string (leave as empty quotes if none) } ] ,
+				ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurement: string (in swedish, st for pieces, specifially 'measurement', leave as empty quotes if none), name: string, section: string (leave as empty quotes if none) } ] ,
 				instructions: [ { id: number, checked: boolean, text: string } ],
 				servings: number,
 				link: string,
