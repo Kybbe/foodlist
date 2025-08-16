@@ -156,7 +156,12 @@ export default {
 			return Math.round(num * 100) / 100;
 		},
 		add2Portions() {
-			const newPortions = this.livePortions + 2;
+			let newPortions;
+			if (this.livePortions === 1) {
+				newPortions = 2;
+			} else {
+				newPortions = this.livePortions + 2;
+			}
 			if (!this.checkServings(newPortions)) {
 				return;
 			}
