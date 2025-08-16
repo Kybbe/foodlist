@@ -19,7 +19,7 @@
       </div>
 
       <div class="mediumCard card">
-        <ingredients :ingredients="this.currentRecipe.ingredients" />
+        <ingredients :ingredients="this.currentRecipe.ingredients" :portions="this.currentRecipe.servings" />
       </div>
 
       <div class="mediumCard card">

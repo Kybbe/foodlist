@@ -1,5 +1,17 @@
 <template v-if="time && originalTime">
   <label class="timer">
+    <!-- Timer Overlay -->
+    <div v-if="showTimerDone" class="timer-done-overlay">
+      <div class="timer-done-content">
+        <h1>TIMER DONE</h1>
+
+        <div class="timer-done-buttons">
+          <button @click="rerunTimer" class="rerun-btn">RERUN</button>
+          <button @click="stopTimerDone" class="stop-btn">STOP</button>
+        </div>
+      </div>
+    </div>
+
     <svg
       style="width: 30px; height: 30px"
       version="1.1"
@@ -127,24 +139,30 @@ export default {
     resetTimer(e) {
       e.preventDefault();
       e.stopPropagation();
-			this.time = this.originalTime;
-			this.started = false;
-		},
-		timerDone() {
-			const audio = new Audio(
-				"https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg",
-			);
-			audio.play();
-			// alert the user
-			alert("Timer done!");
-			// stop the timer
-			audio.pause();
-			this.resetTimer();
-		},
-	},
-	mounted() {
-		this.getTimeFromInstruction();
-	},
+      this.time = this.originalTime;
+      this.started = false;
+    },
+    timerDone() {
+      const audio = new Audio(
+        "https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg",
+      );
+      audio.play();
+      this.showTimerDone = true;
+    },
+    rerunTimer() {
+      this.showTimerDone = false;
+      this.time = this.originalTime;
+      this.started = false;
+      this.countdownTimer({ preventDefault: () => {}, stopPropagation: () => {} });
+    },
+    stopTimerDone() {
+      this.showTimerDone = false;
+      this.resetTimer({ preventDefault: () => {}, stopPropagation: () => {} });
+    },
+  },
+  mounted() {
+    this.getTimeFromInstruction();
+  },
 };
 </script>
 
@@ -156,47 +174,110 @@ export default {
   align-items: center;
   box-sizing: border-box;
   justify-content: center;
+ }
 
-  span {
-    margin: auto 10px;
-    font-size: 1.2rem;
-    font-weight: bold;
-  }
+.timer-done-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100dvw;
+  height: 100dvh;
+  background: rgba(255, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  .timerStart,
-  .timerStop,
-  .timerReset {
-    float: right;
-    padding: 5px 10px;
-    border-radius: 10px;
-    font-size: 1.2em;
-    text-align: center;
-    border: none;
-    margin: 0px 5px;
-    background-color: #4a8ee7;
-    color: white;
-    box-shadow: 1px 1px 4px rgba(128, 128, 128, 0.2);
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
+.timer-done-content {
+  width: 100dvw;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 
-    &:hover {
-      background-color: #1e74e4;
-      box-shadow: 1px 1px 4px rgba(128, 128, 128, 0.5);
-    }
-  }
-  .timerStop {
-    background-color: #e74c3c;
+.timer-done-content h1 {
+  color: white;
+  font-size: 5vw;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2em;
+  text-shadow: 2px 2px 8px #900;
+}
 
-    &:hover {
-      background-color: #c0392b;
-    }
-  }
-  .timerReset {
-    background-color: #f1c40f;
+.timer-done-buttons {
+  position: absolute;
+  bottom: 5vh;
+  left: 0;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  gap: 2em;
+}
 
-    &:hover {
-      background-color: #f39c12;
-    }
+.rerun-btn, .stop-btn {
+  font-size: 2em;
+  padding: 0.5em 2em;
+  border: none;
+  border-radius: 1em;
+  background: white;
+  color: #900;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.rerun-btn:hover {
+  background: #f1c40f;
+  color: #fff;
+}
+.stop-btn:hover {
+  background: #e74c3c;
+  color: #fff;
+}
+
+span {
+  margin: auto 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.timerStart,
+.timerStop,
+.timerReset {
+  float: right;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 1.2em;
+  text-align: center;
+  border: none;
+  margin: 0px 5px;
+  background-color: #4a8ee7;
+  color: white;
+  box-shadow: 1px 1px 4px rgba(128, 128, 128, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #1e74e4;
+    box-shadow: 1px 1px 4px rgba(128, 128, 128, 0.5);
   }
 }
+.timerStop {
+  background-color: #e74c3c;
+
+  &:hover {
+    background-color: #c0392b;
+  }
+}
+.timerReset {
+  background-color: #f1c40f;
+
+  &:hover {
+    background-color: #f39c12;
+  }
+}
+
 </style>
