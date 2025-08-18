@@ -46,10 +46,17 @@ const store = createStore({
   actions: {
     async fetchRecipesList(context) {
       let db = firebase.database().ref("recipes");
+      let totalAmountOfRecipes = 0;
+      await db.once("value").then(snapshot => {
+        totalAmountOfRecipes = snapshot.numChildren();  
+      });
+      console.log("Total amount of recipes:", totalAmountOfRecipes);
 
       db.on("child_added", (snapshot) => {
         context.commit("addToRecipesList", snapshot.val());
-        context.commit("setRecipesReady", true);
+        if (snapshot.val().recipeId && snapshot.val().recipeId + 1 == String(totalAmountOfRecipes)) {
+          context.commit("setRecipesReady", true);
+        }
       });
 
       db.on("child_removed", (snapshot) => {
@@ -64,7 +71,7 @@ const store = createStore({
           (recipe) => recipe.recipeId === snapshot.val().recipeId
         );
         context.commit("changeRecipeList", {
-          index: index,
+          index,
           recipe: snapshot.val(),
         });
       });
