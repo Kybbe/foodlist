@@ -1,6 +1,9 @@
 <template>
   <div>
-    <form action="" id="container">
+    <div v-if="!$store.state.recipesReady" class="centeredLoading">
+      <h1>Loading...</h1>
+    </div>
+    <form action="" id="container" v-if="$store.state.recipesReady">
       <InputText type="text" name="title" id="title" placeholder="title" v-model="recipe.title" />
       <div id="drinkContainer">
         <label for="drink">drink?</label>
@@ -114,6 +117,8 @@ import "firebase/database";
 import AutoCompletingIngredientInput from "../components/autoCompletingIngredientInput.vue";
 import { Button, Checkbox, InputText, FloatLabel } from "primevue";
 
+import { useStore } from "vuex";
+
 export default {
   name: "edit-recipe",
   components: {
@@ -173,6 +178,15 @@ export default {
         }
       });
 
+      if(dbKeys.length <= this.$route.params.id) {
+        alert("dbKeys length is less than id!");
+        return;
+      }
+      if(dbKeys[this.$route.params.id] === undefined) {
+        alert("dbKeys[this.$route.params.id] is undefined!");
+        return;
+      }
+
       const recipeFirebase = db.ref(`recipes/${dbKeys[this.$route.params.id]}`);
       recipeFirebase.update(this.recipe);
       alert("Recipe updated!");
@@ -180,6 +194,10 @@ export default {
     },
     putRecipeDetailsInInputs() {
       const currentRecipe = this.currentRecipe;
+      if (!currentRecipe) {
+        console.error("No current recipe found");
+        return;
+      }
       this.recipe = JSON.parse(JSON.stringify(currentRecipe)); // Deep copy to avoid mutating the store
     },
   },
@@ -187,8 +205,22 @@ export default {
     this.putRecipeDetailsInInputs();
   },
   computed: {
+    currentRecipeId() {
+      return this.$route.params.id;
+    },
     currentRecipe() {
-      return this.$store.state.recipesList[this.$route.params.id];
+      console.log("recipeList", this.$store.state.recipesList);
+      return this.$store.state.recipesList[this.currentRecipeId]; 
+    },
+		store() {
+			return useStore();
+		},
+  },
+  watch: {
+    '$store.state.recipesReady'(newVal) {
+      if (newVal) {
+        this.putRecipeDetailsInInputs();
+      }
     },
   },
 };
@@ -198,6 +230,13 @@ export default {
 body {
   font-family: Arial, Helvetica, sans-serif;
   scroll-behavior: smooth;
+}
+
+.centeredLoading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 #container * {
@@ -246,6 +285,8 @@ body {
 .editIngredients {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  gap: 10px;
 }
 
 #instructionAddAndRemoveContainer,

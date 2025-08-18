@@ -154,7 +154,7 @@
           title: string,<br>
           description: string,<br>
 					drink: boolean,<br>
-          ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurement: string (in swedish, st for pieces, leave as empty quotes if none), name: string, section: string (leave as empty quotes if none) } ],
+          ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurement: string (in swedish, st for pieces, leave as empty quotes if none), name: string (Capitalize), section: string (leave as empty quotes if none) } ],
           instructions: [ { id: number, checked: boolean, text: string } ],<br>
           servings: number,<br>
           link: string,<br>
@@ -303,7 +303,7 @@ export default {
 				title: string,
 				description: string,
 				drink: boolean,
-				ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurement: string (in swedish, st for pieces, specifially 'measurement', leave as empty quotes if none), name: string, section: string (leave as empty quotes if none) } ] ,
+				ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurement: string (in swedish, st for pieces, specifially 'measurement', leave as empty quotes if none), name: string (Capitalize), section: string (leave as empty quotes if none) } ] ,
 				instructions: [ { id: number, checked: boolean, text: string } ],
 				servings: number,
 				link: string,

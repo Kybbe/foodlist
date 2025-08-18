@@ -5,6 +5,7 @@ import addRecipe from "../views/add-recipe.vue";
 import editRecipe from "../views/edit-recipe.vue";
 import loginPage from "../views/loginPage.vue";
 import registerPage from "../views/registerPage.vue";
+import adminRecipeStats from "../views/admin-recipe-stats.vue";
 
 import store from "../store/index";
 
@@ -58,6 +59,15 @@ const routes = [
     component: editRecipe,
     meta: {
       title: "Edit recipe",
+      authRequired: true,
+    },
+  },
+  {
+    path: "/stats",
+    name: "adminRecipeStats",
+    component: adminRecipeStats,
+    meta: {
+      title: "Admin Recipe Stats",
       authRequired: true,
     },
   },
