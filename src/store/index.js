@@ -55,6 +55,13 @@ const store = createStore({
 
 			db.on("child_added", (snapshot) => {
 				context.commit("addToRecipesList", snapshot.val());
+				console.log("Recipe added:", {
+					id: snapshot.val().recipeId,
+					name: snapshot.val().title,
+					plusOne: snapshot.val().recipeId + 1,
+					sameAsTotal:
+						snapshot.val().recipeId + 1 === String(totalAmountOfRecipes),
+				});
 				if (
 					snapshot.val().recipeId &&
 					snapshot.val().recipeId + 1 === String(totalAmountOfRecipes)
