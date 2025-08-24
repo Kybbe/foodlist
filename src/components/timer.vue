@@ -50,7 +50,11 @@
     <button class="timerStop" @click="this.stopTimer" v-if="this.started">
       Stop
     </button>
-    <button class="timerReset" @click="this.resetTimer" v-if="this.time !== originalTime">
+    <button
+      class="timerReset"
+      @click="this.resetTimer"
+      v-if="this.time !== originalTime"
+    >
       Reset
     </button>
   </label>
@@ -64,21 +68,28 @@ export default {
 			type: String,
 			required: true,
 		},
+		timerCountId: {
+			// index this timer has of the multiple timers in the instruction
+			type: Number,
+			required: true,
+		},
 	},
 	data() {
 		return {
 			time: "",
 			originalTime: "",
 			started: false,
+			showTimerDone: false,
 		};
 	},
 	methods: {
 		getTimeFromInstruction() {
 			// Match number directly followed by unit (minut/er or timme/ar)
-			const regex = /(\d+(?:[\.,]\d+)?)\s*(timmar?|timme|minuter?|minut)/i;
-			const match = regex.exec(this.instruction);
-			if (!match) return;
+			const regex = /(\d+(?:[\.,]\d+)?)\s*(timmar?|timme|minuter?|minut)/gi;
+			const matches = Array.from(this.instruction.matchAll(regex));
+			if (!matches || matches.length <= this.timerCountId) return;
 
+			const match = matches[this.timerCountId];
 			const rawNumber = match[1].replace(",", ".");
 			const unit = match[2].toLowerCase();
 
@@ -95,10 +106,10 @@ export default {
 
 			document.querySelector(".time").innerHTML = time;
 		},
-    countdownTimer(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
+		countdownTimer(e) {
+			e.preventDefault();
+			e.stopPropagation();
+
 			// first check if already started
 			if (this.started) return;
 			// then start the timer
@@ -131,38 +142,42 @@ export default {
 				}
 			}, 1000);
 		},
-    stopTimer(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.started = false;
+		stopTimer(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			this.started = false;
 		},
-    resetTimer(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.time = this.originalTime;
-      this.started = false;
-    },
-    timerDone() {
-      const audio = new Audio(
-        "https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg",
-      );
-      audio.play();
-      this.showTimerDone = true;
-    },
-    rerunTimer() {
-      this.showTimerDone = false;
-      this.time = this.originalTime;
-      this.started = false;
-      this.countdownTimer({ preventDefault: () => {}, stopPropagation: () => {} });
-    },
-    stopTimerDone() {
-      this.showTimerDone = false;
-      this.resetTimer({ preventDefault: () => {}, stopPropagation: () => {} });
-    },
-  },
-  mounted() {
-    this.getTimeFromInstruction();
-  },
+		resetTimer(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			this.time = this.originalTime;
+			this.started = false;
+		},
+		timerDone() {
+			const audio = new Audio(
+				"https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg",
+			);
+			audio.play();
+			this.showTimerDone = true;
+		},
+		rerunTimer() {
+			this.showTimerDone = false;
+			this.time = this.originalTime;
+			this.started = false;
+			this.countdownTimer({
+				preventDefault: () => {},
+				stopPropagation: () => {},
+			});
+		},
+		stopTimerDone() {
+			this.showTimerDone = false;
+			this.stopTimer({ preventDefault: () => {}, stopPropagation: () => {} });
+			this.resetTimer({ preventDefault: () => {}, stopPropagation: () => {} });
+		},
+	},
+	mounted() {
+		this.getTimeFromInstruction();
+	},
 };
 </script>
 
@@ -174,7 +189,7 @@ export default {
   align-items: center;
   box-sizing: border-box;
   justify-content: center;
- }
+}
 
 .timer-done-overlay {
   position: fixed;
@@ -217,7 +232,8 @@ export default {
   gap: 2em;
 }
 
-.rerun-btn, .stop-btn {
+.rerun-btn,
+.stop-btn {
   font-size: 2em;
   padding: 0.5em 2em;
   border: none;
@@ -225,7 +241,7 @@ export default {
   background: white;
   color: #900;
   font-weight: bold;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
@@ -279,5 +295,4 @@ span {
     background-color: #f39c12;
   }
 }
-
 </style>

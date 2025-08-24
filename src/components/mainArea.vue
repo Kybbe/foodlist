@@ -12,54 +12,54 @@
 import Images from "./images";
 
 export default {
-	name: "mainArea",
-	props: {
-		title: {
-			type: String,
-			required: true,
-		},
-		description: {
-			type: String,
-			required: true,
-		},
-		imgLink: {
-			type: String,
-			required: true,
-		},
-		drink: {
-			type: Boolean,
-		},
-	},
-	data() {
-		return {
-			templateImg:
-				"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
-			drinkTemplateImg:
-				"https://www.liquor.com/thmb/fO-COKLw_iEA28v8K4XQjzMhkfw=/735x0/very-sexy-martini-720x720-primary-b1212ebf73f54f898a56f7f0b60c0a34.jpg",
-			imgLinkAndTemplate: "",
-		};
-	},
-	mounted() {
-		let localImage = null;
+  name: "mainArea",
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    imgLink: {
+      type: String,
+      required: true,
+    },
+    drink: {
+      type: Boolean,
+    },
+  },
+  data() {
+    return {
+      templateImg:
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg",
+      drinkTemplateImg:
+        "https://www.liquor.com/thmb/fO-COKLw_iEA28v8K4XQjzMhkfw=/735x0/very-sexy-martini-720x720-primary-b1212ebf73f54f898a56f7f0b60c0a34.jpg",
+      imgLinkAndTemplate: "",
+    };
+  },
+  mounted() {
+    let localImage = null;
 
-		if (
-			this.imgLink &&
-			!this.imgLink.startsWith("http") &&
-			!this.imgLink.startsWith("https")
-		) {
-			localImage = Images().getImageByName(this.imgLink);
-		}
+    if (
+      this.imgLink &&
+      !this.imgLink.startsWith("http") &&
+      !this.imgLink.startsWith("https")
+    ) {
+      localImage = Images().getImageByName(this.imgLink);
+    }
 
-		if (localImage) {
+    if (localImage) {
       this.imgLinkAndTemplate = localImage;
     } else if (this.imgLink === "") {
-			this.imgLinkAndTemplate = this.drink
+      this.imgLinkAndTemplate = this.drink
         ? this.drinkTemplateImg
         : this.templateImg;
-		} else {
-			this.imgLinkAndTemplate = this.imgLink;
-		}
-	},
+    } else {
+      this.imgLinkAndTemplate = this.imgLink;
+    }
+  },
 };
 </script>
 

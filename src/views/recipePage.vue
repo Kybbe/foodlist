@@ -19,7 +19,10 @@
       </div>
 
       <div class="mediumCard card">
-        <ingredients :ingredients="this.currentRecipe.ingredients" :portions="this.currentRecipe.servings" />
+        <ingredients
+          :ingredients="this.currentRecipe.ingredients"
+          :portions="this.currentRecipe.servings"
+        />
       </div>
 
       <div class="mediumCard card">
@@ -49,101 +52,105 @@
 </template>
 
 <script>
-import mainArea from "../components/mainArea.vue";
-import instruction from "../components/instructions.vue";
-import ingredients from "../components/ingredients.vue";
 import firebase from "firebase/app";
+import ingredients from "../components/ingredients.vue";
+import instruction from "../components/instructions.vue";
+import mainArea from "../components/mainArea.vue";
 import "firebase/database";
 
 import { useStore } from "vuex";
 
 export default {
-	name: "recipePage",
-	components: {
-		mainArea,
-		instruction,
-		ingredients,
-	},
-	methods: {
-		deleteRecipe() {
-			const dbKeys = [];
-			const database = firebase.database().ref("recipes");
+  name: "recipePage",
+  components: {
+    mainArea,
+    instruction,
+    ingredients,
+  },
+  methods: {
+    deleteRecipe() {
+      const dbKeys = [];
+      const database = firebase.database().ref("recipes");
 
-			database.on("value", (snapshot) => {
-				for (const childSnapshot of snapshot.val()) {
-					dbKeys.push(childSnapshot.key);
-				}
-			});
+      database.on("value", (snapshot) => {
+        for (const childSnapshot of snapshot.val()) {
+          dbKeys.push(childSnapshot.key);
+        }
+      });
 
-			database.child(dbKeys[this.currentRecipeId]).remove();
-			alert("Recipe deleted!");
+      database.child(dbKeys[this.currentRecipeId]).remove();
+      this.$toast.add({
+        severity: "success",
+        summary: "Recipe deleted",
+        detail: "Your recipe has been deleted successfully!",
+      });
 
-			// get id of all database entries and update their recipeIds
-			database.on("value", (snapshot) => {
-				const updates = [];
-				for (const childSnapshot of snapshot.val()) {
-					if (childSnapshot.recipeId > this.currentRecipeId) {
-						updates.push(
-							database.child(childSnapshot.key).update({
-								recipeId: childSnapshot.recipeId - 1,
-							}),
-						);
-					}
-				}
-				Promise.all(updates);
-			});
+      // get id of all database entries and update their recipeIds
+      database.on("value", (snapshot) => {
+        const updates = [];
+        for (const childSnapshot of snapshot.val()) {
+          if (childSnapshot.recipeId > this.currentRecipeId) {
+            updates.push(
+              database.child(childSnapshot.key).update({
+                recipeId: childSnapshot.recipeId - 1,
+              })
+            );
+          }
+        }
+        Promise.all(updates);
+      });
 
-			if (dbKeys.length === 1) {
-				//should still be 1 even if database has 0 entries after deletion
-				const templateRecipe = {
-					title: "Add a recipe",
-					description:
-						"Since this database shouldn't be empty, you should add a recipe!",
-					recipeId: "0",
-					ingredients: [
-						{
-							amount: "2",
-							unit: "Large",
-							name: "OOF's",
-						},
-					],
-					instructions: [
-						{
-							checked: false,
-							id: "0",
-							text: "Add a recipe",
-						},
-					],
-					servings: "4",
-					link: "foodlist-0921.web.app/#/add",
-					imgLink: "",
-				};
-				database.push(templateRecipe);
-			}
+      if (dbKeys.length === 1) {
+        //should still be 1 even if database has 0 entries after deletion
+        const templateRecipe = {
+          title: "Add a recipe",
+          description:
+            "Since this database shouldn't be empty, you should add a recipe!",
+          recipeId: "0",
+          ingredients: [
+            {
+              amount: "2",
+              unit: "Large",
+              name: "OOF's",
+            },
+          ],
+          instructions: [
+            {
+              checked: false,
+              id: "0",
+              text: "Add a recipe",
+            },
+          ],
+          servings: "4",
+          link: "foodlist-0921.web.app/#/add",
+          imgLink: "",
+        };
+        database.push(templateRecipe);
+      }
 
-			this.$router.push("/");
-		},
-		confirmDelete() {
-			if (
-				confirm(
-					"Are you sure you want to delete this recipe? \r\nThis action cannot be undone.",
-				)
-			) {
-				this.deleteRecipe();
-			}
-		},
-	},
-	computed: {
-		currentRecipeId() {
-			return this.$route.params.id;
-		},
-		currentRecipe() {
-			return this.$store.state.recipesList[this.currentRecipeId];
-		},
-		store() {
-			return useStore();
-		},
-	},
+      this.$router.push("/");
+    },
+    confirmDelete() {
+      if (
+        confirm(
+          "Are you sure you want to delete this recipe? \r\nThis action cannot be undone."
+        )
+      ) {
+        this.deleteRecipe();
+      }
+    },
+  },
+  computed: {
+    currentRecipeId() {
+      return this.$route.params.id;
+    },
+    currentRecipe() {
+      return this.$store.state.recipesList[this.currentRecipeId];
+    },
+    store() {
+      return useStore();
+    },
+  },
 };
 </script>
 
