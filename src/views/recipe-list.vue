@@ -194,35 +194,35 @@ import footerBar from "../components/footer.vue";
 import Images from "../components/images";
 
 export default {
-	name: "RecipeList",
-	components: {
-		footerBar,
-	},
-	data() {
-		return {
-			searchValue: "",
-			sortBy: "recipeId",
-			selectedIngredient: "",
-			minimized: false,
-		};
-	},
-	methods: {
-		saveAndRedirect(recipe) {
-			this.$store.commit("setSelectedRecipe", recipe);
-			this.$router.push(`/recipe/${recipe.recipeId}`);
-		},
-		backgroundimg(specificLink, thisId) {
-			if (specificLink === "") {
-				// if no image is provided, give it one
-				if (this.$store.state.recipesList[thisId].drink) {
-					// if it's a drink, give it a drink image
-					specificLink =
-						"https://www.liquor.com/thmb/fO-COKLw_iEA28v8K4XQjzMhkfw=/735x0/very-sexy-martini-720x720-primary-b1212ebf73f54f898a56f7f0b60c0a34.jpg";
-				} else {
-					// if it's a recipe, give it a recipe image
-					specificLink =
-						"https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg";
-				}
+  name: "RecipeList",
+  components: {
+    footerBar,
+  },
+  data() {
+    return {
+      searchValue: "",
+      sortBy: "recipeId",
+      selectedIngredient: "",
+      minimized: false,
+    };
+  },
+  methods: {
+    saveAndRedirect(recipe) {
+      this.$store.commit("setSelectedRecipe", recipe);
+      this.$router.push(`/recipe/${recipe.recipeId}`);
+    },
+    backgroundimg(specificLink, thisId) {
+      if (specificLink === "") {
+        // if no image is provided, give it one
+        if (this.$store.state.recipesList[thisId].drink) {
+          // if it's a drink, give it a drink image
+          specificLink =
+            "https://www.liquor.com/thmb/fO-COKLw_iEA28v8K4XQjzMhkfw=/735x0/very-sexy-martini-720x720-primary-b1212ebf73f54f898a56f7f0b60c0a34.jpg";
+        } else {
+          // if it's a recipe, give it a recipe image
+          specificLink =
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg/330px-Good_Food_Display_-_NCI_Visuals_Online.jpg";
+        }
       }
       if (
         specificLink &&
@@ -235,171 +235,171 @@ export default {
           "background-image": `url(${localImage})`,
         };
       }
-			return {
-				// if there is an image, give it back as background image string
-				"background-image": `url(${specificLink})`,
-			};
-		},
-		minMaxCards() {
-			const cardImgs = document.querySelectorAll(".imgPart");
-			const icons = document.querySelectorAll(".plateIcon");
-			const cardBodys = document.querySelectorAll(".card-body");
-			const btn = document.querySelector("#minMaxBtn");
+      return {
+        // if there is an image, give it back as background image string
+        "background-image": `url(${specificLink})`,
+      };
+    },
+    minMaxCards() {
+      const cardImgs = document.querySelectorAll(".imgPart");
+      const icons = document.querySelectorAll(".plateIcon");
+      const cardBodys = document.querySelectorAll(".card-body");
+      const btn = document.querySelector("#minMaxBtn");
 
-			if (!this.minimized) {
-				for (const cardBody of cardBodys) {
-					cardBody.style.display = "none";
-				}
+      if (!this.minimized) {
+        for (const cardBody of cardBodys) {
+          cardBody.style.display = "none";
+        }
 
-				for (const cardImg of cardImgs) {
-					cardImg.style.borderRadius = "10px";
-				}
+        for (const cardImg of cardImgs) {
+          cardImg.style.borderRadius = "10px";
+        }
 
-				for (const icon of icons) {
-					icon.style.bottom = "1em";
-				}
+        for (const icon of icons) {
+          icon.style.bottom = "1em";
+        }
 
-				btn.innerHTML = "Show card text";
+        btn.innerHTML = "Show card text";
 
-				this.minimized = true;
-			} else {
-				for (const cardBody of cardBodys) {
-					cardBody.style.display = null;
-				}
+        this.minimized = true;
+      } else {
+        for (const cardBody of cardBodys) {
+          cardBody.style.display = null;
+        }
 
-				for (const cardImg of cardImgs) {
-					cardImg.style.borderRadius = null;
-				}
+        for (const cardImg of cardImgs) {
+          cardImg.style.borderRadius = null;
+        }
 
-				for (const icon of icons) {
-					icon.style.bottom = null;
-				}
+        for (const icon of icons) {
+          icon.style.bottom = null;
+        }
 
-				btn.innerHTML = "Hide card text";
+        btn.innerHTML = "Hide card text";
 
-				this.minimized = false;
-			}
-		},
-		goToTop() {
-			window.scrollTo(0, 0);
-		},
-	},
-	computed: {
-		searchResult() {
-			let tempRecipes = this.$store.state.recipesList;
-			// remove all recipe with drink property
-			tempRecipes = tempRecipes.filter((recipe) => {
-				return !recipe.drink;
-			});
+        this.minimized = false;
+      }
+    },
+    goToTop() {
+      window.scrollTo(0, 0);
+    },
+  },
+  computed: {
+    searchResult() {
+      let tempRecipes = this.$store.state.recipesList;
+      // remove all recipe with drink property
+      tempRecipes = tempRecipes.filter((recipe) => {
+        return !recipe.drink;
+      });
 
-			if (this.searchValue !== "" && this.searchValue) {
-				tempRecipes = tempRecipes.filter((item) => {
-					return item.title
-						.toUpperCase()
-						.includes(this.searchValue.toUpperCase());
-				});
-			}
+      if (this.searchValue !== "" && this.searchValue) {
+        tempRecipes = tempRecipes.filter((item) => {
+          return item.title
+            .toUpperCase()
+            .includes(this.searchValue.toUpperCase());
+        });
+      }
 
-			if (this.selectedIngredient !== "") {
-				// filter recipes by selected ingredient
-				tempRecipes = tempRecipes.filter((item) => {
-					return item.ingredients.some((ingredient) => {
-						return (
-							ingredient.name.toUpperCase() ===
-							this.selectedIngredient.toUpperCase()
-						);
-					});
-				});
-			}
+      if (this.selectedIngredient !== "") {
+        // filter recipes by selected ingredient
+        tempRecipes = tempRecipes.filter((item) => {
+          return item.ingredients.some((ingredient) => {
+            return (
+              ingredient.name.toUpperCase() ===
+              this.selectedIngredient.toUpperCase()
+            );
+          });
+        });
+      }
 
-			tempRecipes = tempRecipes.sort((a, b) => {
-				if (this.sortBy === "alphabetically") {
-					const fa = a.title.toLowerCase();
-					const fb = b.title.toLowerCase();
+      tempRecipes = tempRecipes.sort((a, b) => {
+        if (this.sortBy === "alphabetically") {
+          const fa = a.title.toLowerCase();
+          const fb = b.title.toLowerCase();
 
-					if (fa < fb) {
-						return -1;
-					}
-					if (fa > fb) {
-						return 1;
-					}
-					return 0;
+          if (fa < fb) {
+            return -1;
+          }
+          if (fa > fb) {
+            return 1;
+          }
+          return 0;
 
-					// Sort by id
-				}
-				if (this.sortBy === "recipeId") {
-					return a.recipeId - b.recipeId;
-				}
-			});
+          // Sort by id
+        }
+        if (this.sortBy === "recipeId") {
+          return a.recipeId - b.recipeId;
+        }
+      });
 
-			if (this.sortBy === "drinks") {
-				return null;
-			}
+      if (this.sortBy === "drinks") {
+        return null;
+      }
 
-			return tempRecipes;
-		},
-		drinks() {
-			let tempDrinks = this.$store.state.recipesList;
-			// keep only recipes with drink property
-			tempDrinks = tempDrinks.filter((recipe) => {
-				return recipe.drink;
-			});
+      return tempRecipes;
+    },
+    drinks() {
+      let tempDrinks = this.$store.state.recipesList;
+      // keep only recipes with drink property
+      tempDrinks = tempDrinks.filter((recipe) => {
+        return recipe.drink;
+      });
 
-			if (this.searchValue !== "" && this.searchValue) {
-				tempDrinks = tempDrinks.filter((item) => {
-					return item.title
-						.toUpperCase()
-						.includes(this.searchValue.toUpperCase());
-				});
-			}
+      if (this.searchValue !== "" && this.searchValue) {
+        tempDrinks = tempDrinks.filter((item) => {
+          return item.title
+            .toUpperCase()
+            .includes(this.searchValue.toUpperCase());
+        });
+      }
 
-			if (this.selectedIngredient !== "") {
-				// filter recipes by selected ingredient
-				// ingredient name is stored in the recipe.ingredients.name property
-				tempDrinks = tempDrinks.filter((item) => {
-					return item.ingredients.some((ingredient) => {
-						return (
-							ingredient.name.toUpperCase() ===
-							this.selectedIngredient.toUpperCase()
-						);
-					});
-				});
-			}
+      if (this.selectedIngredient !== "") {
+        // filter recipes by selected ingredient
+        // ingredient name is stored in the recipe.ingredients.name property
+        tempDrinks = tempDrinks.filter((item) => {
+          return item.ingredients.some((ingredient) => {
+            return (
+              ingredient.name.toUpperCase() ===
+              this.selectedIngredient.toUpperCase()
+            );
+          });
+        });
+      }
 
-			tempDrinks = tempDrinks.sort((a, b) => {
-				if (this.sortBy === "alphabetically") {
-					const fa = a.title.toLowerCase();
-					const fb = b.title.toLowerCase();
+      tempDrinks = tempDrinks.sort((a, b) => {
+        if (this.sortBy === "alphabetically") {
+          const fa = a.title.toLowerCase();
+          const fb = b.title.toLowerCase();
 
-					if (fa < fb) {
-						return -1;
-					}
-					if (fa > fb) {
-						return 1;
-					}
-					return 0;
+          if (fa < fb) {
+            return -1;
+          }
+          if (fa > fb) {
+            return 1;
+          }
+          return 0;
 
-					// Sort by id
-				}
-				if (this.sortBy === "recipeId") {
-					return a.recipeId - b.recipeId;
-				}
-			});
+          // Sort by id
+        }
+        if (this.sortBy === "recipeId") {
+          return a.recipeId - b.recipeId;
+        }
+      });
 
-			if (this.sortBy === "foods") {
-				return null;
-			}
+      if (this.sortBy === "foods") {
+        return null;
+      }
 
-			return tempDrinks;
-		},
+      return tempDrinks;
+    },
     sortAndListIngredients() {
-			// get all recipe ingredients and put into array
-			const tempIngredients = [];
-			for (const recipe of this.$store.state.recipesList) {
-				for (const ingredient of recipe.ingredients) {
-					tempIngredients.push(ingredient.name);
-				}
-			}
+      // get all recipe ingredients and put into array
+      const tempIngredients = [];
+      for (const recipe of this.$store.state.recipesList) {
+        for (const ingredient of recipe.ingredients) {
+          tempIngredients.push(ingredient.name);
+        }
+      }
 
       // count each ingredient and put into a Map
       const ingredientMap = new Map();
@@ -412,54 +412,57 @@ export default {
       }
 
       // convert Map to array
-      const tempIngredientsCount2 = Array.from(ingredientMap, ([name, value]) => ({ name, value }));
+      const tempIngredientsCount2 = Array.from(
+        ingredientMap,
+        ([name, value]) => ({ name, value })
+      );
 
-			// sort by value and if same value, sort by name
-			tempIngredientsCount2.sort((a, b) =>
-				a.value > b.value
-					? -1
-					: a.value < b.value
-						? 1
-						: a.name > b.name
-							? 1
-							: -1,
-			);
+      // sort by value and if same value, sort by name
+      tempIngredientsCount2.sort((a, b) =>
+        a.value > b.value
+          ? -1
+          : a.value < b.value
+          ? 1
+          : a.name > b.name
+          ? 1
+          : -1
+      );
 
-			return tempIngredientsCount2;
-		},
-		noResults() {
-			if (this.drinks == null || this.drinks.length === 0) {
-				if (this.searchResult == null || this.searchResult.length === 0) {
-					return true;
-				}
-				return false;
-			}
-			return false;
-		},
-		randomNumberGenerator() {
-			// make a array of all shown recipes (searchResult + drinks)
-			// get a random number between 0 and the length of the array
-			// get the recipe at that number
+      return tempIngredientsCount2;
+    },
+    noResults() {
+      if (this.drinks == null || this.drinks.length === 0) {
+        if (this.searchResult == null || this.searchResult.length === 0) {
+          return true;
+        }
+        return false;
+      }
+      return false;
+    },
+    randomNumberGenerator() {
+      // make a array of all shown recipes (searchResult + drinks)
+      // get a random number between 0 and the length of the array
+      // get the recipe at that number
 
-			let allShownRecipes = [];
-			if (this.searchResult != null) {
-				allShownRecipes = allShownRecipes.concat(this.searchResult);
-			}
-			if (this.drinks != null) {
-				allShownRecipes = allShownRecipes.concat(this.drinks);
-			}
+      let allShownRecipes = [];
+      if (this.searchResult != null) {
+        allShownRecipes = allShownRecipes.concat(this.searchResult);
+      }
+      if (this.drinks != null) {
+        allShownRecipes = allShownRecipes.concat(this.drinks);
+      }
 
-			const randomNumber = Math.floor(Math.random() * allShownRecipes.length);
+      const randomNumber = Math.floor(Math.random() * allShownRecipes.length);
 
-			if (allShownRecipes.length === 0) {
-				return null;
-			}
-			return allShownRecipes[randomNumber].recipeId;
-		},
-	},
-	mounted() {
-		window.scrollTo(0, localStorage.getItem("scrollLength"));
-	},
+      if (allShownRecipes.length === 0) {
+        return null;
+      }
+      return allShownRecipes[randomNumber].recipeId;
+    },
+  },
+  mounted() {
+    window.scrollTo(0, localStorage.getItem("scrollLength"));
+  },
 };
 </script>
 

@@ -4,10 +4,16 @@
       <h1>Loading...</h1>
     </div>
     <form action="" id="container" v-if="$store.state.recipesReady">
-      <InputText type="text" name="title" id="title" placeholder="title" v-model="recipe.title" />
+      <InputText
+        type="text"
+        name="title"
+        id="title"
+        placeholder="title"
+        v-model="recipe.title"
+      />
       <div id="drinkContainer">
         <label for="drink">drink?</label>
-        <Checkbox 
+        <Checkbox
           id="drink"
           name="drink"
           :value="recipe.drink"
@@ -30,7 +36,11 @@
       />
 
       <div id="ingredientsList">
-        <div v-for="(ingredient, index) in recipe.ingredients" :key="index" class="editIngredients">
+        <div
+          v-for="(ingredient, index) in recipe.ingredients"
+          :key="index"
+          class="editIngredients"
+        >
           <FloatLabel variant="on">
             <InputText :id="'amount-' + index" v-model="ingredient.amount" />
             <label :for="'amount-' + index">Quantity</label>
@@ -40,73 +50,110 @@
             <label :for="'unit-' + index">Unit</label>
           </FloatLabel>
 
-          <AutoCompletingIngredientInput :id="'ingredient-' + index" :value="ingredient.name" placeholder="Name" />
-          
+          <AutoCompletingIngredientInput
+            :id="'ingredient-' + index"
+            :value="ingredient.name"
+            placeholder="Name"
+          />
+
           <FloatLabel variant="on">
             <InputText :id="'section-' + index" v-model="ingredient.section" />
             <label :for="'section-' + index">Section</label>
           </FloatLabel>
           <div id="ingredientsAddAndRemoveContainer">
-            <Button 
+            <Button
               v-if="recipe.ingredients.length > 1"
-              variant="text" 
-              type="button" 
-              @click="removeIngredientAt(index)" 
-              class="removeIngredientBtn" 
-            >-</Button>
+              variant="text"
+              type="button"
+              @click="removeIngredientAt(index)"
+              class="removeIngredientBtn"
+              >-</Button
+            >
             <Button
               variant="text"
               v-if="index === recipe.ingredients.length - 1"
               type="button"
               @click="addIngredient"
               class="addIngredientBtn"
-            >+</Button>
-            <div id="ingredientsAddStand-in"
+              >+</Button
+            >
+            <div
+              id="ingredientsAddStand-in"
               v-if="index != recipe.ingredients.length - 1"
             ></div>
           </div>
         </div>
       </div>
-      
+
       <div id="instructionsList">
-        <div v-for="(instruction, index) in recipe.instructions" :key="index" class="editInstructions">
+        <div
+          v-for="(instruction, index) in recipe.instructions"
+          :key="index"
+          class="editInstructions"
+        >
           <Checkbox
             v-model="instruction.checked"
             :id="'instruction-checked-' + index"
           />
           <FloatLabel variant="on">
-            <InputText type="number" :id="'instruction-id-' + index" v-model="instruction.id" style="width: 3em;" />
+            <InputText
+              type="number"
+              :id="'instruction-id-' + index"
+              v-model="instruction.id"
+              style="width: 3em"
+            />
             <label :for="'instruction-id-' + index">Id</label>
           </FloatLabel>
-          <FloatLabel variant="on" style="width: 100%;">
-            <InputText type="text" :id="'instruction-text-' + index" v-model="instruction.text" />
+          <FloatLabel variant="on" style="width: 100%">
+            <InputText
+              type="text"
+              :id="'instruction-text-' + index"
+              v-model="instruction.text"
+            />
             <label :for="'instruction-text-' + index">Instruction</label>
           </FloatLabel>
           <div id="instructionAddAndRemoveContainer">
-            <Button 
+            <Button
               v-if="recipe.instructions.length > 1"
-              variant="text" 
-              type="button" 
-              @click="removeInstructionAt(index)" 
-              class="removeInstructionBtn" 
-            >-</Button>
+              variant="text"
+              type="button"
+              @click="removeInstructionAt(index)"
+              class="removeInstructionBtn"
+              >-</Button
+            >
             <Button
               variant="text"
               v-if="index === recipe.instructions.length - 1"
               type="button"
               @click="addInstruction"
               class="addInstructionBtn"
-            >+</Button>
-            <div id="instructionAddStand-in"
+              >+</Button
+            >
+            <div
+              id="instructionAddStand-in"
               v-if="index != recipe.instructions.length - 1"
             ></div>
           </div>
         </div>
       </div>
 
-      <InputText type="text" name="servings" id="servings" placeholder="servings" v-model="recipe.servings" />
-      <InputText type="text" name="link" id="link" placeholder="link" v-model="recipe.link" />
-      <Button @click.prevent="editFirebase" type="submit" id="updateRecipeBtn">Update</Button>
+      <InputText
+        type="text"
+        name="servings"
+        id="servings"
+        placeholder="servings"
+        v-model="recipe.servings"
+      />
+      <InputText
+        type="text"
+        name="link"
+        id="link"
+        placeholder="link"
+        v-model="recipe.link"
+      />
+      <Button @click.prevent="editFirebase" type="submit" id="updateRecipeBtn"
+        >Update</Button
+      >
     </form>
   </div>
 </template>
@@ -114,115 +161,151 @@
 <script>
 import firebase from "firebase/app";
 import "firebase/database";
-import AutoCompletingIngredientInput from "../components/autoCompletingIngredientInput.vue";
-import { Button, Checkbox, InputText, FloatLabel } from "primevue";
-
+import { Button, Checkbox, FloatLabel, InputText } from "primevue";
 import { useStore } from "vuex";
+import AutoCompletingIngredientInput from "../components/autoCompletingIngredientInput.vue";
 
 export default {
-  name: "edit-recipe",
-  components: {
-    AutoCompletingIngredientInput,
-    Button,
-    InputText,
-    Checkbox,
-    FloatLabel,
-  },
-  data() {
-    return {
-      recipe: {
-        title: "",
-        drink: false,
-        description: "",
-        imgLink: "",
-        ingredients: [
-          { amount: "", measurement: "", name: "", section: "" },
-        ],
-        instructions: [
-          { checked: false, id: 0, text: "" },
-        ],
-        servings: "",
-        link: "",
-      },
-    };
-  },
-  methods: {
-    addIngredient() {
-      this.recipe.ingredients.push({ amount: "", measurement: "", name: "", section: "" });
-    },
-    removeIngredientAt(index) {
-      if (this.recipe.ingredients.length > 1) {
-        this.recipe.ingredients.splice(index, 1);
-      }
-    },
-    addInstruction() {
-      this.recipe.instructions.push({ checked: false, id: this.recipe.instructions.length, text: "" });
-    },
-    removeInstructionAt(index) {
-      if (this.recipe.instructions.length > 1) {
-        this.recipe.instructions.splice(index, 1);
-      }
-    },
-    editFirebase() {
-      if (!this.$store.state.admin) {
-        return;
-      }
+	name: "edit-recipe",
+	components: {
+		AutoCompletingIngredientInput,
+		Button,
+		InputText,
+		Checkbox,
+		FloatLabel,
+	},
+	data() {
+		return {
+			recipe: {
+				title: "",
+				drink: false,
+				description: "",
+				imgLink: "",
+				ingredients: [{ amount: "", measurement: "", name: "", section: "" }],
+				instructions: [{ checked: false, id: 0, text: "" }],
+				servings: "",
+				link: "",
+			},
+		};
+	},
+	methods: {
+		addIngredient() {
+			this.recipe.ingredients.push({
+				amount: "",
+				measurement: "",
+				name: "",
+				section: "",
+			});
+		},
+		removeIngredientAt(index) {
+			if (this.recipe.ingredients.length > 1) {
+				this.recipe.ingredients.splice(index, 1);
+			}
+		},
+		addInstruction() {
+			this.recipe.instructions.push({
+				checked: false,
+				id: this.recipe.instructions.length,
+				text: "",
+			});
+		},
+		removeInstructionAt(index) {
+			if (this.recipe.instructions.length > 1) {
+				this.recipe.instructions.splice(index, 1);
+			}
+		},
+		editFirebase() {
+			if (!this.$store.state.admin) {
+				this.$toast.add({
+					severity: "error",
+					summary: "Error",
+					detail: "You must be an admin to edit recipes.",
+					life: 3000,
+				});
+				return;
+			}
 
-      const db = firebase.database();
-      const database = firebase.database().ref("recipes");
-      const dbKeys = [];
+			const db = firebase.database();
+			const database = firebase.database().ref("recipes");
+			const dbKeys = [];
 
-      database.on("value", (snapshot) => {
-        for (const childSnapshot of snapshot) {
-          dbKeys.push(childSnapshot.key);
-        }
-      });
+			database.on("value", (snapshot) => {
+				for (const childSnapshot of snapshot) {
+					dbKeys.push(childSnapshot.key);
+				}
+			});
 
-      if(dbKeys.length <= this.$route.params.id) {
-        alert("dbKeys length is less than id!");
-        return;
-      }
-      if(dbKeys[this.$route.params.id] === undefined) {
-        alert("dbKeys[this.$route.params.id] is undefined!");
-        return;
-      }
+			if (dbKeys.length <= this.$route.params.id) {
+				this.$toast.add({
+					severity: "error",
+					summary: "Error",
+					detail: "Recipe ID is out of bounds.",
+					life: 3000,
+				});
+				return;
+			}
+			if (dbKeys[this.$route.params.id] === undefined) {
+				this.$toast.add({
+					severity: "error",
+					summary: "Error",
+					detail: "Recipe not found.",
+					life: 3000,
+				});
+				return;
+			}
 
-      const recipeFirebase = db.ref(`recipes/${dbKeys[this.$route.params.id]}`);
-      recipeFirebase.update(this.recipe);
-      alert("Recipe updated!");
-      this.$router.push(`/recipe/${this.$route.params.id}`);
-    },
-    putRecipeDetailsInInputs() {
-      const currentRecipe = this.currentRecipe;
-      if (!currentRecipe) {
-        console.error("No current recipe found");
-        return;
-      }
-      this.recipe = JSON.parse(JSON.stringify(currentRecipe)); // Deep copy to avoid mutating the store
-    },
-  },
-  mounted() {
-    this.putRecipeDetailsInInputs();
-  },
-  computed: {
-    currentRecipeId() {
-      return this.$route.params.id;
-    },
-    currentRecipe() {
-      console.log("recipeList", this.$store.state.recipesList);
-      return this.$store.state.recipesList[this.currentRecipeId]; 
-    },
+			const recipeFirebase = db.ref(`recipes/${dbKeys[this.$route.params.id]}`);
+			recipeFirebase.update(this.recipe);
+			this.$toast.add({
+				severity: "success",
+				summary: "Success",
+				detail: "Recipe updated!",
+				life: 3000,
+			});
+			this.$router.push(`/recipe/${this.$route.params.id}`);
+		},
+		putRecipeDetailsInInputs() {
+			const currentRecipe = this.currentRecipe;
+			if (!currentRecipe) {
+				this.$toast.add({
+					severity: "error",
+					summary: "Error",
+					detail: "No current recipe found.",
+					life: 3000,
+				});
+				console.error("No current recipe found");
+				return;
+			}
+			this.recipe = JSON.parse(JSON.stringify(currentRecipe)); // Deep copy to avoid mutating the store
+		},
+	},
+	mounted() {
+		this.putRecipeDetailsInInputs();
+	},
+	computed: {
+		currentRecipeId() {
+			return this.$route.params.id;
+		},
+		currentRecipe() {
+			return this.$store.state.recipesList[this.currentRecipeId];
+		},
 		store() {
 			return useStore();
 		},
-  },
-  watch: {
-    '$store.state.recipesReady'(newVal) {
-      if (newVal) {
-        this.putRecipeDetailsInInputs();
-      }
-    },
-  },
+	},
+	watch: {
+		"$store.state.recipesReady"(newVal) {
+			if (newVal) {
+				this.$toast.add({
+					severity: "info",
+					summary: "Info",
+					detail: "Recipes loaded successfully.",
+					life: 3000,
+				});
+				this.putRecipeDetailsInInputs();
+			}
+		},
+	},
 };
 </script>
 
@@ -313,7 +396,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-  }  
+  }
 
   /* stand ins for the buttons when not shown, so every row is same width */
   #instructionAddStand-in,

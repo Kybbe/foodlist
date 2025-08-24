@@ -16,14 +16,15 @@
       <label :for="instruction.id"> {{ instruction.text }} </label>
       <div
         v-for="n in countAmountOfTimers(instruction.text)"
-        :key="n"
+        :key="`${instruction.id}-container-${n}`"
+        :id="`${instruction.id}-container-${n}`"
         class="timerContainer"
       >
         <timer
-          :instruction="
-            instruction.text
-          "
-          :id="instruction.id"
+          :instruction="instruction.text"
+          :timerCountId="n - 1"
+          :id="`${instruction.id}-timer-${n}`"
+          :key="`${instruction.id}-timer-${n}`"
           v-if="!instruction.checked"
         />
       </div>
@@ -34,55 +35,41 @@
 <script>
 import timer from "./timer.vue";
 export default {
-	name: "instructionComponent",
-	components: {
-		timer,
-	},
-	props: {
-		instructions: {
-			type: Array,
-			required: true,
-		},
-	},
-	methods: {
-		checkInstruction(instruction) {
-			const parent = document.getElementById(instruction.id).parentElement;
-			if (instruction.checked) {
-				parent.classList.remove("checked");
-			} else {
-				parent.classList.add("checked");
-			}
-		},
-		countAmountOfTimers(instructionText) {
-			let amountOfTimers = 0;
-			if (
-				instructionText.includes("minuter") ||
-				instructionText.includes("minut") ||
-				instructionText.includes("timme") ||
-				instructionText.includes("timmar")
-			) {
-				amountOfTimers +=
-					instructionText.match(/\bminut(?:er)?\b/gi)?.length ?? 0;
-				amountOfTimers += instructionText.match(/\btimmar?\b/gi)?.length ?? 0;
-				amountOfTimers += instructionText.match(/\btimme\b/gi)?.length ?? 0;
-			}
-			return amountOfTimers;
-		},
-		/* splitOutTimerPlaces(instructionText) {
-			let timeValues = [];
-			let timeRegExp = /(\d+) minuter/g;
-
-			let match;
-			while ((match = timeRegExp.exec(instructionText))) {
-				timeValues.push({
-					value: parseInt(match[1], 10),
-					unit: "minuter",
-				});
-			}
-
-			return timeValues;
-		}, */
-	},
+  name: "instructionComponent",
+  components: {
+    timer,
+  },
+  props: {
+    instructions: {
+      type: Array,
+      required: true,
+    },
+  },
+  methods: {
+    checkInstruction(instruction) {
+      const parent = document.getElementById(instruction.id).parentElement;
+      if (instruction.checked) {
+        parent.classList.remove("checked");
+      } else {
+        parent.classList.add("checked");
+      }
+    },
+    countAmountOfTimers(instructionText) {
+      let amountOfTimers = 0;
+      if (
+        instructionText.includes("minuter") ||
+        instructionText.includes("minut") ||
+        instructionText.includes("timme") ||
+        instructionText.includes("timmar")
+      ) {
+        amountOfTimers +=
+          instructionText.match(/\bminut(?:er)?\b/gi)?.length ?? 0;
+        amountOfTimers += instructionText.match(/\btimmar?\b/gi)?.length ?? 0;
+        amountOfTimers += instructionText.match(/\btimme\b/gi)?.length ?? 0;
+      }
+      return amountOfTimers;
+    },
+  },
 };
 </script>
 

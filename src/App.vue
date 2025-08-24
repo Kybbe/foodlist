@@ -5,14 +5,18 @@
       <component :is="Component" :key="$route.path" />
     </transition>
   </router-view>
+  <Toast position="bottom-right" />
 </template>
 
 <script>
 import navbar from "./components/navbar.vue";
+import Toast from "primevue/toast";
+
 export default {
   name: "App",
   components: {
     navbar,
+    Toast,
   },
 };
 </script>
