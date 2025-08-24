@@ -242,6 +242,10 @@ export default {
 					detail: "Recipe ID is out of bounds.",
 					life: 3000,
 				});
+				console.error("Recipe ID is out of bounds.", {
+					id: this.$route.params.id,
+					validIds: dbKeys,
+				});
 				return;
 			}
 			if (dbKeys[this.$route.params.id] === undefined) {
@@ -250,6 +254,10 @@ export default {
 					summary: "Error",
 					detail: "Recipe not found.",
 					life: 3000,
+				});
+				console.error("Recipe not found.", {
+					id: this.$route.params.id,
+					validIds: dbKeys,
 				});
 				return;
 			}
