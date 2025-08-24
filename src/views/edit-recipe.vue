@@ -214,7 +214,7 @@ export default {
 				this.recipe.instructions.splice(index, 1);
 			}
 		},
-		editFirebase() {
+		async editFirebase() {
 			if (!this.$store.state.admin) {
 				this.$toast.add({
 					severity: "error",
@@ -226,14 +226,7 @@ export default {
 			}
 
 			const db = firebase.database();
-			const database = firebase.database().ref("recipes");
-			const dbKeys = [];
-
-			database.on("value", (snapshot) => {
-				for (const childSnapshot of snapshot) {
-					dbKeys.push(childSnapshot.key);
-				}
-			});
+			const dbKeys = this.$store.state.dbKeys;
 
 			if (dbKeys.length <= this.$route.params.id) {
 				this.$toast.add({
