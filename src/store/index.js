@@ -9,6 +9,8 @@ const store = createStore({
 	state: {
 		recipesList: [],
 		recipesReady: false,
+		totalAmountOfRecipes: 0,
+		dbKeys: [],
 		currentUser: null,
 		authIsReady: false,
 		selectedRecipe: null,
@@ -31,6 +33,9 @@ const store = createStore({
 			console.log("Setting recipesReady to", payload);
 			state.recipesReady = payload;
 		},
+		addDbKey(state, payload) {
+			state.dbKeys.push(payload);
+		},
 		setSelectedRecipe(state, payload) {
 			state.selectedRecipe = payload;
 		},
@@ -50,8 +55,12 @@ const store = createStore({
 			let totalAmountOfRecipes = 0;
 			await db.once("value").then((snapshot) => {
 				totalAmountOfRecipes = snapshot.numChildren();
+				snapshot.forEach((childSnapshot) => {
+					context.commit("addDbKey", childSnapshot.key);
+				});
 			});
 			console.log("Total amount of recipes:", totalAmountOfRecipes);
+			context.commit("setTotalAmountOfRecipes", totalAmountOfRecipes);
 
 			db.on("child_added", (snapshot) => {
 				context.commit("addToRecipesList", snapshot.val());
