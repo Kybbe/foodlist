@@ -49,7 +49,7 @@ const store = createStore({
 			const db = firebase.database().ref("recipes");
 			let totalAmountOfRecipes = 0;
 			await db.once("value").then((snapshot) => {
-				totalAmountOfRecipes = snapshot.numChildren() - 1;
+				totalAmountOfRecipes = snapshot.numChildren();
 			});
 			console.log("Total amount of recipes:", totalAmountOfRecipes);
 
@@ -59,12 +59,11 @@ const store = createStore({
 					id: snapshot.val().recipeId,
 					name: snapshot.val().title,
 					plusOne: snapshot.val().recipeId + 1,
-					sameAsTotal:
-						snapshot.val().recipeId + 1 === String(totalAmountOfRecipes),
+					sameAsTotal: snapshot.val().recipeId + 1 === totalAmountOfRecipes,
 				});
 				if (
 					snapshot.val().recipeId &&
-					snapshot.val().recipeId + 1 === String(totalAmountOfRecipes)
+					snapshot.val().recipeId + 1 === totalAmountOfRecipes
 				) {
 					console.log("All recipes loaded");
 					context.commit("setRecipesReady", true);
