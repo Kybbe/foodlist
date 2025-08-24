@@ -220,7 +220,7 @@ export default {
 					severity: "error",
 					summary: "Error",
 					detail: "You must be an admin to edit recipes.",
-					life: 3000,
+					life: 5000,
 				});
 				return;
 			}
@@ -253,7 +253,7 @@ export default {
 					severity: "error",
 					summary: "Error",
 					detail: "Recipe not found.",
-					life: 3000,
+					life: 5000,
 				});
 				console.error("Recipe not found.", {
 					id: this.$route.params.id,
@@ -268,7 +268,7 @@ export default {
 				severity: "success",
 				summary: "Success",
 				detail: "Recipe updated!",
-				life: 3000,
+				life: 5000,
 			});
 			this.$router.push(`/recipe/${this.$route.params.id}`);
 		},
@@ -286,9 +286,6 @@ export default {
 			}
 			this.recipe = JSON.parse(JSON.stringify(currentRecipe)); // Deep copy to avoid mutating the store
 		},
-	},
-	mounted() {
-		this.putRecipeDetailsInInputs();
 	},
 	computed: {
 		currentRecipeId() {
