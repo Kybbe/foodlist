@@ -28,6 +28,7 @@ const store = createStore({
 			state.recipesList[payload.index] = payload.recipe;
 		},
 		setRecipesReady(state, payload) {
+			console.log("Setting recipesReady to", payload);
 			state.recipesReady = payload;
 		},
 		setSelectedRecipe(state, payload) {
@@ -48,7 +49,7 @@ const store = createStore({
 			const db = firebase.database().ref("recipes");
 			let totalAmountOfRecipes = 0;
 			await db.once("value").then((snapshot) => {
-				totalAmountOfRecipes = snapshot.numChildren();
+				totalAmountOfRecipes = snapshot.numChildren() - 1;
 			});
 			console.log("Total amount of recipes:", totalAmountOfRecipes);
 
@@ -58,6 +59,7 @@ const store = createStore({
 					snapshot.val().recipeId &&
 					snapshot.val().recipeId + 1 === String(totalAmountOfRecipes)
 				) {
+					console.log("All recipes loaded");
 					context.commit("setRecipesReady", true);
 				}
 			});
