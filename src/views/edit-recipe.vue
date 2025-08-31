@@ -304,6 +304,11 @@ export default {
 			}
 		},
 	},
+	mounted() {
+		if (this.$store.state.recipesReady) {
+			this.putRecipeDetailsInInputs();
+		}
+	},
 };
 </script>
 
