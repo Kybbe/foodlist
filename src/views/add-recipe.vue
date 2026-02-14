@@ -210,12 +210,11 @@
         title: string,<br />
         description: string,<br />
         drink: boolean,<br />
-        ingredients: [ { id: number (starting from 0, incrementing), amount:
-        number (with .5 as half etc, leave as empty quotes if nothing),
-        measurement: string (in swedish, st for pieces, leave as empty quotes if
-        none), name: string (Capitalize), section: string (leave as empty quotes
-        if none) } ], instructions: [ { id: number, checked: boolean, text:
-        string } ],<br />
+        ingredients: [ { id: string (UUID v4 format), amount: number (with .5 as
+        half etc, leave as empty quotes if nothing), measurement: string (in
+        swedish, st for pieces, leave as empty quotes if none), name: string
+        (Capitalize), section: string (leave as empty quotes if none) } ],
+        instructions: [ { id: number, checked: boolean, text: string } ],<br />
         servings: number,<br />
         link: string,<br />
         imgLink: string<br />
@@ -247,6 +246,7 @@ import firebase from "firebase/app";
 import "firebase/database";
 import { Button, Checkbox, FloatLabel, InputText } from "primevue";
 import AutoCompletingIngredientInput from "../components/autoCompletingIngredientInput.vue";
+import { v4 as uuidv4 } from "uuid";
 
 export default {
   name: "AddRecipe",
@@ -265,7 +265,7 @@ export default {
         description: "",
         drink: false,
         ingredients: [
-          { id: 0, amount: "", measurement: "", name: "", section: "" },
+          { id: uuidv4(), amount: "", measurement: "", name: "", section: "" },
         ],
         instructions: [{ id: 0, checked: false, text: "" }],
         servings: "",
@@ -274,13 +274,12 @@ export default {
       },
       draft: [],
       recipeJsonString: "",
-      nextIngredientId: 1,
     };
   },
   methods: {
     addIngredient() {
       this.recipe.ingredients.push({
-        id: this.nextIngredientId++,
+        id: uuidv4(),
         amount: "",
         measurement: "",
         name: "",
@@ -386,7 +385,7 @@ export default {
 				title: string,
 				description: string,
 				drink: boolean,
-				ingredients: [ { id: number (starting from 0, incrementing), amount: number (with .5 as half etc, leave as empty quotes if nothing), measurement: string (in swedish, st for pieces, specifially 'measurement', leave as empty quotes if none), name: string (Capitalize), section: string (leave as empty quotes if none) } ] ,
+				ingredients: [ { id: string (UUID v4 format), amount: number (with .5 as half etc, leave as empty quotes if nothing), measurement: string (in swedish, st for pieces, specifially 'measurement', leave as empty quotes if none), name: string (Capitalize), section: string (leave as empty quotes if none) } ] ,
 				instructions: [ { id: number, checked: boolean, text: string } ],
 				servings: number,
 				link: string,
@@ -410,19 +409,16 @@ export default {
             }
           }
 
-          // Ensure all ingredients have IDs
+          // Ensure all ingredients have IDs (generate UUIDs for missing ones)
           if (
             this.recipe.ingredients &&
             Array.isArray(this.recipe.ingredients)
           ) {
-            let maxId = -1;
-            this.recipe.ingredients.forEach((ingredient, index) => {
+            this.recipe.ingredients.forEach((ingredient) => {
               if (ingredient.id === undefined || ingredient.id === null) {
-                ingredient.id = index;
+                ingredient.id = uuidv4();
               }
-              maxId = Math.max(maxId, ingredient.id);
             });
-            this.nextIngredientId = maxId + 1;
           }
         }
 

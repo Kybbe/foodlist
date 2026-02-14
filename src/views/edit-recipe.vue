@@ -164,6 +164,7 @@ import "firebase/database";
 import { Button, Checkbox, FloatLabel, InputText } from "primevue";
 import { useStore } from "vuex";
 import AutoCompletingIngredientInput from "../components/autoCompletingIngredientInput.vue";
+import { v4 as uuidv4 } from "uuid";
 
 export default {
   name: "edit-recipe",
@@ -182,19 +183,18 @@ export default {
         description: "",
         imgLink: "",
         ingredients: [
-          { id: 0, amount: "", measurement: "", name: "", section: "" },
+          { id: uuidv4(), amount: "", measurement: "", name: "", section: "" },
         ],
         instructions: [{ checked: false, id: 0, text: "" }],
         servings: "",
         link: "",
       },
-      nextIngredientId: 1,
     };
   },
   methods: {
     addIngredient() {
       this.recipe.ingredients.push({
-        id: this.nextIngredientId++,
+        id: uuidv4(),
         amount: "",
         measurement: "",
         name: "",
@@ -205,6 +205,9 @@ export default {
       if (this.recipe.ingredients.length > 1) {
         this.recipe.ingredients.splice(index, 1);
       }
+      // Note: We intentionally do NOT decrement nextIngredientId when removing ingredients.
+      // This prevents ID collisions if a removal is undone or if ingredients are reordered.
+      // Sparse ID sequences are acceptable and safer than potential ID reuse.
     },
     addInstruction() {
       this.recipe.instructions.push({
@@ -283,16 +286,13 @@ export default {
       }
       this.recipe = JSON.parse(JSON.stringify(currentRecipe)); // Deep copy to avoid mutating the store
 
-      // Ensure all ingredients have IDs
+      // Ensure all ingredients have IDs (generate UUIDs for missing ones)
       if (this.recipe.ingredients && Array.isArray(this.recipe.ingredients)) {
-        let maxId = -1;
-        this.recipe.ingredients.forEach((ingredient, index) => {
+        this.recipe.ingredients.forEach((ingredient) => {
           if (ingredient.id === undefined || ingredient.id === null) {
-            ingredient.id = index;
+            ingredient.id = uuidv4();
           }
-          maxId = Math.max(maxId, ingredient.id);
         });
-        this.nextIngredientId = maxId + 1;
       }
     },
   },

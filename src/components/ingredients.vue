@@ -208,14 +208,16 @@ export default {
     updateIngredientAmounts(portionCount) {
       if (portionCount === (this.portions || 4)) {
         // Reset ingredients to their original amounts when matching default
-        this.ingredients.forEach((ingredient, index) => {
-          // Try to match by id first, fall back to index if id is not available
+        this.ingredients.forEach((ingredient) => {
+          // Try to match by id first, fall back to name if id is not available
           const originalIngredient =
             ingredient.id !== undefined
               ? this.originalIngredients.find(
                   (orig) => orig.id === ingredient.id
                 )
-              : this.originalIngredients[index];
+              : this.originalIngredients.find(
+                  (orig) => orig.name === ingredient.name
+                );
           if (originalIngredient) {
             ingredient.amount = originalIngredient.amount;
           }

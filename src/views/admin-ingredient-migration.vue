@@ -69,6 +69,7 @@
 import firebase from "firebase/app";
 import "firebase/database";
 import { Button } from "primevue";
+import { v4 as uuidv4 } from "uuid";
 
 export default {
   name: "AdminIngredientMigration",
@@ -169,10 +170,10 @@ export default {
       }
     },
     async migrateRecipe(recipe) {
-      // Add IDs to ingredients that don't have them
-      const updatedIngredients = recipe.ingredients.map((ingredient, index) => {
+      // Add IDs to ingredients that don't have them, preserving existing IDs
+      const updatedIngredients = recipe.ingredients.map((ingredient) => {
         if (ingredient.id === undefined || ingredient.id === null) {
-          return { ...ingredient, id: index };
+          return { ...ingredient, id: uuidv4() };
         }
         return ingredient;
       });
@@ -188,6 +189,17 @@ export default {
     },
   },
   mounted() {
+    // Check if user is admin before allowing access
+    if (!this.$store.state.admin) {
+      this.$toast.add({
+        severity: "error",
+        summary: "Unauthorized",
+        detail: "You must be an admin to access this page.",
+        life: 5000,
+      });
+      this.$router.push("/");
+      return;
+    }
     this.fetchRecipes();
   },
 };
