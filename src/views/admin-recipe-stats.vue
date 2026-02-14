@@ -2,7 +2,11 @@
   <div class="admin-stats">
     <h2>Recipe Stats & Admin</h2>
     <div class="admin-actions">
-      <Button @click="goToMigration" label="Migrate Ingredient IDs" class="migration-link-btn" />
+      <Button
+        @click="goToMigration"
+        label="Migrate Ingredient IDs"
+        class="migration-link-btn"
+      />
     </div>
     <div v-if="loading">Loading...</div>
     <div v-else>

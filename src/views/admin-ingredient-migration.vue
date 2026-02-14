@@ -7,7 +7,10 @@
         database. This is required for proper portion scaling when recipes have
         multiple ingredients with the same name.
       </p>
-      <p><strong>Warning:</strong> This operation will modify all recipes in the database.</p>
+      <p>
+        <strong>Warning:</strong> This operation will modify all recipes in the
+        database.
+      </p>
     </div>
 
     <div v-if="loading" class="loading">
@@ -17,25 +20,32 @@
     <div v-if="!loading && !migrationComplete">
       <div class="stats">
         <p><strong>Total Recipes:</strong> {{ totalRecipes }}</p>
-        <p><strong>Recipes without ingredient IDs:</strong> {{ recipesNeedingMigration }}</p>
+        <p>
+          <strong>Recipes without ingredient IDs:</strong>
+          {{ recipesNeedingMigration }}
+        </p>
         <p><strong>Recipes already migrated:</strong> {{ recipesMigrated }}</p>
       </div>
 
-      <Button 
+      <Button
         v-if="recipesNeedingMigration > 0"
-        @click="startMigration" 
+        @click="startMigration"
         label="Start Migration"
         :disabled="migrating"
         class="migration-btn"
       />
-      <p v-else class="success-message">All recipes already have ingredient IDs!</p>
+      <p v-else class="success-message">
+        All recipes already have ingredient IDs!
+      </p>
     </div>
 
     <div v-if="migrating" class="progress">
-      <p>Migrating recipes... {{ migratedCount }} / {{ recipesToMigrate.length }}</p>
+      <p>
+        Migrating recipes... {{ migratedCount }} / {{ recipesToMigrate.length }}
+      </p>
       <div class="progress-bar">
-        <div 
-          class="progress-fill" 
+        <div
+          class="progress-fill"
           :style="{ width: progressPercentage + '%' }"
         ></div>
       </div>

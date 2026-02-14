@@ -166,163 +166,165 @@ import { useStore } from "vuex";
 import AutoCompletingIngredientInput from "../components/autoCompletingIngredientInput.vue";
 
 export default {
-	name: "edit-recipe",
-	components: {
-		AutoCompletingIngredientInput,
-		Button,
-		InputText,
-		Checkbox,
-		FloatLabel,
-	},
-	data() {
-		return {
-			recipe: {
-				title: "",
-				drink: false,
-				description: "",
-				imgLink: "",
-				ingredients: [{ id: 0, amount: "", measurement: "", name: "", section: "" }],
-				instructions: [{ checked: false, id: 0, text: "" }],
-				servings: "",
-				link: "",
-			},
-			nextIngredientId: 1,
-		};
-	},
-	methods: {
-		addIngredient() {
-			this.recipe.ingredients.push({
-				id: this.nextIngredientId++,
-				amount: "",
-				measurement: "",
-				name: "",
-				section: "",
-			});
-		},
-		removeIngredientAt(index) {
-			if (this.recipe.ingredients.length > 1) {
-				this.recipe.ingredients.splice(index, 1);
-			}
-		},
-		addInstruction() {
-			this.recipe.instructions.push({
-				checked: false,
-				id: this.recipe.instructions.length,
-				text: "",
-			});
-		},
-		removeInstructionAt(index) {
-			if (this.recipe.instructions.length > 1) {
-				this.recipe.instructions.splice(index, 1);
-			}
-		},
-		async editFirebase() {
-			if (!this.$store.state.admin) {
-				this.$toast.add({
-					severity: "error",
-					summary: "Error",
-					detail: "You must be an admin to edit recipes.",
-					life: 5000,
-				});
-				return;
-			}
+  name: "edit-recipe",
+  components: {
+    AutoCompletingIngredientInput,
+    Button,
+    InputText,
+    Checkbox,
+    FloatLabel,
+  },
+  data() {
+    return {
+      recipe: {
+        title: "",
+        drink: false,
+        description: "",
+        imgLink: "",
+        ingredients: [
+          { id: 0, amount: "", measurement: "", name: "", section: "" },
+        ],
+        instructions: [{ checked: false, id: 0, text: "" }],
+        servings: "",
+        link: "",
+      },
+      nextIngredientId: 1,
+    };
+  },
+  methods: {
+    addIngredient() {
+      this.recipe.ingredients.push({
+        id: this.nextIngredientId++,
+        amount: "",
+        measurement: "",
+        name: "",
+        section: "",
+      });
+    },
+    removeIngredientAt(index) {
+      if (this.recipe.ingredients.length > 1) {
+        this.recipe.ingredients.splice(index, 1);
+      }
+    },
+    addInstruction() {
+      this.recipe.instructions.push({
+        checked: false,
+        id: this.recipe.instructions.length,
+        text: "",
+      });
+    },
+    removeInstructionAt(index) {
+      if (this.recipe.instructions.length > 1) {
+        this.recipe.instructions.splice(index, 1);
+      }
+    },
+    async editFirebase() {
+      if (!this.$store.state.admin) {
+        this.$toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "You must be an admin to edit recipes.",
+          life: 5000,
+        });
+        return;
+      }
 
-			const db = firebase.database();
-			const dbKeys = this.$store.state.dbKeys;
+      const db = firebase.database();
+      const dbKeys = this.$store.state.dbKeys;
 
-			if (dbKeys.length <= this.$route.params.id) {
-				this.$toast.add({
-					severity: "error",
-					summary: "Error",
-					detail: "Recipe ID is out of bounds.",
-					life: 3000,
-				});
-				console.error("Recipe ID is out of bounds.", {
-					id: this.$route.params.id,
-					validIds: dbKeys,
-				});
-				return;
-			}
-			if (dbKeys[this.$route.params.id] === undefined) {
-				this.$toast.add({
-					severity: "error",
-					summary: "Error",
-					detail: "Recipe not found.",
-					life: 5000,
-				});
-				console.error("Recipe not found.", {
-					id: this.$route.params.id,
-					validIds: dbKeys,
-				});
-				return;
-			}
+      if (dbKeys.length <= this.$route.params.id) {
+        this.$toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Recipe ID is out of bounds.",
+          life: 3000,
+        });
+        console.error("Recipe ID is out of bounds.", {
+          id: this.$route.params.id,
+          validIds: dbKeys,
+        });
+        return;
+      }
+      if (dbKeys[this.$route.params.id] === undefined) {
+        this.$toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Recipe not found.",
+          life: 5000,
+        });
+        console.error("Recipe not found.", {
+          id: this.$route.params.id,
+          validIds: dbKeys,
+        });
+        return;
+      }
 
-			const recipeFirebase = db.ref(`recipes/${dbKeys[this.$route.params.id]}`);
-			recipeFirebase.update(this.recipe);
-			this.$toast.add({
-				severity: "success",
-				summary: "Success",
-				detail: "Recipe updated!",
-				life: 5000,
-			});
-			this.$router.push(`/recipe/${this.$route.params.id}`);
-		},
-		putRecipeDetailsInInputs() {
-			const currentRecipe = this.currentRecipe;
-			if (!currentRecipe) {
-				this.$toast.add({
-					severity: "error",
-					summary: "Error",
-					detail: "No current recipe found.",
-					life: 3000,
-				});
-				console.error("No current recipe found");
-				return;
-			}
-			this.recipe = JSON.parse(JSON.stringify(currentRecipe)); // Deep copy to avoid mutating the store
-			
-			// Ensure all ingredients have IDs
-			if (this.recipe.ingredients && Array.isArray(this.recipe.ingredients)) {
-				let maxId = 0;
-				this.recipe.ingredients.forEach((ingredient, index) => {
-					if (ingredient.id === undefined || ingredient.id === null) {
-						ingredient.id = index;
-					}
-					maxId = Math.max(maxId, ingredient.id + 1);
-				});
-				this.nextIngredientId = maxId;
-			}
-		},
-	},
-	computed: {
-		currentRecipeId() {
-			return this.$route.params.id;
-		},
-		currentRecipe() {
-			return this.$store.state.recipesList[this.currentRecipeId];
-		},
-		store() {
-			return useStore();
-		},
-	},
-	watch: {
-		"$store.state.recipesReady"(newVal) {
-			if (newVal) {
-				this.$toast.add({
-					severity: "info",
-					summary: "Info",
-					detail: "Recipes loaded successfully.",
-					life: 3000,
-				});
-				this.putRecipeDetailsInInputs();
-			}
-		},
-	},
-	mounted() {
-		if (this.$store.state.recipesReady) {
-			this.putRecipeDetailsInInputs();
-		}
-	},
+      const recipeFirebase = db.ref(`recipes/${dbKeys[this.$route.params.id]}`);
+      recipeFirebase.update(this.recipe);
+      this.$toast.add({
+        severity: "success",
+        summary: "Success",
+        detail: "Recipe updated!",
+        life: 5000,
+      });
+      this.$router.push(`/recipe/${this.$route.params.id}`);
+    },
+    putRecipeDetailsInInputs() {
+      const currentRecipe = this.currentRecipe;
+      if (!currentRecipe) {
+        this.$toast.add({
+          severity: "error",
+          summary: "Error",
+          detail: "No current recipe found.",
+          life: 3000,
+        });
+        console.error("No current recipe found");
+        return;
+      }
+      this.recipe = JSON.parse(JSON.stringify(currentRecipe)); // Deep copy to avoid mutating the store
+
+      // Ensure all ingredients have IDs
+      if (this.recipe.ingredients && Array.isArray(this.recipe.ingredients)) {
+        let maxId = 0;
+        this.recipe.ingredients.forEach((ingredient, index) => {
+          if (ingredient.id === undefined || ingredient.id === null) {
+            ingredient.id = index;
+          }
+          maxId = Math.max(maxId, ingredient.id + 1);
+        });
+        this.nextIngredientId = maxId;
+      }
+    },
+  },
+  computed: {
+    currentRecipeId() {
+      return this.$route.params.id;
+    },
+    currentRecipe() {
+      return this.$store.state.recipesList[this.currentRecipeId];
+    },
+    store() {
+      return useStore();
+    },
+  },
+  watch: {
+    "$store.state.recipesReady"(newVal) {
+      if (newVal) {
+        this.$toast.add({
+          severity: "info",
+          summary: "Info",
+          detail: "Recipes loaded successfully.",
+          life: 3000,
+        });
+        this.putRecipeDetailsInInputs();
+      }
+    },
+  },
+  mounted() {
+    if (this.$store.state.recipesReady) {
+      this.putRecipeDetailsInInputs();
+    }
+  },
 };
 </script>
 

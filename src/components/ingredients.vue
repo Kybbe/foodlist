@@ -71,7 +71,10 @@
   >
     <h3 v-if="section">{{ section }}</h3>
     <ul class="ingredients">
-      <li v-for="ingredient in sectionIngredients" :key="ingredient.id !== undefined ? ingredient.id : ingredient.name">
+      <li
+        v-for="ingredient in sectionIngredients"
+        :key="ingredient.id !== undefined ? ingredient.id : ingredient.name"
+      >
         {{
           `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
         }}
@@ -88,7 +91,10 @@
       class="ingredients"
       :style="{ marginTop: unsectionedIngredientsMargin + 'em' }"
     >
-      <li v-for="ingredient in unsectionedIngredients" :key="ingredient.id !== undefined ? ingredient.id : ingredient.name">
+      <li
+        v-for="ingredient in unsectionedIngredients"
+        :key="ingredient.id !== undefined ? ingredient.id : ingredient.name"
+      >
         {{
           `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
         }}
@@ -204,9 +210,12 @@ export default {
         // Reset ingredients to their original amounts when matching default
         this.ingredients.forEach((ingredient, index) => {
           // Try to match by id first, fall back to index if id is not available
-          const originalIngredient = ingredient.id !== undefined
-            ? this.originalIngredients.find(orig => orig.id === ingredient.id)
-            : this.originalIngredients[index];
+          const originalIngredient =
+            ingredient.id !== undefined
+              ? this.originalIngredients.find(
+                  (orig) => orig.id === ingredient.id
+                )
+              : this.originalIngredients[index];
           if (originalIngredient) {
             ingredient.amount = originalIngredient.amount;
           }
@@ -215,9 +224,14 @@ export default {
         // Update ingredient amounts based on the new portions
         for (const ingredient of this.ingredients) {
           // Try to match by id first, fall back to name if id is not available
-          const originalIngredient = ingredient.id !== undefined
-            ? [...this.originalIngredients].find((orig) => orig.id === ingredient.id)
-            : [...this.originalIngredients].find((orig) => orig.name === ingredient.name);
+          const originalIngredient =
+            ingredient.id !== undefined
+              ? [...this.originalIngredients].find(
+                  (orig) => orig.id === ingredient.id
+                )
+              : [...this.originalIngredients].find(
+                  (orig) => orig.name === ingredient.name
+                );
           if (!originalIngredient) {
             continue; // Skip if no original ingredient found
           }
