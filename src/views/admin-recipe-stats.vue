@@ -1,6 +1,9 @@
 <template>
   <div class="admin-stats">
     <h2>Recipe Stats & Admin</h2>
+    <div class="admin-actions">
+      <Button @click="goToMigration" label="Migrate Ingredient IDs" class="migration-link-btn" />
+    </div>
     <div v-if="loading">Loading...</div>
     <div v-else>
       <p><strong>Total Recipes:</strong> {{ recipes.length }}</p>
@@ -119,6 +122,9 @@ export default {
     editRecipe(id) {
       this.$router.push(`/edit/${id}`);
     },
+    goToMigration() {
+      this.$router.push("/migrate-ingredients");
+    },
     deleteRecipe(id) {
       if (!confirm("Are you sure you want to delete recipe " + id + "?"))
         return;
@@ -149,6 +155,19 @@ export default {
   border-radius: 10px;
   padding: 20px;
   box-shadow: 2px 2px 8px rgba(128, 128, 128, 0.1);
+}
+.admin-actions {
+  margin-bottom: 20px;
+  text-align: center;
+}
+.migration-link-btn {
+  background-color: #f39c12;
+  color: white;
+  font-size: 1em;
+  padding: 10px 20px;
+}
+.migration-link-btn:hover {
+  background-color: #e67e22;
 }
 .stats-table {
   width: 100%;

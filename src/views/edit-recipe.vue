@@ -181,16 +181,18 @@ export default {
 				drink: false,
 				description: "",
 				imgLink: "",
-				ingredients: [{ amount: "", measurement: "", name: "", section: "" }],
+				ingredients: [{ id: 0, amount: "", measurement: "", name: "", section: "" }],
 				instructions: [{ checked: false, id: 0, text: "" }],
 				servings: "",
 				link: "",
 			},
+			nextIngredientId: 1,
 		};
 	},
 	methods: {
 		addIngredient() {
 			this.recipe.ingredients.push({
+				id: this.nextIngredientId++,
 				amount: "",
 				measurement: "",
 				name: "",
@@ -278,6 +280,18 @@ export default {
 				return;
 			}
 			this.recipe = JSON.parse(JSON.stringify(currentRecipe)); // Deep copy to avoid mutating the store
+			
+			// Ensure all ingredients have IDs
+			if (this.recipe.ingredients && Array.isArray(this.recipe.ingredients)) {
+				let maxId = 0;
+				this.recipe.ingredients.forEach((ingredient, index) => {
+					if (ingredient.id === undefined || ingredient.id === null) {
+						ingredient.id = index;
+					}
+					maxId = Math.max(maxId, ingredient.id + 1);
+				});
+				this.nextIngredientId = maxId;
+			}
 		},
 	},
 	computed: {

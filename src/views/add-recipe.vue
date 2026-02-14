@@ -210,7 +210,7 @@
         title: string,<br />
         description: string,<br />
         drink: boolean,<br />
-        ingredients: [ { amount: number (with .5 as half etc, leave as empty
+        ingredients: [ { id: number (starting from 0, incrementing), amount: number (with .5 as half etc, leave as empty
         quotes if nothing), measurement: string (in swedish, st for pieces,
         leave as empty quotes if none), name: string (Capitalize), section:
         string (leave as empty quotes if none) } ], instructions: [ { id:
@@ -263,7 +263,7 @@ export default {
         title: "",
         description: "",
         drink: false,
-        ingredients: [{ amount: "", measurement: "", name: "", section: "" }],
+        ingredients: [{ id: 0, amount: "", measurement: "", name: "", section: "" }],
         instructions: [{ id: 0, checked: false, text: "" }],
         servings: "",
         link: "",
@@ -271,11 +271,13 @@ export default {
       },
       draft: [],
       recipeJsonString: "",
+      nextIngredientId: 1,
     };
   },
   methods: {
     addIngredient() {
       this.recipe.ingredients.push({
+        id: this.nextIngredientId++,
         amount: "",
         measurement: "",
         name: "",
@@ -381,7 +383,7 @@ export default {
 				title: string,
 				description: string,
 				drink: boolean,
-				ingredients: [ { amount: number (with .5 as half etc, leave as empty quotes if nothing), measurement: string (in swedish, st for pieces, specifially 'measurement', leave as empty quotes if none), name: string (Capitalize), section: string (leave as empty quotes if none) } ] ,
+				ingredients: [ { id: number (starting from 0, incrementing), amount: number (with .5 as half etc, leave as empty quotes if nothing), measurement: string (in swedish, st for pieces, specifially 'measurement', leave as empty quotes if none), name: string (Capitalize), section: string (leave as empty quotes if none) } ] ,
 				instructions: [ { id: number, checked: boolean, text: string } ],
 				servings: number,
 				link: string,
@@ -403,6 +405,19 @@ export default {
             if (parsed[key] !== undefined) {
               this.recipe[key] = parsed[key];
             }
+          }
+          
+          // Ensure all ingredients have IDs
+          if (this.recipe.ingredients && Array.isArray(this.recipe.ingredients)) {
+            let maxId = 0;
+            this.recipe.ingredients.forEach(ingredient => {
+              if (ingredient.id === undefined || ingredient.id === null) {
+                ingredient.id = maxId++;
+              } else {
+                maxId = Math.max(maxId, ingredient.id + 1);
+              }
+            });
+            this.nextIngredientId = maxId;
           }
         }
 

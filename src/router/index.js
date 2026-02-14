@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from "vue-router";
 import store from "../store/index";
 import addRecipe from "../views/add-recipe.vue";
 import adminRecipeStats from "../views/admin-recipe-stats.vue";
+import adminIngredientMigration from "../views/admin-ingredient-migration.vue";
 import editRecipe from "../views/edit-recipe.vue";
 import loginPage from "../views/loginPage.vue";
 import recipeList from "../views/recipe-list.vue";
@@ -67,6 +68,15 @@ const routes = [
 		component: adminRecipeStats,
 		meta: {
 			title: "Admin Recipe Stats",
+			authRequired: true,
+		},
+	},
+	{
+		path: "/migrate-ingredients",
+		name: "adminIngredientMigration",
+		component: adminIngredientMigration,
+		meta: {
+			title: "Ingredient Migration",
 			authRequired: true,
 		},
 	},
