@@ -110,6 +110,18 @@ export default {
     },
   },
   methods: {
+    checkAccess() {
+      if (!this.$store.state.currentUser) {
+        console.log('⚠️ Unauthorized access attempt to /stats: User is not authenticated');
+        return false;
+      }
+      if (!this.$store.state.admin) {
+        console.log('⚠️ Unauthorized access attempt to /stats: User is authenticated but not an admin');
+        this.$router.push('/');
+        return false;
+      }
+      return true;
+    },
     fetchRecipes() {
       firebase
         .database()
@@ -146,6 +158,9 @@ export default {
     },
   },
   mounted() {
+    if (!this.checkAccess()) {
+      return;
+    }
     this.fetchRecipes();
   },
 };

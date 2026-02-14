@@ -22,12 +22,27 @@
       <p>The icons are not changed or altered.</p>
       <a href="https://fontawesome.com/license">Font awesome license</a>
     </div>
+    <div class="version-info">
+      <p>Version: {{ version }} | Build: {{ buildTime }}</p>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   name: "footerBar",
+  computed: {
+    version() {
+      return typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'unknown';
+    },
+    buildTime() {
+      if (typeof __BUILD_TIME__ !== 'undefined') {
+        const date = new Date(__BUILD_TIME__);
+        return date.toLocaleString();
+      }
+      return 'unknown';
+    }
+  }
 };
 </script>
 
@@ -68,5 +83,18 @@ h1 {
   text-align: center;
   margin-top: 0px;
   margin-bottom: 3px;
+}
+
+.version-info {
+  text-align: center;
+  font-size: 0.85em;
+  color: #666;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.version-info p {
+  margin: 5px 0;
 }
 </style>
