@@ -56,7 +56,7 @@
     <ul class="ingredients">
       <li
         v-for="ingredient in ingredientsSortedAlphabetically"
-        :key="ingredient.id !== undefined ? ingredient.id : ingredient.name"
+        :key="ingredient.id != null ? ingredient.id : ingredient.name"
       >
         {{
           `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
@@ -73,7 +73,7 @@
     <ul class="ingredients">
       <li
         v-for="ingredient in sectionIngredients"
-        :key="ingredient.id !== undefined ? ingredient.id : ingredient.name"
+        :key="ingredient.id != null ? ingredient.id : ingredient.name"
       >
         {{
           `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
@@ -93,7 +93,7 @@
     >
       <li
         v-for="ingredient in unsectionedIngredients"
-        :key="ingredient.id !== undefined ? ingredient.id : ingredient.name"
+        :key="ingredient.id != null ? ingredient.id : ingredient.name"
       >
         {{
           `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
@@ -227,7 +227,7 @@ export default {
         for (const ingredient of this.ingredients) {
           // Try to match by id first, fall back to name if id is not available
           const originalIngredient =
-            ingredient.id !== undefined
+            ingredient.id != null
               ? [...this.originalIngredients].find(
                   (orig) => orig.id === ingredient.id
                 )
