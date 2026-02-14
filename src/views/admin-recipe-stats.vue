@@ -112,13 +112,14 @@ export default {
   methods: {
     checkAccess() {
       if (!this.$store.state.currentUser) {
-        console.log(
+        console.warn(
           "⚠️ Unauthorized access attempt to /stats: User is not authenticated"
         );
+        this.$router.push("/");
         return false;
       }
       if (!this.$store.state.admin) {
-        console.log(
+        console.warn(
           "⚠️ Unauthorized access attempt to /stats: User is authenticated but not an admin"
         );
         this.$router.push("/");

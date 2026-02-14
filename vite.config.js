@@ -7,7 +7,7 @@ let commitHash = 'unknown'
 try {
   commitHash = execSync('git rev-parse --short HEAD').toString().trim()
 } catch (e) {
-  console.warn('Could not get git commit hash')
+  console.warn('Could not get git commit hash:', e.message)
 }
 
 // https://vitejs.dev/config/
