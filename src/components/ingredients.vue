@@ -56,7 +56,7 @@
     <ul class="ingredients">
       <li
         v-for="ingredient in ingredientsSortedAlphabetically"
-        :key="ingredient.name"
+        :key="ingredient.id != null ? ingredient.id : ingredient.name"
       >
         {{
           `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
@@ -71,7 +71,10 @@
   >
     <h3 v-if="section">{{ section }}</h3>
     <ul class="ingredients">
-      <li v-for="ingredient in sectionIngredients" :key="ingredient.name">
+      <li
+        v-for="ingredient in sectionIngredients"
+        :key="ingredient.id != null ? ingredient.id : ingredient.name"
+      >
         {{
           `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
         }}
@@ -88,7 +91,10 @@
       class="ingredients"
       :style="{ marginTop: unsectionedIngredientsMargin + 'em' }"
     >
-      <li v-for="ingredient in unsectionedIngredients" :key="ingredient.name">
+      <li
+        v-for="ingredient in unsectionedIngredients"
+        :key="ingredient.id != null ? ingredient.id : ingredient.name"
+      >
         {{
           `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
         }}
@@ -202,8 +208,16 @@ export default {
     updateIngredientAmounts(portionCount) {
       if (portionCount === (this.portions || 4)) {
         // Reset ingredients to their original amounts when matching default
-        this.ingredients.forEach((ingredient, index) => {
-          const originalIngredient = this.originalIngredients[index];
+        this.ingredients.forEach((ingredient) => {
+          // Try to match by id first, fall back to name if id is not available
+          const originalIngredient =
+            ingredient.id != null
+              ? this.originalIngredients.find(
+                  (orig) => orig.id === ingredient.id
+                )
+              : this.originalIngredients.find(
+                  (orig) => orig.name === ingredient.name
+                );
           if (originalIngredient) {
             ingredient.amount = originalIngredient.amount;
           }
@@ -211,9 +225,15 @@ export default {
       } else {
         // Update ingredient amounts based on the new portions
         for (const ingredient of this.ingredients) {
-          const originalIngredient = [...this.originalIngredients].find(
-            (orig) => orig.name === ingredient.name
-          );
+          // Try to match by id first, fall back to name if id is not available
+          const originalIngredient =
+            ingredient.id != null
+              ? [...this.originalIngredients].find(
+                  (orig) => orig.id === ingredient.id
+                )
+              : [...this.originalIngredients].find(
+                  (orig) => orig.name === ingredient.name
+                );
           if (!originalIngredient) {
             continue; // Skip if no original ingredient found
           }
