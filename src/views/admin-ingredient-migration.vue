@@ -143,7 +143,7 @@ export default {
           this.migratedCount++;
         } catch (error) {
           this.errors.push(
-            `Failed to migrate recipe "${recipe.title}" (ID: ${recipe.recipeId}): ${error.message}`
+            `Failed to migrate recipe "${recipe.title}" (Key: ${recipe._key}): ${error.message}`
           );
           console.error("Migration error:", error);
         }
