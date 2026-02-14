@@ -11,4 +11,8 @@ module.exports = {
       'ignores': ['default']
     }]
   },
+  globals: {
+    __APP_VERSION__: 'readonly',
+    __BUILD_TIME__: 'readonly'
+  }
 };

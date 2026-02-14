@@ -30,6 +30,7 @@
         </svg>
       </router-link>
       <router-link :to="'/add'" v-if="loggedIn"> Add Recipe </router-link>
+      <router-link :to="'/stats'" v-if="isAdmin"> Admin Stats </router-link>
     </div>
 
     <div class="accountStuff">
@@ -58,6 +59,9 @@ export default {
   computed: {
     loggedIn() {
       return this.$store.state.currentUser;
+    },
+    isAdmin() {
+      return this.$store.state.admin;
     },
   },
 };
