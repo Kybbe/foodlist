@@ -211,7 +211,7 @@ export default {
         this.ingredients.forEach((ingredient) => {
           // Try to match by id first, fall back to name if id is not available
           const originalIngredient =
-            ingredient.id !== undefined
+            ingredient.id != null
               ? this.originalIngredients.find(
                   (orig) => orig.id === ingredient.id
                 )
