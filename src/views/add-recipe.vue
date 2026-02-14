@@ -415,15 +415,14 @@ export default {
             this.recipe.ingredients &&
             Array.isArray(this.recipe.ingredients)
           ) {
-            let maxId = 0;
-            this.recipe.ingredients.forEach((ingredient) => {
+            let maxId = -1;
+            this.recipe.ingredients.forEach((ingredient, index) => {
               if (ingredient.id === undefined || ingredient.id === null) {
-                ingredient.id = maxId++;
-              } else {
-                maxId = Math.max(maxId, ingredient.id + 1);
+                ingredient.id = index;
               }
+              maxId = Math.max(maxId, ingredient.id);
             });
-            this.nextIngredientId = maxId;
+            this.nextIngredientId = maxId + 1;
           }
         }
 
