@@ -205,9 +205,8 @@ export default {
       if (this.recipe.ingredients.length > 1) {
         this.recipe.ingredients.splice(index, 1);
       }
-      // Note: We intentionally do NOT decrement nextIngredientId when removing ingredients.
-      // This prevents ID collisions if a removal is undone or if ingredients are reordered.
-      // Sparse ID sequences are acceptable and safer than potential ID reuse.
+      // Note: UUIDs are never reused. Each new ingredient gets a fresh UUID,
+      // preventing any ID collision concerns even if ingredients are reordered or deletions are undone.
     },
     addInstruction() {
       this.recipe.instructions.push({
