@@ -33,16 +33,18 @@ export default {
   name: "footerBar",
   computed: {
     version() {
-      return typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'unknown';
+      return typeof __APP_VERSION__ !== "undefined"
+        ? __APP_VERSION__
+        : "unknown";
     },
     buildTime() {
-      if (typeof __BUILD_TIME__ !== 'undefined') {
+      if (typeof __BUILD_TIME__ !== "undefined") {
         const date = new Date(__BUILD_TIME__);
         return date.toLocaleString();
       }
-      return 'unknown';
-    }
-  }
+      return "unknown";
+    },
+  },
 };
 </script>
 
