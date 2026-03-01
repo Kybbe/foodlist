@@ -1,6 +1,18 @@
 <template>
   <div class="admin-stats">
     <h2>Recipe Stats & Admin</h2>
+
+    <div v-if="validationIssues.length" class="validation-banner" role="alert">
+      <div class="validation-banner__title">
+        Data integrity issues found ({{ validationIssues.length }})
+      </div>
+      <ul class="validation-banner__list">
+        <li v-for="(issue, idx) in validationIssues" :key="idx">
+          {{ issue }}
+        </li>
+      </ul>
+    </div>
+
     <div class="admin-actions">
       <Button
         @click="goToMigration"
@@ -11,10 +23,6 @@
     <div v-if="loading">Loading...</div>
     <div v-else>
       <p><strong>Total Recipes:</strong> {{ recipes.length }}</p>
-      <p v-if="nonConsecutiveIds.length">
-        <strong>Non-consecutive Recipe IDs:</strong>
-        {{ nonConsecutiveIds.join(", ") }}
-      </p>
       <table class="stats-table">
         <thead>
           <tr>
@@ -28,7 +36,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="recipe in recipes" :key="recipe.recipeId">
+          <tr v-for="recipe in recipes" :key="recipe._key || recipe.recipeId">
             <td>
               <a
                 :href="`#/recipe/${recipe.recipeId}`"
@@ -62,8 +70,8 @@
                 >{{ recipe.title }}</a
               >
             </td>
-            <td>{{ recipe.ingredients.length }}</td>
-            <td>{{ recipe.instructions.length }}</td>
+            <td>{{ Array.isArray(recipe.ingredients) ? recipe.ingredients.length : 0 }}</td>
+            <td>{{ Array.isArray(recipe.instructions) ? recipe.instructions.length : 0 }}</td>
             <td>
               <Button @click="editRecipe(recipe.recipeId)" label="Edit" />
             </td>
@@ -96,17 +104,216 @@ export default {
     };
   },
   computed: {
-    nonConsecutiveIds() {
-      const ids = this.recipes
-        .map((r) => Number(r.recipeId))
-        .sort((a, b) => a - b);
-      const missing = [];
-      for (let i = 0; i < ids.length - 1; i++) {
-        if (ids[i + 1] !== ids[i] + 1) {
-          missing.push(ids[i] + 1);
+    validationIssues() {
+      const issues = [];
+      const recipes = Array.isArray(this.recipes) ? this.recipes : [];
+
+      // --- Recipe ID checks (missing, duplicates, gaps/out-of-order)
+      const numericIds = [];
+      const recipeIdCounts = new Map();
+      const recipesMissingId = [];
+
+      for (const recipe of recipes) {
+        const rawId = recipe?.recipeId;
+        const idNum = Number(rawId);
+        const idIsValidNumber = Number.isFinite(idNum);
+
+        if (rawId === undefined || rawId === null || rawId === "" || !idIsValidNumber) {
+          recipesMissingId.push(recipe?._key || recipe?.title || "(unknown recipe)");
+          continue;
+        }
+
+        const idInt = Math.trunc(idNum);
+        if (idInt !== idNum) {
+          issues.push(
+            `Recipe has non-integer recipeId (${rawId}) (dbKey: ${recipe?._key || "unknown"})`
+          );
+          continue;
+        }
+        if (idInt < 0) {
+          issues.push(
+            `Recipe has negative recipeId (${rawId}) (dbKey: ${recipe?._key || "unknown"})`
+          );
+          continue;
+        }
+
+        numericIds.push(idInt);
+        recipeIdCounts.set(idInt, (recipeIdCounts.get(idInt) || 0) + 1);
+      }
+
+      if (recipesMissingId.length) {
+        issues.push(
+          `Recipes missing recipeId: ${recipesMissingId.slice(0, 10).join(", ")}${
+            recipesMissingId.length > 10 ? ` (+${recipesMissingId.length - 10} more)` : ""
+          }`
+        );
+      }
+
+      const duplicateRecipeIds = [...recipeIdCounts.entries()]
+        .filter(([, count]) => count > 1)
+        .map(([id, count]) => `${id} (x${count})`)
+        .sort((a, b) => Number(a.split(" ")[0]) - Number(b.split(" ")[0]));
+      if (duplicateRecipeIds.length) {
+        issues.push(`Duplicate recipeIds: ${duplicateRecipeIds.join(", ")}`);
+      }
+
+      const uniqueSortedIds = [...new Set(numericIds)].sort((a, b) => a - b);
+      if (uniqueSortedIds.length) {
+        const minId = uniqueSortedIds[0];
+        const maxId = uniqueSortedIds[uniqueSortedIds.length - 1];
+
+        // Detect gaps like 35, 37, 38...
+        const missingIds = [];
+        for (let i = 0; i < uniqueSortedIds.length - 1; i++) {
+          const current = uniqueSortedIds[i];
+          const next = uniqueSortedIds[i + 1];
+          if (next !== current + 1) {
+            for (let m = current + 1; m < next; m++) missingIds.push(m);
+          }
+        }
+        if (missingIds.length) {
+          issues.push(
+            `Missing recipeIds in sequence: ${missingIds.slice(0, 25).join(", ")}${
+              missingIds.length > 25 ? ` (+${missingIds.length - 25} more)` : ""
+            }`
+          );
+        }
+
+        // Helpful summary when IDs drift from the common 0..(n-1) pattern
+        const expectedMax = Math.max(0, recipes.length - 1);
+        if (minId !== 0) {
+          issues.push(`RecipeIds start at ${minId} (expected 0).`);
+        }
+        if (maxId > expectedMax) {
+          issues.push(
+            `Highest recipeId is ${maxId}, but there are only ${recipes.length} recipes (expected max ${expectedMax}).`
+          );
         }
       }
-      return missing;
+
+      // --- Ingredient ID checks (per recipe)
+      for (const recipe of recipes) {
+        const recipeLabel = recipe?.recipeId !== undefined ? `recipeId ${recipe.recipeId}` : `dbKey ${recipe?._key || "unknown"}`;
+        const ingredients = Array.isArray(recipe?.ingredients) ? recipe.ingredients : [];
+
+        const ingredientIds = [];
+        const missingIngredientIdIndices = [];
+        for (let i = 0; i < ingredients.length; i++) {
+          const ing = ingredients[i];
+          const ingId = ing?.id;
+          if (ingId === undefined || ingId === null || ingId === "") {
+            missingIngredientIdIndices.push(i);
+          } else {
+            ingredientIds.push(String(ingId));
+          }
+        }
+
+        if (missingIngredientIdIndices.length) {
+          issues.push(
+            `Ingredients missing id in ${recipeLabel} (indexes: ${missingIngredientIdIndices.join(", ")})`
+          );
+        }
+
+        if (ingredientIds.length) {
+          const counts = ingredientIds.reduce((acc, id) => {
+            acc[id] = (acc[id] || 0) + 1;
+            return acc;
+          }, {});
+          const dupes = Object.entries(counts)
+            .filter(([, count]) => count > 1)
+            .map(([id, count]) => `${id} (x${count})`);
+          if (dupes.length) {
+            issues.push(`Duplicate ingredient ids in ${recipeLabel}: ${dupes.join(", ")}`);
+          }
+        }
+      }
+
+      // --- Instruction ID checks (per recipe)
+      for (const recipe of recipes) {
+        const recipeLabel = recipe?.recipeId !== undefined ? `recipeId ${recipe.recipeId}` : `dbKey ${recipe?._key || "unknown"}`;
+        const instructions = Array.isArray(recipe?.instructions) ? recipe.instructions : [];
+
+        const numericInstructionIds = [];
+        const missingInstructionIdIndices = [];
+        const nonNumericInstructionIdIndices = [];
+
+        for (let i = 0; i < instructions.length; i++) {
+          const inst = instructions[i];
+          const rawId = inst?.id;
+          if (rawId === undefined || rawId === null || rawId === "") {
+            missingInstructionIdIndices.push(i);
+            continue;
+          }
+          const idNum = Number(rawId);
+          if (!Number.isFinite(idNum)) {
+            nonNumericInstructionIdIndices.push(i);
+            continue;
+          }
+          numericInstructionIds.push(Math.trunc(idNum));
+          if (Math.trunc(idNum) !== idNum) {
+            issues.push(
+              `Instruction has non-integer id (${rawId}) in ${recipeLabel} (index ${i})`
+            );
+          }
+        }
+
+        if (missingInstructionIdIndices.length) {
+          issues.push(
+            `Instructions missing id in ${recipeLabel} (indexes: ${missingInstructionIdIndices.join(", ")})`
+          );
+        }
+        if (nonNumericInstructionIdIndices.length) {
+          issues.push(
+            `Instructions with non-numeric id in ${recipeLabel} (indexes: ${nonNumericInstructionIdIndices.join(", ")})`
+          );
+        }
+
+        // Duplicates
+        const instructionIdCounts = numericInstructionIds.reduce((acc, id) => {
+          acc[id] = (acc[id] || 0) + 1;
+          return acc;
+        }, {});
+        const duplicateInstructionIds = Object.entries(instructionIdCounts)
+          .filter(([, count]) => count > 1)
+          .map(([id, count]) => `${id} (x${count})`)
+          .sort((a, b) => Number(a.split(" ")[0]) - Number(b.split(" ")[0]));
+        if (duplicateInstructionIds.length) {
+          issues.push(
+            `Duplicate instruction ids in ${recipeLabel}: ${duplicateInstructionIds.join(", ")}`
+          );
+        }
+
+        // Order / gaps: expect 0..(n-1)
+        const uniqueSortedInstructionIds = [...new Set(numericInstructionIds)].sort(
+          (a, b) => a - b
+        );
+        if (uniqueSortedInstructionIds.length) {
+          const expected = Array.from(
+            { length: instructions.length },
+            (_, idx) => idx
+          );
+          const expectedSet = new Set(expected);
+          const actualSet = new Set(uniqueSortedInstructionIds);
+
+          const missing = expected.filter((id) => !actualSet.has(id));
+          if (missing.length) {
+            issues.push(
+              `Instruction ids out of order / missing in ${recipeLabel}: missing ${missing.join(", ")}`
+            );
+          }
+
+          const extras = uniqueSortedInstructionIds.filter(
+            (id) => !expectedSet.has(id)
+          );
+          if (extras.length) {
+            issues.push(
+              `Instruction ids out of expected range in ${recipeLabel}: ${extras.join(", ")}`
+            );
+          }
+        }
+      }
+
+      return issues;
     },
   },
   methods: {
@@ -180,6 +387,26 @@ export default {
   padding: 20px;
   box-shadow: 2px 2px 8px rgba(128, 128, 128, 0.1);
 }
+
+.validation-banner {
+  margin: 12px 0 18px 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #e74c3c;
+  background: #fff2f0;
+  color: #7a1d13;
+}
+
+.validation-banner__title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.validation-banner__list {
+  margin: 0;
+  padding-left: 18px;
+}
+
 .admin-actions {
   margin-bottom: 20px;
   text-align: center;
