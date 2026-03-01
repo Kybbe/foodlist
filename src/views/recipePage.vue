@@ -52,11 +52,9 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
 import ingredients from "../components/ingredients.vue";
 import instruction from "../components/instructions.vue";
 import mainArea from "../components/mainArea.vue";
-import "firebase/database";
 
 import { useStore } from "vuex";
 
@@ -68,61 +66,25 @@ export default {
     ingredients,
   },
   methods: {
-    deleteRecipe() {
-      const dbKeys = this.$store.state.dbKeys;
-      const database = firebase.database().ref("recipes");
-
-      database.child(dbKeys[this.currentRecipeId]).remove();
-      this.$toast.add({
-        severity: "success",
-        summary: "Recipe deleted",
-        detail: "Your recipe has been deleted successfully!",
-      });
-
-      // get id of all database entries and update their recipeIds
-      database.on("value", (snapshot) => {
-        const updates = [];
-        for (const childSnapshot of snapshot.val()) {
-          if (childSnapshot.recipeId > this.currentRecipeId) {
-            updates.push(
-              database.child(childSnapshot.key).update({
-                recipeId: childSnapshot.recipeId - 1,
-              })
-            );
-          }
-        }
-        Promise.all(updates);
-      });
-
-      if (dbKeys.length === 1) {
-        //should still be 1 even if database has 0 entries after deletion
-        const templateRecipe = {
-          title: "Add a recipe",
-          description:
-            "Since this database shouldn't be empty, you should add a recipe!",
-          recipeId: "0",
-          ingredients: [
-            {
-              amount: "2",
-              unit: "Large",
-              name: "OOF's",
-            },
-          ],
-          instructions: [
-            {
-              checked: false,
-              id: "0",
-              text: "Add a recipe",
-            },
-          ],
-          servings: "4",
-          link: "foodlist-0921.web.app/#/add",
-          imgLink: "",
-        };
-        database.push(templateRecipe);
+    async deleteRecipe() {
+      try {
+        await this.$store.dispatch("deleteRecipeAndReindex", this.currentRecipeId);
+        this.$toast.add({
+          severity: "success",
+          summary: "Recipe deleted",
+          detail: "Recipe deleted and IDs reindexed successfully!",
+          life: 5000,
+        });
+        this.$router.push("/");
+      } catch (err) {
+        console.error("Delete failed", err);
+        this.$toast.add({
+          severity: "error",
+          summary: "Delete failed",
+          detail: err?.message || "Could not delete recipe.",
+          life: 6000,
+        });
       }
-
-      this.$router.push("/");
     },
     confirmDelete() {
       if (
