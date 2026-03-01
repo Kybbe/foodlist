@@ -3,9 +3,9 @@
     <AutoComplete
       name="name"
       :suggestions="filteredSuggestions"
-      :modelValue="value"
+      :modelValue="currentValue"
       :placeholder="placeholder"
-      @change="onInputChange"
+      @update:modelValue="onModelValueUpdate"
       @focus="onFocus"
       @blur="onBlur"
       @complete="search"
@@ -21,14 +21,20 @@ export default {
   components: {
     AutoComplete,
   },
+  emits: ["update:modelValue", "input"],
   props: {
     placeholder: {
       type: String,
       default: "Enter ingredient name",
     },
+    modelValue: {
+      type: String,
+      default: undefined,
+    },
+    // Backward-compat: allow Vue 2-style v-model (value + input)
     value: {
       type: String,
-      default: "",
+      default: undefined,
     },
   },
   data() {
@@ -37,9 +43,21 @@ export default {
       filteredSuggestions: [],
     };
   },
+  computed: {
+    currentValue() {
+      return this.modelValue !== undefined ? this.modelValue : this.value || "";
+    },
+  },
   methods: {
-    onInputChange(e) {
-      this.$emit("input", e.value);
+    normalizeValue(payload) {
+      // PrimeVue may emit the raw value (string) for update:modelValue,
+      // while change emits an object like { originalEvent, value }.
+      return payload && payload.value !== undefined ? payload.value : payload;
+    },
+    onModelValueUpdate(payload) {
+      const nextValue = this.normalizeValue(payload);
+      this.$emit("update:modelValue", nextValue);
+      this.$emit("input", nextValue);
       this.showSuggestions = true;
     },
     onFocus() {
@@ -53,9 +71,15 @@ export default {
     },
     getSuggestions() {
       const recipes = this.$store.state.recipesList;
-      const ingredients = recipes.flatMap((recipe) => recipe.ingredients);
+      const ingredients = (recipes || []).flatMap((recipe) =>
+        Array.isArray(recipe?.ingredients) ? recipe.ingredients : []
+      );
       const uniqueIngredients = [
-        ...new Set(ingredients.map((ingredient) => ingredient.name)),
+        ...new Set(
+          ingredients
+            .map((ingredient) => ingredient?.name)
+            .filter((name) => typeof name === "string" && name.trim().length)
+        ),
       ];
       return uniqueIngredients;
     },

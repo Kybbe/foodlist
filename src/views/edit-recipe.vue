@@ -52,7 +52,7 @@
 
           <AutoCompletingIngredientInput
             :id="'ingredient-' + index"
-            :value="ingredient.name"
+            v-model="ingredient.name"
             placeholder="Name"
           />
 

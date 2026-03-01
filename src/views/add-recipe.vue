@@ -56,7 +56,7 @@
                 <label for="'measurement-' + index">Unit (eg. st)</label>
               </FloatLabel>
               <AutoCompletingIngredientInput
-                :value="ingredient.name"
+                v-model="ingredient.name"
                 placeholder="Name (eg. Tomatoes)"
               />
               <FloatLabel variant="on">
