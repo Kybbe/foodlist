@@ -3,7 +3,11 @@
     ref="cookingViewContainer"
     :class="{ mobileCookingViewPage: isMobileLandscapeCookingView }"
   >
-    <div v-if="isMobileLandscapeCookingView" id="mobileCookingView">
+    <div
+      v-if="isMobileLandscapeCookingView"
+      id="mobileCookingView"
+      @touchstart.passive="enableMotionDebugIfNeeded"
+    >
       <button
         v-if="showFullscreenButton"
         id="fullscreenToggle"
@@ -14,6 +18,16 @@
       </button>
 
       <section class="mobileCookingPanel ingredientsPanel">
+
+      <aside v-if="showFullscreenDebug" id="fullscreenDebugPanel">
+        <strong>Fullscreen debug</strong>
+        <ul>
+          <li v-for="item in fullscreenDebugValues" :key="item.label">
+            <span>{{ item.label }}</span>
+            <b>{{ item.value }}</b>
+          </li>
+        </ul>
+      </aside>
         <ingredients
           :ingredients="this.currentRecipe.ingredients"
           :portions="this.currentRecipe.servings"
@@ -102,6 +116,11 @@ export default {
       mobileLandscapeMediaQuery: null,
       canRequestFullscreen: false,
       isFullscreenActive: false,
+      showFullscreenDebugPanel: false,
+      motionDebugEnabled: false,
+      motionPermissionState: "unknown",
+      lastShakeTimestamp: 0,
+      lastMotionMagnitude: 0,
     };
   },
   mounted() {
@@ -114,8 +133,8 @@ export default {
     );
 
     this.updateMobileLandscapeCookingView();
-  this.updateFullscreenSupport();
-  this.updateFullscreenState();
+    this.updateFullscreenSupport();
+    this.updateFullscreenState();
 
     if (this.mobileLandscapeMediaQuery.addEventListener) {
       this.mobileLandscapeMediaQuery.addEventListener(
@@ -160,8 +179,22 @@ export default {
       "webkitfullscreenchange",
       this.updateFullscreenState
     );
+
+    this.detachMotionListener();
+    this.setMobileCookingDocumentState(false);
   },
   methods: {
+    setMobileCookingDocumentState(isActive) {
+      if (typeof document === "undefined") {
+        return;
+      }
+
+      document.documentElement.classList.toggle(
+        "mobile-cooking-view-active",
+        isActive
+      );
+      document.body.classList.toggle("mobile-cooking-view-active", isActive);
+    },
     updateFullscreenSupport() {
       if (typeof document === "undefined") {
         this.canRequestFullscreen = false;
@@ -195,10 +228,82 @@ export default {
       this.isMobileLandscapeCookingView =
         mediaMatches && window.innerWidth > window.innerHeight;
 
+      this.setMobileCookingDocumentState(this.isMobileLandscapeCookingView);
+      this.updateFullscreenSupport();
+      this.updateFullscreenState();
+
       if (this.isMobileLandscapeCookingView) {
         window.setTimeout(() => {
-          window.scrollTo({ top: 1, behavior: "smooth" });
+          window.scrollTo(0, 0);
         }, 60);
+      } else {
+        this.showFullscreenDebugPanel = false;
+      }
+    },
+    attachMotionListener() {
+      if (this.motionDebugEnabled || typeof window === "undefined") {
+        return;
+      }
+
+      window.addEventListener("devicemotion", this.handleDeviceMotion);
+      this.motionDebugEnabled = true;
+    },
+    detachMotionListener() {
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      window.removeEventListener("devicemotion", this.handleDeviceMotion);
+      this.motionDebugEnabled = false;
+    },
+    async enableMotionDebugIfNeeded() {
+      if (
+        !this.shouldAllowFullscreenDebug ||
+        this.motionDebugEnabled ||
+        this.motionPermissionState === "denied" ||
+        this.motionPermissionState === "unsupported"
+      ) {
+        return;
+      }
+
+      if (typeof window === "undefined" || !("DeviceMotionEvent" in window)) {
+        this.motionPermissionState = "unsupported";
+        return;
+      }
+
+      const DeviceMotion = window.DeviceMotionEvent;
+
+      if (typeof DeviceMotion.requestPermission === "function") {
+        try {
+          const permission = await DeviceMotion.requestPermission();
+          this.motionPermissionState = permission;
+
+          if (permission === "granted") {
+            this.attachMotionListener();
+          }
+        } catch (err) {
+          this.motionPermissionState = "denied";
+          console.error("Motion debug permission denied", err);
+        }
+      } else {
+        this.motionPermissionState = "granted";
+        this.attachMotionListener();
+      }
+    },
+    handleDeviceMotion(event) {
+      const accel = event.accelerationIncludingGravity;
+
+      if (!accel) {
+        return;
+      }
+
+      const magnitude = Math.abs(accel.x || 0) + Math.abs(accel.y || 0) + Math.abs(accel.z || 0);
+      this.lastMotionMagnitude = Math.round(magnitude * 10) / 10;
+
+      const now = Date.now();
+      if (magnitude > 38 && now - this.lastShakeTimestamp > 1200) {
+        this.lastShakeTimestamp = now;
+        this.showFullscreenDebugPanel = !this.showFullscreenDebugPanel;
       }
     },
     async requestCookingFullscreen() {
@@ -209,6 +314,8 @@ export default {
       }
 
       try {
+        await this.enableMotionDebugIfNeeded();
+
         if (element.requestFullscreen) {
           await element.requestFullscreen();
         } else if (element.webkitRequestFullscreen) {
@@ -249,12 +356,65 @@ export default {
     },
   },
   computed: {
+    isIPhone() {
+      if (typeof navigator === "undefined") {
+        return false;
+      }
+
+      return /iPhone/i.test(navigator.userAgent || "");
+    },
+    shouldAllowFullscreenDebug() {
+      return this.$store.state.admin && this.isIPhone;
+    },
     showFullscreenButton() {
       return (
         this.isMobileLandscapeCookingView &&
         this.canRequestFullscreen &&
         !this.isFullscreenActive
       );
+    },
+    showFullscreenDebug() {
+      return this.isMobileLandscapeCookingView && this.shouldAllowFullscreenDebug && this.showFullscreenDebugPanel;
+    },
+    fullscreenDebugValues() {
+      return [
+        { label: "iPhone", value: String(this.isIPhone) },
+        { label: "Admin", value: String(this.$store.state.admin) },
+        { label: "Cooking view", value: String(this.isMobileLandscapeCookingView) },
+        { label: "Can fullscreen", value: String(this.canRequestFullscreen) },
+        { label: "Fullscreen active", value: String(this.isFullscreenActive) },
+        {
+          label: "fullscreenEnabled",
+          value: String(document.fullscreenEnabled ?? false),
+        },
+        {
+          label: "webkitFullscreenEnabled",
+          value: String(document.webkitFullscreenEnabled ?? false),
+        },
+        {
+          label: "fullscreenElement",
+          value: document.fullscreenElement ? "present" : "null",
+        },
+        {
+          label: "webkitFullscreenElement",
+          value: document.webkitFullscreenElement ? "present" : "null",
+        },
+        { label: "Motion permission", value: this.motionPermissionState },
+        { label: "Motion listener", value: String(this.motionDebugEnabled) },
+        { label: "Last shake value", value: String(this.lastMotionMagnitude) },
+        { label: "Window", value: `${window.innerWidth} × ${window.innerHeight}` },
+        {
+          label: "Visual viewport",
+          value: window.visualViewport
+            ? `${Math.round(window.visualViewport.width)} × ${Math.round(window.visualViewport.height)}`
+            : "n/a",
+        },
+        {
+          label: "Screen",
+          value: `${window.screen.width} × ${window.screen.height}`,
+        },
+        { label: "ScrollY", value: String(Math.round(window.scrollY)) },
+      ];
     },
     currentRecipeId() {
       return this.$route.params.id;
@@ -275,16 +435,21 @@ body {
 }
 
 .mobileCookingViewPage {
+  height: 100dvh;
   min-height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
   background: linear-gradient(180deg, #f7fbff 0%, #eef5ff 100%);
 }
 
 #mobileCookingView {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  height: 100dvh;
   min-height: 100dvh;
   max-height: 100dvh;
   position: relative;
+  overflow: hidden;
 }
 
 #fullscreenToggle {
@@ -304,8 +469,48 @@ body {
   cursor: pointer;
 }
 
+#fullscreenDebugPanel {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 2.8rem);
+  right: calc(env(safe-area-inset-right) + 0.45rem);
+  z-index: 6;
+  width: min(18rem, calc(100vw - 1rem));
+  max-height: calc(100dvh - env(safe-area-inset-top) - 4rem);
+  overflow-y: auto;
+  background: rgba(12, 23, 38, 0.92);
+  color: white;
+  border-radius: 12px;
+  padding: 0.75rem;
+  box-shadow: 0 12px 30px rgba(8, 18, 32, 0.3);
+  font-size: 0.72rem;
+
+  strong {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.35rem;
+  }
+
+  span,
+  b {
+    overflow-wrap: anywhere;
+  }
+}
+
 .mobileCookingPanel {
   min-width: 0;
+  height: 100dvh;
   min-height: 100dvh;
   max-height: 100dvh;
   overflow-y: auto;
