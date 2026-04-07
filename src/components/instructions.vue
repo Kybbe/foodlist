@@ -144,11 +144,6 @@ li {
 
 .instructionComponent.mobileCookingView {
   color: #16324f;
-  padding-bottom: 1.5rem;
-
-  .instruction {
-    padding-bottom: 1.75rem;
-  }
 
   h2 {
     margin-top: 0;

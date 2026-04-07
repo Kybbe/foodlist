@@ -373,11 +373,6 @@ li {
 
 .ingredientsComponent.mobileCookingView {
   color: #16324f;
-  padding-bottom: 1.5rem;
-
-  .ingredients:last-child {
-    padding-bottom: 1.75rem;
-  }
 
   h2,
   h4 {
