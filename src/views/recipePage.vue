@@ -1,53 +1,72 @@
 <template>
-  <div>
-    <div id="content">
-      <div
-        class="bigCard card"
-        style="
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: space-evenly;
-          padding: 0px;
-        "
-      >
-        <mainArea
-          :title="this.currentRecipe.title"
-          :description="this.currentRecipe.description"
-          :imgLink="this.currentRecipe.imgLink"
-          :drink="this.currentRecipe.drink"
-        />
-      </div>
-
-      <div class="mediumCard card">
+  <div :class="{ mobileCookingViewPage: isMobileLandscapeCookingView }">
+    <div v-if="isMobileLandscapeCookingView" id="mobileCookingView">
+      <section class="mobileCookingPanel ingredientsPanel">
         <ingredients
           :ingredients="this.currentRecipe.ingredients"
           :portions="this.currentRecipe.servings"
+          :mobile-cooking-view="true"
         />
-      </div>
+      </section>
 
-      <div class="mediumCard card">
-        <instruction :instructions="this.currentRecipe.instructions" />
+      <section class="mobileCookingPanel instructionsPanel">
+        <instruction
+          :instructions="this.currentRecipe.instructions"
+          :mobile-cooking-view="true"
+        />
+      </section>
+    </div>
+
+    <template v-else>
+      <div id="content">
+        <div
+          class="bigCard card"
+          style="
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-evenly;
+            padding: 0px;
+          "
+        >
+          <mainArea
+            :title="this.currentRecipe.title"
+            :description="this.currentRecipe.description"
+            :imgLink="this.currentRecipe.imgLink"
+            :drink="this.currentRecipe.drink"
+          />
+        </div>
+
+        <div class="mediumCard card">
+          <ingredients
+            :ingredients="this.currentRecipe.ingredients"
+            :portions="this.currentRecipe.servings"
+          />
+        </div>
+
+        <div class="mediumCard card">
+          <instruction :instructions="this.currentRecipe.instructions" />
+        </div>
       </div>
-    </div>
-    <div id="footer">
-      <a
-        v-if="this.currentRecipe.link"
-        :href="this.currentRecipe.link"
-        target="_blank"
-        id="ogLink"
-        >Original Recipe</a
-      >
-      <router-link
-        id="edit"
-        :to="'/edit/' + this.currentRecipeId"
-        v-if="this.$store.state.admin"
-      >
-        Edit this recipe
-      </router-link>
-      <button id="delete" @click="confirmDelete" v-if="this.$store.state.admin">
-        Delete this recipe
-      </button>
-    </div>
+      <div id="footer">
+        <a
+          v-if="this.currentRecipe.link"
+          :href="this.currentRecipe.link"
+          target="_blank"
+          id="ogLink"
+          >Original Recipe</a
+        >
+        <router-link
+          id="edit"
+          :to="'/edit/' + this.currentRecipeId"
+          v-if="this.$store.state.admin"
+        >
+          Edit this recipe
+        </router-link>
+        <button id="delete" @click="confirmDelete" v-if="this.$store.state.admin">
+          Delete this recipe
+        </button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -65,7 +84,64 @@ export default {
     instruction,
     ingredients,
   },
+  data() {
+    return {
+      isMobileLandscapeCookingView: false,
+      mobileLandscapeMediaQuery: null,
+    };
+  },
+  mounted() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    this.mobileLandscapeMediaQuery = window.matchMedia(
+      "(orientation: landscape) and (pointer: coarse) and (max-height: 600px)"
+    );
+
+    this.updateMobileLandscapeCookingView();
+
+    if (this.mobileLandscapeMediaQuery.addEventListener) {
+      this.mobileLandscapeMediaQuery.addEventListener(
+        "change",
+        this.updateMobileLandscapeCookingView
+      );
+    } else {
+      this.mobileLandscapeMediaQuery.addListener(
+        this.updateMobileLandscapeCookingView
+      );
+    }
+
+    window.addEventListener("resize", this.updateMobileLandscapeCookingView);
+  },
+  beforeUnmount() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (this.mobileLandscapeMediaQuery?.removeEventListener) {
+      this.mobileLandscapeMediaQuery.removeEventListener(
+        "change",
+        this.updateMobileLandscapeCookingView
+      );
+    } else if (this.mobileLandscapeMediaQuery?.removeListener) {
+      this.mobileLandscapeMediaQuery.removeListener(
+        this.updateMobileLandscapeCookingView
+      );
+    }
+
+    window.removeEventListener("resize", this.updateMobileLandscapeCookingView);
+  },
   methods: {
+    updateMobileLandscapeCookingView() {
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      const mediaMatches = this.mobileLandscapeMediaQuery?.matches ?? false;
+      this.isMobileLandscapeCookingView =
+        mediaMatches && window.innerWidth > window.innerHeight;
+    },
     async deleteRecipe() {
       try {
         await this.$store.dispatch("deleteRecipeAndReindex", this.currentRecipeId);
@@ -113,6 +189,40 @@ export default {
 <style lang="scss" scoped>
 body {
   margin: 0;
+}
+
+.mobileCookingViewPage {
+  min-height: 100dvh;
+  background: linear-gradient(180deg, #f7fbff 0%, #eef5ff 100%);
+}
+
+#mobileCookingView {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 100dvh;
+  max-height: 100dvh;
+}
+
+.mobileCookingPanel {
+  min-width: 0;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: calc(env(safe-area-inset-top) + 0.75rem)
+    calc(env(safe-area-inset-right) + 0.75rem)
+    calc(env(safe-area-inset-bottom) + 0.75rem)
+    calc(env(safe-area-inset-left) + 0.75rem);
+}
+
+.ingredientsPanel {
+  background: rgba(255, 255, 255, 0.94);
+  border-right: 1px solid rgba(74, 142, 231, 0.18);
+}
+
+.instructionsPanel {
+  background: rgba(244, 248, 255, 0.98);
 }
 
 #content {
