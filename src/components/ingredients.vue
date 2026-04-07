@@ -1,105 +1,107 @@
 <template>
-  <h2>Ingredients</h2>
-  <h4>{{ ingredients.length }} Ingredients</h4>
-  <div id="servingsContainer">
-    <button v-on:click="remove2Portions()">
-      <svg
-        version="1.1"
-        viewBox="0 0 32 32"
-        role="presentation"
-        aria-label="Decrease servings"
-        class="svg-icon svg-fill"
+  <div :class="['ingredientsComponent', { mobileCookingView }]">
+    <h2>Ingredients</h2>
+    <h4>{{ ingredients.length }} {{ mobileCookingView ? "items" : "Ingredients" }}</h4>
+    <div id="servingsContainer">
+      <button v-on:click="remove2Portions()">
+        <svg
+          version="1.1"
+          viewBox="0 0 32 32"
+          role="presentation"
+          aria-label="Decrease servings"
+          class="svg-icon svg-fill"
+        >
+          <path
+            pid="0"
+            fill-rule="evenodd"
+            d="M23.768 15H9a.249.249 0 00-.223.138l-.75 1.5A.25.25 0 008.25 17h15.518a.258.258 0 00.259-.259v-1.483a.258.258 0 00-.26-.258"
+          ></path>
+        </svg>
+      </button>
+      <input
+        name="portions"
+        id="portions"
+        :class="{ small: this.livePortions < 10 }"
+        :placeholder="this.livePortions"
+        :value="this.livePortions"
+        @change="changeToPortions"
+      />
+      <label for="portions">Servings</label>
+      <button v-on:click="add2Portions()">
+        <svg
+          version="1.1"
+          viewBox="0 0 32 32"
+          role="presentation"
+          aria-label="Increase servings"
+          class="svg-icon svg-fill"
+        >
+          <path
+            pid="0"
+            fill-rule="evenodd"
+            d="M23.768 14.994h-6.744V8.258A.26.26 0 0016.766 8h-1.477a.257.257 0 00-.262.262v6.732H9a.249.249 0 00-.223.138l-.75 1.5a.25.25 0 00.223.362h6.777v6.748c0 .142.116.258.258.258l1.48-.004a.25.25 0 00.259-.258v-6.744h6.744a.258.258 0 00.259-.259v-1.483a.258.258 0 00-.26-.258"
+          ></path>
+        </svg>
+      </button>
+    </div>
+    <div id="sortAlphabeticallyAndIgnoreSectionsCheckboxContainer">
+      <input
+        type="checkbox"
+        id="sortAlphabeticallyAndIgnoreSections"
+        v-model="sortAlphabeticallyAndIgnoreSections"
+      />
+      <label for="sortAlphabeticallyAndIgnoreSections"
+        >Sort alphabetically and ignore sections</label
       >
-        <path
-          pid="0"
-          fill-rule="evenodd"
-          d="M23.768 15H9a.249.249 0 00-.223.138l-.75 1.5A.25.25 0 008.25 17h15.518a.258.258 0 00.259-.259v-1.483a.258.258 0 00-.26-.258"
-        ></path>
-      </svg>
-    </button>
-    <input
-      name="portions"
-      id="portions"
-      :class="{ small: this.livePortions < 10 }"
-      :placeholder="this.livePortions"
-      :value="this.livePortions"
-      @change="changeToPortions"
-    />
-    <label for="portions">Servings</label>
-    <button v-on:click="add2Portions()">
-      <svg
-        version="1.1"
-        viewBox="0 0 32 32"
-        role="presentation"
-        aria-label="Increase servings"
-        class="svg-icon svg-fill"
-      >
-        <path
-          pid="0"
-          fill-rule="evenodd"
-          d="M23.768 14.994h-6.744V8.258A.26.26 0 0016.766 8h-1.477a.257.257 0 00-.262.262v6.732H9a.249.249 0 00-.223.138l-.75 1.5a.25.25 0 00.223.362h6.777v6.748c0 .142.116.258.258.258l1.48-.004a.25.25 0 00.259-.258v-6.744h6.744a.258.258 0 00.259-.259v-1.483a.258.258 0 00-.26-.258"
-        ></path>
-      </svg>
-    </button>
-  </div>
-  <div id="sortAlphabeticallyAndIgnoreSectionsCheckboxContainer">
-    <input
-      type="checkbox"
-      id="sortAlphabeticallyAndIgnoreSections"
-      v-model="sortAlphabeticallyAndIgnoreSections"
-    />
-    <label for="sortAlphabeticallyAndIgnoreSections"
-      >Sort alphabetically and ignore sections</label
+    </div>
+    <div v-if="sortAlphabeticallyAndIgnoreSections">
+      <ul class="ingredients">
+        <li
+          v-for="ingredient in ingredientsSortedAlphabetically"
+          :key="ingredient.id != null ? ingredient.id : ingredient.name"
+        >
+          {{
+            `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
+          }}
+        </li>
+      </ul>
+    </div>
+    <div
+      v-else-if="!sortAlphabeticallyAndIgnoreSections"
+      v-for="(sectionIngredients, section) in groupedIngredients"
+      :key="section"
     >
-  </div>
-  <div v-if="sortAlphabeticallyAndIgnoreSections">
-    <ul class="ingredients">
-      <li
-        v-for="ingredient in ingredientsSortedAlphabetically"
-        :key="ingredient.id != null ? ingredient.id : ingredient.name"
-      >
-        {{
-          `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
-        }}
-      </li>
-    </ul>
-  </div>
-  <div
-    v-else-if="!sortAlphabeticallyAndIgnoreSections"
-    v-for="(sectionIngredients, section) in groupedIngredients"
-    :key="section"
-  >
-    <h3 v-if="section">{{ section }}</h3>
-    <ul class="ingredients">
-      <li
-        v-for="ingredient in sectionIngredients"
-        :key="ingredient.id != null ? ingredient.id : ingredient.name"
-      >
-        {{
-          `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
-        }}
-      </li>
-    </ul>
-  </div>
-  <div
-    v-if="unsectionedIngredients.length && !sortAlphabeticallyAndIgnoreSections"
-  >
-    <template v-if="ingredients.length !== unsectionedIngredients.length">
-      <h3>Other Ingredients</h3>
-    </template>
-    <ul
-      class="ingredients"
-      :style="{ marginTop: unsectionedIngredientsMargin + 'em' }"
+      <h3 v-if="section">{{ section }}</h3>
+      <ul class="ingredients">
+        <li
+          v-for="ingredient in sectionIngredients"
+          :key="ingredient.id != null ? ingredient.id : ingredient.name"
+        >
+          {{
+            `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
+          }}
+        </li>
+      </ul>
+    </div>
+    <div
+      v-if="unsectionedIngredients.length && !sortAlphabeticallyAndIgnoreSections"
     >
-      <li
-        v-for="ingredient in unsectionedIngredients"
-        :key="ingredient.id != null ? ingredient.id : ingredient.name"
+      <template v-if="ingredients.length !== unsectionedIngredients.length">
+        <h3>Other Ingredients</h3>
+      </template>
+      <ul
+        class="ingredients"
+        :style="{ marginTop: unsectionedIngredientsMargin + 'em' }"
       >
-        {{
-          `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
-        }}
-      </li>
-    </ul>
+        <li
+          v-for="ingredient in unsectionedIngredients"
+          :key="ingredient.id != null ? ingredient.id : ingredient.name"
+        >
+          {{
+            `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
+          }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -114,6 +116,10 @@ export default {
     portions: {
       type: Number,
       default: 4,
+    },
+    mobileCookingView: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
@@ -288,6 +294,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.ingredientsComponent {
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
 h2,
 h4 {
   margin: 0;
@@ -358,5 +369,88 @@ li {
   margin-bottom: 5px;
   background-color: white;
   box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
+}
+
+.ingredientsComponent.mobileCookingView {
+  color: #16324f;
+  padding-bottom: 1.5rem;
+
+  .ingredients:last-child {
+    padding-bottom: 1.75rem;
+  }
+
+  h2,
+  h4 {
+    text-align: left;
+  }
+
+  h2 {
+    margin-top: 0;
+    font-size: 1.15rem;
+  }
+
+  h4 {
+    margin-bottom: 0.65rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6481a1;
+  }
+
+  h3 {
+    margin: 0.8rem 0 0.4rem;
+    font-size: 0.88rem;
+  }
+
+  #servingsContainer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: 0.55rem;
+
+    #portions {
+      height: 1.75rem;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    label {
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    button {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+
+    * {
+      margin: 1px 3px 1px 0;
+    }
+  }
+
+  #sortAlphabeticallyAndIgnoreSectionsCheckboxContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.7rem;
+    font-size: 0.82rem;
+    line-height: 1.25;
+
+    label {
+      cursor: pointer;
+    }
+  }
+
+  li {
+    padding: 10px 12px;
+    margin-bottom: 0.4rem;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    line-height: 1.28;
+    box-shadow: rgba(31, 68, 120, 0.12) 0px 6px 16px;
+  }
 }
 </style>
