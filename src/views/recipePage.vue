@@ -1,6 +1,18 @@
 <template>
-  <div :class="{ mobileCookingViewPage: isMobileLandscapeCookingView }">
+  <div
+    ref="cookingViewContainer"
+    :class="{ mobileCookingViewPage: isMobileLandscapeCookingView }"
+  >
     <div v-if="isMobileLandscapeCookingView" id="mobileCookingView">
+      <button
+        v-if="showFullscreenButton"
+        id="fullscreenToggle"
+        type="button"
+        @click="requestCookingFullscreen"
+      >
+        Fullscreen
+      </button>
+
       <section class="mobileCookingPanel ingredientsPanel">
         <ingredients
           :ingredients="this.currentRecipe.ingredients"
@@ -88,6 +100,8 @@ export default {
     return {
       isMobileLandscapeCookingView: false,
       mobileLandscapeMediaQuery: null,
+      canRequestFullscreen: false,
+      isFullscreenActive: false,
     };
   },
   mounted() {
@@ -100,6 +114,8 @@ export default {
     );
 
     this.updateMobileLandscapeCookingView();
+  this.updateFullscreenSupport();
+  this.updateFullscreenState();
 
     if (this.mobileLandscapeMediaQuery.addEventListener) {
       this.mobileLandscapeMediaQuery.addEventListener(
@@ -113,6 +129,11 @@ export default {
     }
 
     window.addEventListener("resize", this.updateMobileLandscapeCookingView);
+    document.addEventListener("fullscreenchange", this.updateFullscreenState);
+    document.addEventListener(
+      "webkitfullscreenchange",
+      this.updateFullscreenState
+    );
   },
   beforeUnmount() {
     if (typeof window === "undefined") {
@@ -131,8 +152,40 @@ export default {
     }
 
     window.removeEventListener("resize", this.updateMobileLandscapeCookingView);
+    document.removeEventListener(
+      "fullscreenchange",
+      this.updateFullscreenState
+    );
+    document.removeEventListener(
+      "webkitfullscreenchange",
+      this.updateFullscreenState
+    );
   },
   methods: {
+    updateFullscreenSupport() {
+      if (typeof document === "undefined") {
+        this.canRequestFullscreen = false;
+        return;
+      }
+
+      const element = this.$refs.cookingViewContainer;
+      this.canRequestFullscreen = Boolean(
+        document.fullscreenEnabled ||
+          document.webkitFullscreenEnabled ||
+          element?.requestFullscreen ||
+          element?.webkitRequestFullscreen
+      );
+    },
+    updateFullscreenState() {
+      if (typeof document === "undefined") {
+        this.isFullscreenActive = false;
+        return;
+      }
+
+      this.isFullscreenActive = Boolean(
+        document.fullscreenElement || document.webkitFullscreenElement
+      );
+    },
     updateMobileLandscapeCookingView() {
       if (typeof window === "undefined") {
         return;
@@ -141,6 +194,29 @@ export default {
       const mediaMatches = this.mobileLandscapeMediaQuery?.matches ?? false;
       this.isMobileLandscapeCookingView =
         mediaMatches && window.innerWidth > window.innerHeight;
+
+      if (this.isMobileLandscapeCookingView) {
+        window.setTimeout(() => {
+          window.scrollTo({ top: 1, behavior: "smooth" });
+        }, 60);
+      }
+    },
+    async requestCookingFullscreen() {
+      const element = this.$refs.cookingViewContainer;
+
+      if (!element) {
+        return;
+      }
+
+      try {
+        if (element.requestFullscreen) {
+          await element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+          element.webkitRequestFullscreen();
+        }
+      } catch (err) {
+        console.error("Could not enter fullscreen cooking view", err);
+      }
     },
     async deleteRecipe() {
       try {
@@ -173,6 +249,13 @@ export default {
     },
   },
   computed: {
+    showFullscreenButton() {
+      return (
+        this.isMobileLandscapeCookingView &&
+        this.canRequestFullscreen &&
+        !this.isFullscreenActive
+      );
+    },
     currentRecipeId() {
       return this.$route.params.id;
     },
@@ -201,6 +284,24 @@ body {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   min-height: 100dvh;
   max-height: 100dvh;
+  position: relative;
+}
+
+#fullscreenToggle {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 0.45rem);
+  right: calc(env(safe-area-inset-right) + 0.45rem);
+  z-index: 5;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(18, 44, 76, 0.88);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.5rem 0.8rem;
+  box-shadow: 0 10px 24px rgba(14, 31, 53, 0.22);
+  cursor: pointer;
 }
 
 .mobileCookingPanel {
