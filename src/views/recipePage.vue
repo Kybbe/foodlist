@@ -6,7 +6,6 @@
     <div
       v-if="isMobileLandscapeCookingView"
       id="mobileCookingView"
-      @touchstart.passive="enableMotionDebugIfNeeded"
     >
       <button
         v-if="showFullscreenButton"
@@ -15,6 +14,15 @@
         @click="requestCookingFullscreen"
       >
         Fullscreen
+      </button>
+
+      <button
+        v-if="shouldAllowFullscreenDebug"
+        id="fullscreenDebugToggle"
+        type="button"
+        @click="toggleFullscreenDebug"
+      >
+        {{ showFullscreenDebug ? "Hide debug" : "Show debug" }}
       </button>
 
       <section class="mobileCookingPanel ingredientsPanel">
@@ -117,10 +125,6 @@ export default {
       canRequestFullscreen: false,
       isFullscreenActive: false,
       showFullscreenDebugPanel: false,
-      motionDebugEnabled: false,
-      motionPermissionState: "unknown",
-      lastShakeTimestamp: 0,
-      lastMotionMagnitude: 0,
     };
   },
   mounted() {
@@ -179,8 +183,6 @@ export default {
       "webkitfullscreenchange",
       this.updateFullscreenState
     );
-
-    this.detachMotionListener();
     this.setMobileCookingDocumentState(false);
   },
   methods: {
@@ -240,71 +242,8 @@ export default {
         this.showFullscreenDebugPanel = false;
       }
     },
-    attachMotionListener() {
-      if (this.motionDebugEnabled || typeof window === "undefined") {
-        return;
-      }
-
-      window.addEventListener("devicemotion", this.handleDeviceMotion);
-      this.motionDebugEnabled = true;
-    },
-    detachMotionListener() {
-      if (typeof window === "undefined") {
-        return;
-      }
-
-      window.removeEventListener("devicemotion", this.handleDeviceMotion);
-      this.motionDebugEnabled = false;
-    },
-    async enableMotionDebugIfNeeded() {
-      if (
-        !this.shouldAllowFullscreenDebug ||
-        this.motionDebugEnabled ||
-        this.motionPermissionState === "denied" ||
-        this.motionPermissionState === "unsupported"
-      ) {
-        return;
-      }
-
-      if (typeof window === "undefined" || !("DeviceMotionEvent" in window)) {
-        this.motionPermissionState = "unsupported";
-        return;
-      }
-
-      const DeviceMotion = window.DeviceMotionEvent;
-
-      if (typeof DeviceMotion.requestPermission === "function") {
-        try {
-          const permission = await DeviceMotion.requestPermission();
-          this.motionPermissionState = permission;
-
-          if (permission === "granted") {
-            this.attachMotionListener();
-          }
-        } catch (err) {
-          this.motionPermissionState = "denied";
-          console.error("Motion debug permission denied", err);
-        }
-      } else {
-        this.motionPermissionState = "granted";
-        this.attachMotionListener();
-      }
-    },
-    handleDeviceMotion(event) {
-      const accel = event.accelerationIncludingGravity;
-
-      if (!accel) {
-        return;
-      }
-
-      const magnitude = Math.abs(accel.x || 0) + Math.abs(accel.y || 0) + Math.abs(accel.z || 0);
-      this.lastMotionMagnitude = Math.round(magnitude * 10) / 10;
-
-      const now = Date.now();
-      if (magnitude > 38 && now - this.lastShakeTimestamp > 1200) {
-        this.lastShakeTimestamp = now;
-        this.showFullscreenDebugPanel = !this.showFullscreenDebugPanel;
-      }
+    toggleFullscreenDebug() {
+      this.showFullscreenDebugPanel = !this.showFullscreenDebugPanel;
     },
     async requestCookingFullscreen() {
       const element = this.$refs.cookingViewContainer;
@@ -314,8 +253,6 @@ export default {
       }
 
       try {
-        await this.enableMotionDebugIfNeeded();
-
         if (element.requestFullscreen) {
           await element.requestFullscreen();
         } else if (element.webkitRequestFullscreen) {
@@ -399,9 +336,6 @@ export default {
           label: "webkitFullscreenElement",
           value: document.webkitFullscreenElement ? "present" : "null",
         },
-        { label: "Motion permission", value: this.motionPermissionState },
-        { label: "Motion listener", value: String(this.motionDebugEnabled) },
-        { label: "Last shake value", value: String(this.lastMotionMagnitude) },
         { label: "Window", value: `${window.innerWidth} × ${window.innerHeight}` },
         {
           label: "Visual viewport",
@@ -466,6 +400,23 @@ body {
   letter-spacing: 0.02em;
   padding: 0.5rem 0.8rem;
   box-shadow: 0 10px 24px rgba(14, 31, 53, 0.22);
+  cursor: pointer;
+}
+
+#fullscreenDebugToggle {
+  position: absolute;
+  top: calc(env(safe-area-inset-top) + 0.45rem);
+  right: calc(env(safe-area-inset-right) + 6.35rem);
+  z-index: 5;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(18, 44, 76, 0.72);
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.5rem 0.8rem;
+  box-shadow: 0 10px 24px rgba(14, 31, 53, 0.18);
   cursor: pointer;
 }
 
