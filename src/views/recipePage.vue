@@ -25,10 +25,14 @@
         {{ showFullscreenDebug ? "Hide debug" : "Show debug" }}
       </button>
 
-      <section class="mobileCookingPanel ingredientsPanel">
-
       <aside v-if="showFullscreenDebug" id="fullscreenDebugPanel">
-        <strong>Fullscreen debug</strong>
+        <div class="debugHeader">
+          <strong>Fullscreen debug</strong>
+          <button type="button" class="debugClose" @click="toggleFullscreenDebug">
+            Close
+          </button>
+        </div>
+
         <ul>
           <li v-for="item in fullscreenDebugValues" :key="item.label">
             <span>{{ item.label }}</span>
@@ -36,6 +40,8 @@
           </li>
         </ul>
       </aside>
+
+      <section class="mobileCookingPanel ingredientsPanel">
         <ingredients
           :ingredients="this.currentRecipe.ingredients"
           :portions="this.currentRecipe.servings"
@@ -314,10 +320,28 @@ export default {
       return this.isMobileLandscapeCookingView && this.shouldAllowFullscreenDebug && this.showFullscreenDebugPanel;
     },
     fullscreenDebugValues() {
+      const fullscreenElement =
+        typeof document !== "undefined" ? document.fullscreenElement : null;
+      const webkitFullscreenElement =
+        typeof document !== "undefined" ? document.webkitFullscreenElement : null;
+      const container = this.$refs.cookingViewContainer;
+      const viewport = typeof window !== "undefined" ? window.visualViewport : null;
+
       return [
         { label: "iPhone", value: String(this.isIPhone) },
         { label: "Admin", value: String(this.$store.state.admin) },
+        { label: "User agent", value: navigator.userAgent || "n/a" },
         { label: "Cooking view", value: String(this.isMobileLandscapeCookingView) },
+        {
+          label: "Media query",
+          value:
+            this.mobileLandscapeMediaQuery?.media ||
+            "(orientation: landscape) and (pointer: coarse) and (max-height: 600px)",
+        },
+        {
+          label: "Media query matches",
+          value: String(this.mobileLandscapeMediaQuery?.matches ?? false),
+        },
         { label: "Can fullscreen", value: String(this.canRequestFullscreen) },
         { label: "Fullscreen active", value: String(this.isFullscreenActive) },
         {
@@ -329,25 +353,83 @@ export default {
           value: String(document.webkitFullscreenEnabled ?? false),
         },
         {
+          label: "requestFullscreen fn",
+          value: String(Boolean(container?.requestFullscreen)),
+        },
+        {
+          label: "webkitRequestFullscreen fn",
+          value: String(Boolean(container?.webkitRequestFullscreen)),
+        },
+        {
           label: "fullscreenElement",
-          value: document.fullscreenElement ? "present" : "null",
+          value: fullscreenElement?.tagName || "null",
         },
         {
           label: "webkitFullscreenElement",
-          value: document.webkitFullscreenElement ? "present" : "null",
+          value: webkitFullscreenElement?.tagName || "null",
+        },
+        {
+          label: "Ref exists",
+          value: String(Boolean(container)),
+        },
+        {
+          label: "Ref client size",
+          value: container
+            ? `${container.clientWidth} × ${container.clientHeight}`
+            : "n/a",
+        },
+        {
+          label: "Ref scroll size",
+          value: container
+            ? `${container.scrollWidth} × ${container.scrollHeight}`
+            : "n/a",
         },
         { label: "Window", value: `${window.innerWidth} × ${window.innerHeight}` },
         {
           label: "Visual viewport",
-          value: window.visualViewport
-            ? `${Math.round(window.visualViewport.width)} × ${Math.round(window.visualViewport.height)}`
+          value: viewport
+            ? `${Math.round(viewport.width)} × ${Math.round(viewport.height)}`
             : "n/a",
+        },
+        {
+          label: "Visual viewport offset",
+          value: viewport
+            ? `${Math.round(viewport.offsetLeft)}, ${Math.round(viewport.offsetTop)}`
+            : "n/a",
+        },
+        {
+          label: "Visual viewport scale",
+          value: viewport ? String(viewport.scale) : "n/a",
         },
         {
           label: "Screen",
           value: `${window.screen.width} × ${window.screen.height}`,
         },
+        {
+          label: "Screen available",
+          value: `${window.screen.availWidth} × ${window.screen.availHeight}`,
+        },
+        {
+          label: "Orientation type",
+          value: window.screen.orientation?.type || "n/a",
+        },
+        {
+          label: "Orientation angle",
+          value: String(window.screen.orientation?.angle ?? "n/a"),
+        },
+        { label: "outerHeight", value: String(window.outerHeight) },
+        { label: "innerHeight", value: String(window.innerHeight) },
+        { label: "documentElement clientHeight", value: String(document.documentElement?.clientHeight ?? "n/a") },
+        { label: "body clientHeight", value: String(document.body?.clientHeight ?? "n/a") },
+        { label: "ScrollX", value: String(Math.round(window.scrollX)) },
         { label: "ScrollY", value: String(Math.round(window.scrollY)) },
+        {
+          label: "Standalone",
+          value: String(
+            window.navigator.standalone ??
+              window.matchMedia("(display-mode: standalone)").matches
+          ),
+        },
       ];
     },
     currentRecipeId() {
@@ -422,22 +504,42 @@ body {
 
 #fullscreenDebugPanel {
   position: absolute;
-  top: calc(env(safe-area-inset-top) + 2.8rem);
-  right: calc(env(safe-area-inset-right) + 0.45rem);
-  z-index: 6;
-  width: min(18rem, calc(100vw - 1rem));
-  max-height: calc(100dvh - env(safe-area-inset-top) - 4rem);
+  inset: 0;
+  z-index: 7;
+  width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
   overflow-y: auto;
-  background: rgba(12, 23, 38, 0.92);
+  background: rgba(12, 23, 38, 0.98);
   color: white;
-  border-radius: 12px;
-  padding: 0.75rem;
+  padding: calc(env(safe-area-inset-top) + 0.9rem)
+    calc(env(safe-area-inset-right) + 0.9rem)
+    calc(env(safe-area-inset-bottom) + 0.9rem)
+    calc(env(safe-area-inset-left) + 0.9rem);
   box-shadow: 0 12px 30px rgba(8, 18, 32, 0.3);
-  font-size: 0.72rem;
+  font-size: 0.88rem;
+
+  .debugHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
 
   strong {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
+    font-size: 1.1rem;
+  }
+
+  .debugClose {
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    color: white;
+    padding: 0.55rem 0.9rem;
+    font-weight: 700;
   }
 
   ul {
@@ -450,12 +552,24 @@ body {
     display: flex;
     justify-content: space-between;
     gap: 0.75rem;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.55rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   span,
   b {
     overflow-wrap: anywhere;
+  }
+
+  span {
+    max-width: 45%;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  b {
+    max-width: 52%;
+    text-align: right;
   }
 }
 
