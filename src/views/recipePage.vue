@@ -1,29 +1,39 @@
 <template>
   <div
     ref="cookingViewContainer"
-    :class="{ mobileCookingViewPage: isMobileLandscapeCookingView }"
+    :class="[
+      { mobileCookingViewPage: isMobileLandscapeCookingView },
+      { immersiveCookingMode: isImmersiveModeActive },
+    ]"
   >
-    <div
-      v-if="isMobileLandscapeCookingView"
-      id="mobileCookingView"
-    >
-      <button
-        v-if="showFullscreenButton"
-        id="fullscreenToggle"
-        type="button"
-        @click="requestCookingFullscreen"
-      >
-        Fullscreen
-      </button>
+    <div v-if="isMobileLandscapeCookingView" id="mobileCookingView">
+      <div id="cookingModeToolbar">
+        <button
+          id="immersiveModeToggle"
+          type="button"
+          @click="toggleImmersiveMode"
+        >
+          {{ isImmersiveModeActive ? "Exit immersive" : "Enable immersive" }}
+        </button>
 
-      <button
-        v-if="shouldAllowFullscreenDebug"
-        id="fullscreenDebugToggle"
-        type="button"
-        @click="toggleFullscreenDebug"
-      >
-        {{ showFullscreenDebug ? "Hide debug" : "Show debug" }}
-      </button>
+        <button
+          v-if="showFullscreenButton"
+          id="fullscreenToggle"
+          type="button"
+          @click="requestCookingFullscreen"
+        >
+          Fullscreen API
+        </button>
+
+        <button
+          v-if="shouldAllowFullscreenDebug"
+          id="fullscreenDebugToggle"
+          type="button"
+          @click="toggleFullscreenDebug"
+        >
+          {{ showFullscreenDebug ? "Hide debug" : "Show debug" }}
+        </button>
+      </div>
 
       <aside v-if="showFullscreenDebug" id="fullscreenDebugPanel">
         <div class="debugHeader">
@@ -127,6 +137,7 @@ export default {
   data() {
     return {
       isMobileLandscapeCookingView: false,
+      isImmersiveModeEnabled: false,
       mobileLandscapeMediaQuery: null,
       canRequestFullscreen: false,
       isFullscreenActive: false,
@@ -203,6 +214,9 @@ export default {
       );
       document.body.classList.toggle("mobile-cooking-view-active", isActive);
     },
+    syncImmersiveModeState() {
+      this.setMobileCookingDocumentState(this.isImmersiveModeActive);
+    },
     updateFullscreenSupport() {
       if (typeof document === "undefined") {
         this.canRequestFullscreen = false;
@@ -236,16 +250,32 @@ export default {
       this.isMobileLandscapeCookingView =
         mediaMatches && window.innerWidth > window.innerHeight;
 
-      this.setMobileCookingDocumentState(this.isMobileLandscapeCookingView);
+      if (!this.isMobileLandscapeCookingView) {
+        this.isImmersiveModeEnabled = false;
+      }
+
+      this.syncImmersiveModeState();
       this.updateFullscreenSupport();
       this.updateFullscreenState();
 
-      if (this.isMobileLandscapeCookingView) {
+      if (this.isImmersiveModeActive) {
         window.setTimeout(() => {
-          window.scrollTo(0, 0);
-        }, 60);
+          window.scrollTo(0, 1);
+        }, 100);
       } else {
         this.showFullscreenDebugPanel = false;
+      }
+    },
+    toggleImmersiveMode() {
+      this.isImmersiveModeEnabled = !this.isImmersiveModeEnabled;
+      this.syncImmersiveModeState();
+
+      if (this.isImmersiveModeActive) {
+        window.setTimeout(() => {
+          window.scrollTo(0, 1);
+        }, 100);
+      } else {
+        window.scrollTo(0, 0);
       }
     },
     toggleFullscreenDebug() {
@@ -299,6 +329,9 @@ export default {
     },
   },
   computed: {
+    isImmersiveModeActive() {
+      return this.isMobileLandscapeCookingView && this.isImmersiveModeEnabled;
+    },
     isIPhone() {
       if (typeof navigator === "undefined") {
         return false;
@@ -317,7 +350,11 @@ export default {
       );
     },
     showFullscreenDebug() {
-      return this.isMobileLandscapeCookingView && this.shouldAllowFullscreenDebug && this.showFullscreenDebugPanel;
+      return (
+        this.isMobileLandscapeCookingView &&
+        this.shouldAllowFullscreenDebug &&
+        this.showFullscreenDebugPanel
+      );
     },
     fullscreenDebugValues() {
       const fullscreenElement =
@@ -326,12 +363,25 @@ export default {
         typeof document !== "undefined" ? document.webkitFullscreenElement : null;
       const container = this.$refs.cookingViewContainer;
       const viewport = typeof window !== "undefined" ? window.visualViewport : null;
+      const documentElement = typeof document !== "undefined" ? document.documentElement : null;
+      const body = typeof document !== "undefined" ? document.body : null;
+      const containerStyles = container ? window.getComputedStyle(container) : null;
+      const bodyStyles = body ? window.getComputedStyle(body) : null;
+      const htmlStyles = documentElement
+        ? window.getComputedStyle(documentElement)
+        : null;
 
       return [
         { label: "iPhone", value: String(this.isIPhone) },
         { label: "Admin", value: String(this.$store.state.admin) },
         { label: "User agent", value: navigator.userAgent || "n/a" },
         { label: "Cooking view", value: String(this.isMobileLandscapeCookingView) },
+        { label: "Immersive enabled", value: String(this.isImmersiveModeEnabled) },
+        { label: "Immersive active", value: String(this.isImmersiveModeActive) },
+        {
+          label: "Body class active",
+          value: String(body?.classList.contains("mobile-cooking-view-active") ?? false),
+        },
         {
           label: "Media query",
           value:
@@ -379,10 +429,28 @@ export default {
             : "n/a",
         },
         {
+          label: "Ref offsetHeight",
+          value: container ? String(container.offsetHeight) : "n/a",
+        },
+        {
           label: "Ref scroll size",
           value: container
             ? `${container.scrollWidth} × ${container.scrollHeight}`
             : "n/a",
+        },
+        {
+          label: "Ref overflow",
+          value: containerStyles
+            ? `${containerStyles.overflow} / ${containerStyles.overflowY}`
+            : "n/a",
+        },
+        {
+          label: "Ref min-height",
+          value: containerStyles?.minHeight || "n/a",
+        },
+        {
+          label: "Ref height",
+          value: containerStyles?.height || "n/a",
         },
         { label: "Window", value: `${window.innerWidth} × ${window.innerHeight}` },
         {
@@ -419,8 +487,24 @@ export default {
         },
         { label: "outerHeight", value: String(window.outerHeight) },
         { label: "innerHeight", value: String(window.innerHeight) },
-        { label: "documentElement clientHeight", value: String(document.documentElement?.clientHeight ?? "n/a") },
+        {
+          label: "documentElement clientHeight",
+          value: String(document.documentElement?.clientHeight ?? "n/a"),
+        },
+        {
+          label: "documentElement scrollHeight",
+          value: String(document.documentElement?.scrollHeight ?? "n/a"),
+        },
+        {
+          label: "documentElement overflow",
+          value: htmlStyles ? `${htmlStyles.overflow} / ${htmlStyles.overflowY}` : "n/a",
+        },
         { label: "body clientHeight", value: String(document.body?.clientHeight ?? "n/a") },
+        { label: "body scrollHeight", value: String(document.body?.scrollHeight ?? "n/a") },
+        {
+          label: "body overflow",
+          value: bodyStyles ? `${bodyStyles.overflow} / ${bodyStyles.overflowY}` : "n/a",
+        },
         { label: "ScrollX", value: String(Math.round(window.scrollX)) },
         { label: "ScrollY", value: String(Math.round(window.scrollY)) },
         {
@@ -451,28 +535,41 @@ body {
 }
 
 .mobileCookingViewPage {
-  height: 100dvh;
   min-height: 100dvh;
-  max-height: 100dvh;
-  overflow: hidden;
   background: linear-gradient(180deg, #f7fbff 0%, #eef5ff 100%);
+}
+
+.mobileCookingViewPage.immersiveCookingMode {
+  min-height: 101vh;
 }
 
 #mobileCookingView {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  height: 100dvh;
   min-height: 100dvh;
-  max-height: 100dvh;
   position: relative;
-  overflow: hidden;
+  align-items: start;
 }
 
-#fullscreenToggle {
-  position: absolute;
-  top: calc(env(safe-area-inset-top) + 0.45rem);
-  right: calc(env(safe-area-inset-right) + 0.45rem);
+.immersiveCookingMode #mobileCookingView {
+  min-height: 101vh;
+}
+
+#cookingModeToolbar {
+  position: sticky;
+  top: calc(env(safe-area-inset-top) + 0.35rem);
   z-index: 5;
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem calc(env(safe-area-inset-right) + 0.45rem) 0;
+}
+
+#immersiveModeToggle,
+#fullscreenToggle,
+#fullscreenDebugToggle {
   border: 0;
   border-radius: 999px;
   background: rgba(18, 44, 76, 0.88);
@@ -486,24 +583,16 @@ body {
 }
 
 #fullscreenDebugToggle {
-  position: absolute;
-  top: calc(env(safe-area-inset-top) + 0.45rem);
-  right: calc(env(safe-area-inset-right) + 6.35rem);
-  z-index: 5;
-  border: 0;
-  border-radius: 999px;
   background: rgba(18, 44, 76, 0.72);
-  color: white;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  padding: 0.5rem 0.8rem;
   box-shadow: 0 10px 24px rgba(14, 31, 53, 0.18);
-  cursor: pointer;
+}
+
+#immersiveModeToggle {
+  background: rgba(45, 101, 182, 0.92);
 }
 
 #fullscreenDebugPanel {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 7;
   width: 100%;
@@ -575,16 +664,16 @@ body {
 
 .mobileCookingPanel {
   min-width: 0;
-  height: 100dvh;
   min-height: 100dvh;
-  max-height: 100dvh;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  overflow: visible;
   padding: calc(env(safe-area-inset-top) + 0.75rem)
     calc(env(safe-area-inset-right) + 0.75rem)
     calc(env(safe-area-inset-bottom) + 0.75rem)
     calc(env(safe-area-inset-left) + 0.75rem);
+}
+
+.immersiveCookingMode .mobileCookingPanel {
+  min-height: calc(100dvh - 3.4rem);
 }
 
 .ingredientsPanel {
