@@ -26,19 +26,12 @@ html {
   min-height: 100vh;
 }
 
-html.mobile-cooking-view-active,
-body.mobile-cooking-view-active {
-  height: 100dvh;
-  overflow: hidden;
-}
-
-body.mobile-cooking-view-active #app {
-  height: 100dvh;
-  overflow: hidden;
-}
-
 body.mobile-cooking-view-active .header {
   display: none;
+}
+
+body.mobile-cooking-view-active {
+  background-color: #eef5ff;
 }
 
 body {
