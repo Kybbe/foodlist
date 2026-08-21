@@ -2,62 +2,12 @@
   <div :class="['ingredientsComponent', { mobileCookingView }]">
     <h2>Ingredients</h2>
     <h4>
-      {{ displayedIngredients.length }}
+      {{ ingredients.length }}
       {{ mobileCookingView ? "items" : "Ingredients" }}
     </h4>
-    <div class="ingredientActions">
-      <button
-        type="button"
-        class="ingredientAction"
-        :class="{ active: shoppingMode }"
-        title="Shopping list mode"
-        aria-label="Shopping list mode"
-        @click="shoppingMode = !shoppingMode"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M6 8h12l-1 12H7L6 8Zm3 0a3 3 0 0 1 6 0M4 8h16" />
-        </svg>
-      </button>
-      <button
-        type="button"
-        class="ingredientAction"
-        :class="{ active: hideMode }"
-        title="Hide ingredients already added"
-        aria-label="Hide ingredients already added"
-        @click="hideMode = !hideMode"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 4.2A10.7 10.7 0 0 1 12 4c5.5 0 9.5 5.1 9.5 8s-1.4 4.5-3.5 6.1M6.4 6.4C4 8 2.5 10.3 2.5 12c0 2.9 4 8 9.5 8 1.1 0 2.1-.2 3-.6"
-          />
-        </svg>
-      </button>
-      <button
-        v-if="hiddenIngredientCount"
-        type="button"
-        class="showHidden"
-        @click="showHidden = !showHidden"
-      >
-        {{
-          showHidden ? "Hide hidden" : `Show hidden (${hiddenIngredientCount})`
-        }}
-      </button>
-    </div>
     <div id="servingsContainer">
       <button v-on:click="remove2Portions()">
-        <svg
-          version="1.1"
-          viewBox="0 0 32 32"
-          role="presentation"
-          aria-label="Decrease servings"
-          class="svg-icon svg-fill"
-        >
-          <path
-            pid="0"
-            fill-rule="evenodd"
-            d="M23.768 15H9a.249.249 0 00-.223.138l-.75 1.5A.25.25 0 008.25 17h15.518a.258.258 0 00.259-.259v-1.483a.258.258 0 00-.26-.258"
-          ></path>
-        </svg>
+        <Minus :size="16" aria-label="Decrease servings" />
       </button>
       <input
         name="portions"
@@ -69,19 +19,7 @@
       />
       <label for="portions">Servings</label>
       <button v-on:click="add2Portions()">
-        <svg
-          version="1.1"
-          viewBox="0 0 32 32"
-          role="presentation"
-          aria-label="Increase servings"
-          class="svg-icon svg-fill"
-        >
-          <path
-            pid="0"
-            fill-rule="evenodd"
-            d="M23.768 14.994h-6.744V8.258A.26.26 0 0016.766 8h-1.477a.257.257 0 00-.262.262v6.732H9a.249.249 0 00-.223.138l-.75 1.5a.25.25 0 00.223.362h6.777v6.748c0 .142.116.258.258.258l1.48-.004a.25.25 0 00.259-.258v-6.744h6.744a.258.258 0 00.259-.259v-1.483a.258.258 0 00-.26-.258"
-          ></path>
-        </svg>
+        <Plus :size="16" aria-label="Increase servings" />
       </button>
     </div>
     <div id="sortAlphabeticallyAndIgnoreSectionsCheckboxContainer">
@@ -99,29 +37,46 @@
         <li
           v-for="ingredient in ingredientsSortedAlphabetically"
           :key="ingredient.id != null ? ingredient.id : ingredient.name"
-          :class="{ owned: isOwned(ingredient) }"
+          :class="{ completed: isCompleted(ingredient) }"
         >
           <span>{{
             `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
           }}</span>
-          <label v-if="shoppingMode" class="ingredientCheck">
-            <input
-              type="checkbox"
-              :checked="isOwned(ingredient)"
-              @change="toggleOwned(ingredient)"
-            />
-            <span>Have it</span>
-          </label>
           <button
-            v-if="hideMode"
             type="button"
-            class="hideIngredient"
+            class="ingredientIconButton"
+            :class="{ active: isOwned(ingredient) }"
             :title="
-              isHidden(ingredient) ? 'Show ingredient' : 'Hide ingredient'
+              isOwned(ingredient)
+                ? 'Remove from pantry'
+                : 'Have this ingredient'
             "
-            @click="toggleHidden(ingredient)"
+            :aria-label="
+              isOwned(ingredient)
+                ? 'Remove from pantry'
+                : 'Have this ingredient'
+            "
+            @click="toggleOwned(ingredient)"
           >
-            {{ isHidden(ingredient) ? "Show" : "Hide" }}
+            <ShoppingBag :size="18" />
+          </button>
+          <button
+            type="button"
+            class="ingredientIconButton"
+            :class="{ active: isCompleted(ingredient) }"
+            :title="
+              isCompleted(ingredient)
+                ? 'Mark ingredient as needed'
+                : 'Mark ingredient as done'
+            "
+            :aria-label="
+              isCompleted(ingredient)
+                ? 'Mark ingredient as needed'
+                : 'Mark ingredient as done'
+            "
+            @click="toggleCompleted(ingredient)"
+          >
+            <CircleCheck :size="18" />
           </button>
         </li>
       </ul>
@@ -136,29 +91,46 @@
         <li
           v-for="ingredient in sectionIngredients"
           :key="ingredient.id != null ? ingredient.id : ingredient.name"
-          :class="{ owned: isOwned(ingredient) }"
+          :class="{ completed: isCompleted(ingredient) }"
         >
           <span>{{
             `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
           }}</span>
-          <label v-if="shoppingMode" class="ingredientCheck">
-            <input
-              type="checkbox"
-              :checked="isOwned(ingredient)"
-              @change="toggleOwned(ingredient)"
-            />
-            <span>Have it</span>
-          </label>
           <button
-            v-if="hideMode"
             type="button"
-            class="hideIngredient"
+            class="ingredientIconButton"
+            :class="{ active: isOwned(ingredient) }"
             :title="
-              isHidden(ingredient) ? 'Show ingredient' : 'Hide ingredient'
+              isOwned(ingredient)
+                ? 'Remove from pantry'
+                : 'Have this ingredient'
             "
-            @click="toggleHidden(ingredient)"
+            :aria-label="
+              isOwned(ingredient)
+                ? 'Remove from pantry'
+                : 'Have this ingredient'
+            "
+            @click="toggleOwned(ingredient)"
           >
-            {{ isHidden(ingredient) ? "Show" : "Hide" }}
+            <ShoppingBag :size="18" />
+          </button>
+          <button
+            type="button"
+            class="ingredientIconButton"
+            :class="{ active: isCompleted(ingredient) }"
+            :title="
+              isCompleted(ingredient)
+                ? 'Mark ingredient as needed'
+                : 'Mark ingredient as done'
+            "
+            :aria-label="
+              isCompleted(ingredient)
+                ? 'Mark ingredient as needed'
+                : 'Mark ingredient as done'
+            "
+            @click="toggleCompleted(ingredient)"
+          >
+            <CircleCheck :size="18" />
           </button>
         </li>
       </ul>
@@ -178,29 +150,46 @@
         <li
           v-for="ingredient in unsectionedIngredients"
           :key="ingredient.id != null ? ingredient.id : ingredient.name"
-          :class="{ owned: isOwned(ingredient) }"
+          :class="{ completed: isCompleted(ingredient) }"
         >
           <span>{{
             `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
           }}</span>
-          <label v-if="shoppingMode" class="ingredientCheck">
-            <input
-              type="checkbox"
-              :checked="isOwned(ingredient)"
-              @change="toggleOwned(ingredient)"
-            />
-            <span>Have it</span>
-          </label>
           <button
-            v-if="hideMode"
             type="button"
-            class="hideIngredient"
+            class="ingredientIconButton"
+            :class="{ active: isOwned(ingredient) }"
             :title="
-              isHidden(ingredient) ? 'Show ingredient' : 'Hide ingredient'
+              isOwned(ingredient)
+                ? 'Remove from pantry'
+                : 'Have this ingredient'
             "
-            @click="toggleHidden(ingredient)"
+            :aria-label="
+              isOwned(ingredient)
+                ? 'Remove from pantry'
+                : 'Have this ingredient'
+            "
+            @click="toggleOwned(ingredient)"
           >
-            {{ isHidden(ingredient) ? "Show" : "Hide" }}
+            <ShoppingBag :size="18" />
+          </button>
+          <button
+            type="button"
+            class="ingredientIconButton"
+            :class="{ active: isCompleted(ingredient) }"
+            :title="
+              isCompleted(ingredient)
+                ? 'Mark ingredient as needed'
+                : 'Mark ingredient as done'
+            "
+            :aria-label="
+              isCompleted(ingredient)
+                ? 'Mark ingredient as needed'
+                : 'Mark ingredient as done'
+            "
+            @click="toggleCompleted(ingredient)"
+          >
+            <CircleCheck :size="18" />
           </button>
         </li>
       </ul>
@@ -209,8 +198,16 @@
 </template>
 
 <script>
+import { CircleCheck, Minus, Plus, ShoppingBag } from "@lucide/vue";
+
 export default {
   name: "ingredientsComponent",
+  components: {
+    CircleCheck,
+    Minus,
+    Plus,
+    ShoppingBag,
+  },
   props: {
     ingredients: {
       type: Array,
@@ -230,20 +227,11 @@ export default {
       sortAlphabeticallyAndIgnoreSections: false,
       originalIngredients: JSON.parse(JSON.stringify(this.ingredients)), // Deep copy of ingredients
       livePortions: this.portions || 4,
-      shoppingMode: false,
-      hideMode: false,
-      showHidden: false,
       ownedIngredientKeys: {},
-      hiddenIngredientKeys: {},
+      completedIngredientKeys: {},
     };
   },
-  created() {
-    this.loadIngredientState();
-  },
   watch: {
-    "$route.params.id"() {
-      this.loadIngredientState();
-    },
     portions(newPortions) {
       // If the prop changes, update livePortions to match
       this.livePortions = newPortions || 4;
@@ -259,20 +247,11 @@ export default {
     },
   },
   computed: {
-    displayedIngredients() {
-      return this.showHidden
-        ? this.ingredients
-        : this.ingredients.filter((ingredient) => !this.isHidden(ingredient));
-    },
-    hiddenIngredientCount() {
-      return this.ingredients.filter((ingredient) => this.isHidden(ingredient))
-        .length;
-    },
     unsectionedIngredientsMargin() {
       return `${this.groupedIngredients.length ? "4" : "1"}em`;
     },
     groupedIngredients() {
-      return [...this.displayedIngredients].reduce((acc, ingredient) => {
+      return [...this.ingredients].reduce((acc, ingredient) => {
         const section = ingredient.section;
         if (!section) {
           return acc;
@@ -285,12 +264,10 @@ export default {
       }, {});
     },
     unsectionedIngredients() {
-      return [...this.displayedIngredients].filter(
-        (ingredient) => !ingredient.section
-      );
+      return [...this.ingredients].filter((ingredient) => !ingredient.section);
     },
     ingredientsSortedAlphabetically() {
-      return [...this.displayedIngredients].sort((a, b) => {
+      return [...this.ingredients].sort((a, b) => {
         const nameA = a.name.toLowerCase();
         const nameB = b.name.toLowerCase();
         if (nameA < nameB) return -1;
@@ -300,48 +277,24 @@ export default {
     },
   },
   methods: {
-    ingredientStorageKey() {
-      return `foodlist:ingredients:${this.$route.params.id || "unknown"}`;
-    },
     ingredientKey(ingredient) {
       return String(ingredient.id ?? ingredient.name);
-    },
-    loadIngredientState() {
-      try {
-        const savedState = JSON.parse(
-          localStorage.getItem(this.ingredientStorageKey()) || "{}"
-        );
-        this.ownedIngredientKeys = savedState.ownedIngredientKeys || {};
-        this.hiddenIngredientKeys = savedState.hiddenIngredientKeys || {};
-      } catch (error) {
-        this.ownedIngredientKeys = {};
-        this.hiddenIngredientKeys = {};
-      }
-    },
-    saveIngredientState() {
-      localStorage.setItem(
-        this.ingredientStorageKey(),
-        JSON.stringify({
-          ownedIngredientKeys: this.ownedIngredientKeys,
-          hiddenIngredientKeys: this.hiddenIngredientKeys,
-        })
-      );
     },
     isOwned(ingredient) {
       return Boolean(this.ownedIngredientKeys[this.ingredientKey(ingredient)]);
     },
-    isHidden(ingredient) {
-      return Boolean(this.hiddenIngredientKeys[this.ingredientKey(ingredient)]);
+    isCompleted(ingredient) {
+      return Boolean(
+        this.completedIngredientKeys[this.ingredientKey(ingredient)]
+      );
     },
     toggleOwned(ingredient) {
       const key = this.ingredientKey(ingredient);
       this.ownedIngredientKeys[key] = !this.ownedIngredientKeys[key];
-      this.saveIngredientState();
     },
-    toggleHidden(ingredient) {
+    toggleCompleted(ingredient) {
       const key = this.ingredientKey(ingredient);
-      this.hiddenIngredientKeys[key] = !this.hiddenIngredientKeys[key];
-      this.saveIngredientState();
+      this.completedIngredientKeys[key] = !this.completedIngredientKeys[key];
     },
     roundToTwoDecimals(num) {
       return Math.round(num * 100) / 100;
@@ -530,7 +483,7 @@ ul {
 }
 
 li {
-  padding: 12px 24px;
+  padding: 8px 16px;
   list-style: none;
   border: 1px solid lightgrey;
   border-radius: 5px;
@@ -545,66 +498,58 @@ li {
     flex: 1;
   }
 
-  &.owned > span:first-child {
-    opacity: 0.55;
-    text-decoration: line-through;
+  &.completed {
+    padding-top: 3px;
+    padding-bottom: 3px;
+
+    > span:first-child {
+      opacity: 0.2;
+      text-decoration: line-through;
+    }
+  }
+
+  > span:first-child {
+    min-width: 0;
   }
 }
 
-.ingredientActions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  margin: 0 0 0.7rem;
-}
-
-.ingredientAction,
-.hideIngredient,
-.showHidden {
-  border: 1px solid #4a8ee7;
-  background: white;
-  color: #245d9b;
-  cursor: pointer;
-}
-
-.ingredientAction {
+.ingredientIconButton {
   display: inline-grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 auto;
   padding: 0;
-  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #a7adb5;
+  cursor: pointer;
 
-  svg {
-    width: 1.15rem;
-    height: 1.15rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.8;
+  &:hover,
+  &:focus-visible {
+    color: #4a8ee7;
   }
 
   &.active {
-    background: #4a8ee7;
-    color: white;
+    color: #4a8ee7;
   }
 }
 
+.ingredientActions,
+.ingredientCheck,
+.hideIngredient,
+.showHidden {
+  display: none;
+}
+
 .ingredientCheck {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
   white-space: nowrap;
-  font-size: 0.82rem;
 }
 
 .hideIngredient,
 .showHidden {
   padding: 0.3rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
 }
 
 .ingredientsComponent.mobileCookingView {

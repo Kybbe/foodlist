@@ -69,16 +69,12 @@
             <p class="card-text">{{ recipe.description }}</p>
             <div class="extras">
               <p class="card-ingredients">
-                <span>{{ recipe.ingredients.length }}</span> Ingredient<span
-                  v-if="recipe.ingredients.length > 1"
-                  >s</span
-                >
+                <Carrot :size="19" aria-hidden="true" />
+                <span>{{ recipe.ingredients.length }}</span>
               </p>
               <p class="card-steps">
-                <span>{{ recipe.instructions.length }}</span> Step<span
-                  v-if="recipe.instructions.length > 1"
-                  >s</span
-                >
+                <List :size="19" aria-hidden="true" />
+                <span>{{ recipe.instructions.length }}</span>
               </p>
             </div>
           </div>
@@ -116,16 +112,12 @@
             <p class="card-text">{{ drink.description }}</p>
             <div class="extras">
               <p class="card-ingredients">
-                <span>{{ drink.ingredients.length }}</span> Ingredient<span
-                  v-if="drink.ingredients.length > 1"
-                  >s</span
-                >
+                <Carrot :size="19" aria-hidden="true" />
+                <span>{{ drink.ingredients.length }}</span>
               </p>
               <p class="card-steps">
-                <span>{{ drink.instructions.length }}</span> Step<span
-                  v-if="drink.instructions.length > 1"
-                  >s</span
-                >
+                <List :size="19" aria-hidden="true" />
+                <span>{{ drink.instructions.length }}</span>
               </p>
             </div>
           </div>
@@ -169,34 +161,30 @@
       </div>
     </transition-group>
     <footerBar></footerBar>
-    <button id="goToTop" v-on:click="goToTop">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-        focusable="false"
-        data-prefix="fas"
-        data-icon="arrow-up"
-        class="svg-inline--fa fa-arrow-up fa-w-14"
-        role="img"
-        viewBox="0 0 448 512"
-      >
-        <path
-          fill="currentColor"
-          d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z"
-        />
-      </svg>
+    <button
+      v-if="showGoToTop"
+      id="goToTop"
+      type="button"
+      title="Back to top"
+      @click="goToTop"
+    >
+      <ArrowUp :size="22" aria-hidden="true" />
     </button>
   </div>
 </template>
 
 <script>
+import { ArrowUp, Carrot, List } from "@lucide/vue";
 import footerBar from "../components/footer.vue";
 import Images from "../components/images";
 
 export default {
   name: "RecipeList",
   components: {
+    ArrowUp,
+    Carrot,
     footerBar,
+    List,
   },
   data() {
     return {
@@ -204,6 +192,7 @@ export default {
       sortBy: "recipeId",
       selectedIngredient: "",
       minimized: false,
+      showGoToTop: false,
     };
   },
   methods: {
@@ -282,6 +271,9 @@ export default {
     },
     goToTop() {
       window.scrollTo(0, 0);
+    },
+    updateGoToTopVisibility() {
+      this.showGoToTop = window.scrollY > 50;
     },
   },
   computed: {
@@ -462,6 +454,13 @@ export default {
   },
   mounted() {
     window.scrollTo(0, localStorage.getItem("scrollLength"));
+    this.updateGoToTopVisibility();
+    window.addEventListener("scroll", this.updateGoToTopVisibility, {
+      passive: true,
+    });
+  },
+  beforeUnmount() {
+    window.removeEventListener("scroll", this.updateGoToTopVisibility);
   },
 };
 </script>
@@ -579,12 +578,6 @@ h1 {
   border-radius: 10px;
   box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
   transition: all 0.2s ease-in-out;
-
-  &:hover svg,
-  &:focus svg {
-    transition: 4s;
-    transform: rotate(360deg);
-  }
 }
 
 .cardM {
@@ -595,12 +588,8 @@ h1 {
     padding: 1em 1em 0 1em;
   }
 
-  .card-text {
-    margin-bottom: 3.5em;
-  }
-
   .extras {
-    margin-top: 0.5em;
+    margin-top: 0;
     margin-bottom: 1em;
   }
 }
@@ -610,15 +599,11 @@ h1 {
 
   .card-body,
   .noResultCard-body {
-    padding: 0.8em 0.5em 0em 0.5em;
-  }
-
-  .card-text {
-    margin-bottom: 3em;
+    padding: 0.8em 0.5em 0.5em 0.5em;
   }
 
   .extras {
-    margin: 0.5em 0em;
+    margin: 0;
   }
 }
 
@@ -646,8 +631,7 @@ h1 {
   overflow: hidden;
 }
 
-.Layer_1,
-.fa-arrow-up {
+.Layer_1 {
   width: 100%;
   height: 100%;
   transition: 4s;
@@ -655,10 +639,6 @@ h1 {
 
 .Layer_1 > * {
   color: #4a8ee7;
-}
-
-.fa-arrow-up > * {
-  color: white;
 }
 
 .imgPart {
@@ -695,6 +675,11 @@ h1 {
     }
   }
 
+  &:hover .plateIcon svg,
+  &:focus .plateIcon svg {
+    transform: rotate(360deg);
+  }
+
   .drinkIcon {
     background-color: #e74a80;
   }
@@ -706,32 +691,37 @@ h1 {
   height: calc(100% - 200px);
   box-sizing: border-box;
   word-break: break-word;
+  display: flex;
+  flex-direction: column;
 
   .card-title {
     margin-top: 0px;
+    margin-bottom: 8px;
+  }
+
+  .card-text {
+    display: none;
   }
 
   .extras {
     display: flex;
-    position: absolute;
-    bottom: 0px;
 
     .card-ingredients,
     .card-steps {
-      background-color: #4a8ee7;
-      padding: 0.5em;
-      font-size: 1em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0;
+      font-size: 1.35em;
       line-height: 1em;
-      border-radius: 10px;
       text-align: center;
-      color: white;
+      color: #4a8ee7;
       margin: 0;
       flex-shrink: 0;
-      margin: 0px 5px;
-      box-shadow: 2px 2px 10px rgba(128, 128, 128, 0.5);
+      margin: 0 1.3rem 0 0;
 
       span {
-        color: white;
+        color: #4a8ee7;
       }
     }
 
@@ -764,6 +754,10 @@ a {
   box-shadow: 1px 1px 4px rgba(128, 128, 128, 0.2);
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+
+  svg {
+    display: block;
+  }
 
   &:hover {
     background-color: #1e74e4;
