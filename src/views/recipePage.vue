@@ -3,44 +3,7 @@
     ref="cookingViewContainer"
     :class="{ mobileCookingViewPage: isMobileLandscapeCookingView }"
   >
-    <div
-      v-if="isMobileLandscapeCookingView"
-      id="mobileCookingView"
-    >
-      <button
-        v-if="showFullscreenButton"
-        id="fullscreenToggle"
-        type="button"
-        @click="requestCookingFullscreen"
-      >
-        Fullscreen
-      </button>
-
-      <button
-        v-if="shouldAllowFullscreenDebug"
-        id="fullscreenDebugToggle"
-        type="button"
-        @click="toggleFullscreenDebug"
-      >
-        {{ showFullscreenDebug ? "Hide debug" : "Show debug" }}
-      </button>
-
-      <aside v-if="showFullscreenDebug" id="fullscreenDebugPanel">
-        <div class="debugHeader">
-          <strong>Fullscreen debug</strong>
-          <button type="button" class="debugClose" @click="toggleFullscreenDebug">
-            Close
-          </button>
-        </div>
-
-        <ul>
-          <li v-for="item in fullscreenDebugValues" :key="item.label">
-            <span>{{ item.label }}</span>
-            <b>{{ item.value }}</b>
-          </li>
-        </ul>
-      </aside>
-
+    <div v-if="isMobileLandscapeCookingView" id="mobileCookingView">
       <section class="mobileCookingPanel ingredientsPanel">
         <ingredients
           :ingredients="this.currentRecipe.ingredients"
@@ -102,7 +65,11 @@
         >
           Edit this recipe
         </router-link>
-        <button id="delete" @click="confirmDelete" v-if="this.$store.state.admin">
+        <button
+          id="delete"
+          @click="confirmDelete"
+          v-if="this.$store.state.admin"
+        >
           Delete this recipe
         </button>
       </div>
@@ -270,7 +237,10 @@ export default {
     },
     async deleteRecipe() {
       try {
-        await this.$store.dispatch("deleteRecipeAndReindex", this.currentRecipeId);
+        await this.$store.dispatch(
+          "deleteRecipeAndReindex",
+          this.currentRecipeId
+        );
         this.$toast.add({
           severity: "success",
           summary: "Recipe deleted",
@@ -317,21 +287,31 @@ export default {
       );
     },
     showFullscreenDebug() {
-      return this.isMobileLandscapeCookingView && this.shouldAllowFullscreenDebug && this.showFullscreenDebugPanel;
+      return (
+        this.isMobileLandscapeCookingView &&
+        this.shouldAllowFullscreenDebug &&
+        this.showFullscreenDebugPanel
+      );
     },
     fullscreenDebugValues() {
       const fullscreenElement =
         typeof document !== "undefined" ? document.fullscreenElement : null;
       const webkitFullscreenElement =
-        typeof document !== "undefined" ? document.webkitFullscreenElement : null;
+        typeof document !== "undefined"
+          ? document.webkitFullscreenElement
+          : null;
       const container = this.$refs.cookingViewContainer;
-      const viewport = typeof window !== "undefined" ? window.visualViewport : null;
+      const viewport =
+        typeof window !== "undefined" ? window.visualViewport : null;
 
       return [
         { label: "iPhone", value: String(this.isIPhone) },
         { label: "Admin", value: String(this.$store.state.admin) },
         { label: "User agent", value: navigator.userAgent || "n/a" },
-        { label: "Cooking view", value: String(this.isMobileLandscapeCookingView) },
+        {
+          label: "Cooking view",
+          value: String(this.isMobileLandscapeCookingView),
+        },
         {
           label: "Media query",
           value:
@@ -384,7 +364,10 @@ export default {
             ? `${container.scrollWidth} × ${container.scrollHeight}`
             : "n/a",
         },
-        { label: "Window", value: `${window.innerWidth} × ${window.innerHeight}` },
+        {
+          label: "Window",
+          value: `${window.innerWidth} × ${window.innerHeight}`,
+        },
         {
           label: "Visual viewport",
           value: viewport
@@ -394,7 +377,9 @@ export default {
         {
           label: "Visual viewport offset",
           value: viewport
-            ? `${Math.round(viewport.offsetLeft)}, ${Math.round(viewport.offsetTop)}`
+            ? `${Math.round(viewport.offsetLeft)}, ${Math.round(
+                viewport.offsetTop
+              )}`
             : "n/a",
         },
         {
@@ -419,8 +404,14 @@ export default {
         },
         { label: "outerHeight", value: String(window.outerHeight) },
         { label: "innerHeight", value: String(window.innerHeight) },
-        { label: "documentElement clientHeight", value: String(document.documentElement?.clientHeight ?? "n/a") },
-        { label: "body clientHeight", value: String(document.body?.clientHeight ?? "n/a") },
+        {
+          label: "documentElement clientHeight",
+          value: String(document.documentElement?.clientHeight ?? "n/a"),
+        },
+        {
+          label: "body clientHeight",
+          value: String(document.body?.clientHeight ?? "n/a"),
+        },
         { label: "ScrollX", value: String(Math.round(window.scrollX)) },
         { label: "ScrollY", value: String(Math.round(window.scrollY)) },
         {

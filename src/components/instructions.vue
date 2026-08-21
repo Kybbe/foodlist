@@ -61,19 +61,11 @@ export default {
       }
     },
     countAmountOfTimers(instructionText) {
-      let amountOfTimers = 0;
-      if (
-        instructionText.includes("minuter") ||
-        instructionText.includes("minut") ||
-        instructionText.includes("timme") ||
-        instructionText.includes("timmar")
-      ) {
-        amountOfTimers +=
-          instructionText.match(/\bminut(?:er)?\b/gi)?.length ?? 0;
-        amountOfTimers += instructionText.match(/\btimmar?\b/gi)?.length ?? 0;
-        amountOfTimers += instructionText.match(/\btimme\b/gi)?.length ?? 0;
-      }
-      return amountOfTimers;
+      return Array.from(
+        instructionText.matchAll(
+          /(\d+(?:[.,]\d+)?)\s*(timmar?|timme|minuter?|minut)/gi
+        )
+      ).length;
     },
   },
 };

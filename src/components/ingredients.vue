@@ -1,7 +1,48 @@
 <template>
   <div :class="['ingredientsComponent', { mobileCookingView }]">
     <h2>Ingredients</h2>
-    <h4>{{ ingredients.length }} {{ mobileCookingView ? "items" : "Ingredients" }}</h4>
+    <h4>
+      {{ displayedIngredients.length }}
+      {{ mobileCookingView ? "items" : "Ingredients" }}
+    </h4>
+    <div class="ingredientActions">
+      <button
+        type="button"
+        class="ingredientAction"
+        :class="{ active: shoppingMode }"
+        title="Shopping list mode"
+        aria-label="Shopping list mode"
+        @click="shoppingMode = !shoppingMode"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 8h12l-1 12H7L6 8Zm3 0a3 3 0 0 1 6 0M4 8h16" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="ingredientAction"
+        :class="{ active: hideMode }"
+        title="Hide ingredients already added"
+        aria-label="Hide ingredients already added"
+        @click="hideMode = !hideMode"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 4.2A10.7 10.7 0 0 1 12 4c5.5 0 9.5 5.1 9.5 8s-1.4 4.5-3.5 6.1M6.4 6.4C4 8 2.5 10.3 2.5 12c0 2.9 4 8 9.5 8 1.1 0 2.1-.2 3-.6"
+          />
+        </svg>
+      </button>
+      <button
+        v-if="hiddenIngredientCount"
+        type="button"
+        class="showHidden"
+        @click="showHidden = !showHidden"
+      >
+        {{
+          showHidden ? "Hide hidden" : `Show hidden (${hiddenIngredientCount})`
+        }}
+      </button>
+    </div>
     <div id="servingsContainer">
       <button v-on:click="remove2Portions()">
         <svg
@@ -58,10 +99,30 @@
         <li
           v-for="ingredient in ingredientsSortedAlphabetically"
           :key="ingredient.id != null ? ingredient.id : ingredient.name"
+          :class="{ owned: isOwned(ingredient) }"
         >
-          {{
+          <span>{{
             `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
-          }}
+          }}</span>
+          <label v-if="shoppingMode" class="ingredientCheck">
+            <input
+              type="checkbox"
+              :checked="isOwned(ingredient)"
+              @change="toggleOwned(ingredient)"
+            />
+            <span>Have it</span>
+          </label>
+          <button
+            v-if="hideMode"
+            type="button"
+            class="hideIngredient"
+            :title="
+              isHidden(ingredient) ? 'Show ingredient' : 'Hide ingredient'
+            "
+            @click="toggleHidden(ingredient)"
+          >
+            {{ isHidden(ingredient) ? "Show" : "Hide" }}
+          </button>
         </li>
       </ul>
     </div>
@@ -75,15 +136,37 @@
         <li
           v-for="ingredient in sectionIngredients"
           :key="ingredient.id != null ? ingredient.id : ingredient.name"
+          :class="{ owned: isOwned(ingredient) }"
         >
-          {{
+          <span>{{
             `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
-          }}
+          }}</span>
+          <label v-if="shoppingMode" class="ingredientCheck">
+            <input
+              type="checkbox"
+              :checked="isOwned(ingredient)"
+              @change="toggleOwned(ingredient)"
+            />
+            <span>Have it</span>
+          </label>
+          <button
+            v-if="hideMode"
+            type="button"
+            class="hideIngredient"
+            :title="
+              isHidden(ingredient) ? 'Show ingredient' : 'Hide ingredient'
+            "
+            @click="toggleHidden(ingredient)"
+          >
+            {{ isHidden(ingredient) ? "Show" : "Hide" }}
+          </button>
         </li>
       </ul>
     </div>
     <div
-      v-if="unsectionedIngredients.length && !sortAlphabeticallyAndIgnoreSections"
+      v-if="
+        unsectionedIngredients.length && !sortAlphabeticallyAndIgnoreSections
+      "
     >
       <template v-if="ingredients.length !== unsectionedIngredients.length">
         <h3>Other Ingredients</h3>
@@ -95,10 +178,30 @@
         <li
           v-for="ingredient in unsectionedIngredients"
           :key="ingredient.id != null ? ingredient.id : ingredient.name"
+          :class="{ owned: isOwned(ingredient) }"
         >
-          {{
+          <span>{{
             `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
-          }}
+          }}</span>
+          <label v-if="shoppingMode" class="ingredientCheck">
+            <input
+              type="checkbox"
+              :checked="isOwned(ingredient)"
+              @change="toggleOwned(ingredient)"
+            />
+            <span>Have it</span>
+          </label>
+          <button
+            v-if="hideMode"
+            type="button"
+            class="hideIngredient"
+            :title="
+              isHidden(ingredient) ? 'Show ingredient' : 'Hide ingredient'
+            "
+            @click="toggleHidden(ingredient)"
+          >
+            {{ isHidden(ingredient) ? "Show" : "Hide" }}
+          </button>
         </li>
       </ul>
     </div>
@@ -127,9 +230,20 @@ export default {
       sortAlphabeticallyAndIgnoreSections: false,
       originalIngredients: JSON.parse(JSON.stringify(this.ingredients)), // Deep copy of ingredients
       livePortions: this.portions || 4,
+      shoppingMode: false,
+      hideMode: false,
+      showHidden: false,
+      ownedIngredientKeys: {},
+      hiddenIngredientKeys: {},
     };
   },
+  created() {
+    this.loadIngredientState();
+  },
   watch: {
+    "$route.params.id"() {
+      this.loadIngredientState();
+    },
     portions(newPortions) {
       // If the prop changes, update livePortions to match
       this.livePortions = newPortions || 4;
@@ -145,11 +259,20 @@ export default {
     },
   },
   computed: {
+    displayedIngredients() {
+      return this.showHidden
+        ? this.ingredients
+        : this.ingredients.filter((ingredient) => !this.isHidden(ingredient));
+    },
+    hiddenIngredientCount() {
+      return this.ingredients.filter((ingredient) => this.isHidden(ingredient))
+        .length;
+    },
     unsectionedIngredientsMargin() {
       return `${this.groupedIngredients.length ? "4" : "1"}em`;
     },
     groupedIngredients() {
-      return [...this.ingredients].reduce((acc, ingredient) => {
+      return [...this.displayedIngredients].reduce((acc, ingredient) => {
         const section = ingredient.section;
         if (!section) {
           return acc;
@@ -162,10 +285,12 @@ export default {
       }, {});
     },
     unsectionedIngredients() {
-      return [...this.ingredients].filter((ingredient) => !ingredient.section);
+      return [...this.displayedIngredients].filter(
+        (ingredient) => !ingredient.section
+      );
     },
     ingredientsSortedAlphabetically() {
-      return [...this.ingredients].sort((a, b) => {
+      return [...this.displayedIngredients].sort((a, b) => {
         const nameA = a.name.toLowerCase();
         const nameB = b.name.toLowerCase();
         if (nameA < nameB) return -1;
@@ -175,6 +300,49 @@ export default {
     },
   },
   methods: {
+    ingredientStorageKey() {
+      return `foodlist:ingredients:${this.$route.params.id || "unknown"}`;
+    },
+    ingredientKey(ingredient) {
+      return String(ingredient.id ?? ingredient.name);
+    },
+    loadIngredientState() {
+      try {
+        const savedState = JSON.parse(
+          localStorage.getItem(this.ingredientStorageKey()) || "{}"
+        );
+        this.ownedIngredientKeys = savedState.ownedIngredientKeys || {};
+        this.hiddenIngredientKeys = savedState.hiddenIngredientKeys || {};
+      } catch (error) {
+        this.ownedIngredientKeys = {};
+        this.hiddenIngredientKeys = {};
+      }
+    },
+    saveIngredientState() {
+      localStorage.setItem(
+        this.ingredientStorageKey(),
+        JSON.stringify({
+          ownedIngredientKeys: this.ownedIngredientKeys,
+          hiddenIngredientKeys: this.hiddenIngredientKeys,
+        })
+      );
+    },
+    isOwned(ingredient) {
+      return Boolean(this.ownedIngredientKeys[this.ingredientKey(ingredient)]);
+    },
+    isHidden(ingredient) {
+      return Boolean(this.hiddenIngredientKeys[this.ingredientKey(ingredient)]);
+    },
+    toggleOwned(ingredient) {
+      const key = this.ingredientKey(ingredient);
+      this.ownedIngredientKeys[key] = !this.ownedIngredientKeys[key];
+      this.saveIngredientState();
+    },
+    toggleHidden(ingredient) {
+      const key = this.ingredientKey(ingredient);
+      this.hiddenIngredientKeys[key] = !this.hiddenIngredientKeys[key];
+      this.saveIngredientState();
+    },
     roundToTwoDecimals(num) {
       return Math.round(num * 100) / 100;
     },
@@ -369,6 +537,74 @@ li {
   margin-bottom: 5px;
   background-color: white;
   box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  > span:first-child {
+    flex: 1;
+  }
+
+  &.owned > span:first-child {
+    opacity: 0.55;
+    text-decoration: line-through;
+  }
+}
+
+.ingredientActions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0 0 0.7rem;
+}
+
+.ingredientAction,
+.hideIngredient,
+.showHidden {
+  border: 1px solid #4a8ee7;
+  background: white;
+  color: #245d9b;
+  cursor: pointer;
+}
+
+.ingredientAction {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 50%;
+
+  svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+  }
+
+  &.active {
+    background: #4a8ee7;
+    color: white;
+  }
+}
+
+.ingredientCheck {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+
+.hideIngredient,
+.showHidden {
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
 }
 
 .ingredientsComponent.mobileCookingView {
