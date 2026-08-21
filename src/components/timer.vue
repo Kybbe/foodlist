@@ -80,12 +80,14 @@ export default {
       originalTime: "",
       started: false,
       showTimerDone: false,
+      intervalId: null,
+      endAt: null,
     };
   },
   methods: {
     getTimeFromInstruction() {
       // Match number directly followed by unit (minut/er or timme/ar)
-      const regex = /(\d+(?:[\.,]\d+)?)\s*(timmar?|timme|minuter?|minut)/gi;
+      const regex = /(\d+(?:[.,]\d+)?)\s*(timmar?|timme|minuter?|minut)/gi;
       const matches = Array.from(this.instruction.matchAll(regex));
       if (!matches || matches.length <= this.timerCountId) return;
 
@@ -100,83 +102,147 @@ export default {
       let minutes = unit.startsWith("tim") ? number * 60 : number;
       minutes = Math.round(minutes);
 
-      const time = `0${Math.floor(minutes / 60)}:${minutes % 60}:00`;
+      const time = this.formatSeconds(minutes * 60);
       this.time = time;
       this.originalTime = time;
+    },
+    formatSeconds(totalSeconds) {
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      return [hours, minutes, seconds]
+        .map((value) => String(value).padStart(2, "0"))
+        .join(":");
+    },
+    timeToSeconds(time) {
+      const [hours, minutes, seconds] = time.split(":").map(Number);
+      return hours * 3600 + minutes * 60 + seconds;
+    },
+    timerStorageKey() {
+      return `foodlist:timer:${
+        this.$attrs.id || `${this.instruction}-${this.timerCountId}`
+      }`;
+    },
+    saveTimer() {
+      localStorage.setItem(
+        this.timerStorageKey(),
+        JSON.stringify({ endAt: this.endAt })
+      );
+    },
+    clearTimer() {
+      if (this.intervalId) {
+        window.clearInterval(this.intervalId);
+        this.intervalId = null;
+      }
+      this.endAt = null;
+      localStorage.removeItem(this.timerStorageKey());
+    },
+    syncTimer() {
+      if (!this.started || !this.endAt) return;
 
-      document.querySelector(".time").innerHTML = time;
+      const remainingSeconds = Math.ceil((this.endAt - Date.now()) / 1000);
+      if (remainingSeconds <= 0) {
+        this.timerDone();
+        return;
+      }
+
+      this.time = this.formatSeconds(remainingSeconds);
+    },
+    requestNotificationPermission() {
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
     },
     countdownTimer(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e?.preventDefault();
+      e?.stopPropagation();
 
-      // first check if already started
       if (this.started) return;
-      // then start the timer
-      this.started = true;
-      const timer = setInterval(() => {
-        // check if timer is stopped every second
-        if (!this.started) {
-          clearInterval(timer);
-          return;
-        }
-        const time = this.time;
-        const [hours, minutes, seconds] = time.split(":");
-        const newSeconds = Number.parseInt(seconds, 10) - 1;
-        const newMinutes = Number.parseInt(minutes, 10);
-        const newHours = Number.parseInt(hours, 10);
 
-        if (newSeconds <= 0) {
-          if (newMinutes <= 0) {
-            if (newHours <= 0) {
-              clearInterval(timer);
-              this.timerDone();
-              return;
-            }
-            this.time = `${newHours - 1}:59:59`;
-          } else {
-            this.time = `${newHours}:${newMinutes - 1}:59`;
-          }
-        } else {
-          this.time = `${newHours}:${newMinutes}:${newSeconds}`;
-        }
-      }, 1000);
+      const durationSeconds = this.timeToSeconds(this.time);
+      if (durationSeconds <= 0) return;
+
+      this.requestNotificationPermission();
+      this.endAt = Date.now() + durationSeconds * 1000;
+      this.started = true;
+      this.saveTimer();
+      this.syncTimer();
+      this.intervalId = window.setInterval(this.syncTimer, 1000);
     },
     stopTimer(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e?.preventDefault();
+      e?.stopPropagation();
+      this.syncTimer();
       this.started = false;
+      this.clearTimer();
     },
     resetTimer(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e?.preventDefault();
+      e?.stopPropagation();
       this.time = this.originalTime;
       this.started = false;
+      this.clearTimer();
     },
     timerDone() {
+      if (this.showTimerDone) return;
+
+      this.started = false;
+      this.clearTimer();
       const audio = new Audio(
         "https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"
       );
-      audio.play();
+      audio.play().catch(() => {});
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("Timer done", { body: this.instruction });
+      }
       this.showTimerDone = true;
     },
     rerunTimer() {
       this.showTimerDone = false;
       this.time = this.originalTime;
       this.started = false;
-      this.countdownTimer({
-        preventDefault: () => {},
-        stopPropagation: () => {},
-      });
+      this.countdownTimer();
     },
     stopTimerDone() {
       this.showTimerDone = false;
-      this.stopTimer({ preventDefault: () => {}, stopPropagation: () => {} });
-      this.resetTimer({ preventDefault: () => {}, stopPropagation: () => {} });
+      this.stopTimer();
+      this.resetTimer();
+    },
+    restoreTimer() {
+      try {
+        const savedTimer = JSON.parse(
+          localStorage.getItem(this.timerStorageKey()) || "null"
+        );
+        if (!savedTimer?.endAt) return;
+
+        this.endAt = savedTimer.endAt;
+        this.started = true;
+        this.syncTimer();
+        if (this.started) {
+          this.intervalId = window.setInterval(this.syncTimer, 1000);
+        }
+      } catch (error) {
+        localStorage.removeItem(this.timerStorageKey());
+      }
+    },
+    syncTimerOnReturn() {
+      if (!document.hidden) {
+        this.syncTimer();
+      }
     },
   },
   mounted() {
     this.getTimeFromInstruction();
+    this.restoreTimer();
+    document.addEventListener("visibilitychange", this.syncTimerOnReturn);
+    window.addEventListener("focus", this.syncTimer);
+  },
+  beforeUnmount() {
+    if (this.intervalId) {
+      window.clearInterval(this.intervalId);
+    }
+    document.removeEventListener("visibilitychange", this.syncTimerOnReturn);
+    window.removeEventListener("focus", this.syncTimer);
   },
 };
 </script>

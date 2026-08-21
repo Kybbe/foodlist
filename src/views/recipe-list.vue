@@ -497,7 +497,7 @@ h1 {
   #ingredients {
     margin: 0px 1em;
     border-radius: 0px;
-    max-width: 10em;
+    max-width: none;
   }
 
   #search-input {
