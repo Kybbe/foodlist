@@ -1,7 +1,7 @@
 <template>
   <div :class="['ingredientsComponent', { mobileCookingView }]">
     <h2>Ingredients</h2>
-    <h4>
+    <h4 v-if="!mobileCookingView">
       {{ ingredients.length }} {{ mobileCookingView ? "items" : "Ingredients" }}
     </h4>
     <div id="servingsContainer">
@@ -347,6 +347,12 @@ li.completed > span {
 .ingredientsComponent.mobileCookingView h2,
 .ingredientsComponent.mobileCookingView h4 {
   text-align: left;
+}
+.ingredientsComponent.mobileCookingView h2 {
+  margin-top: 0;
+  margin-bottom: 0.6rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
 }
 .ingredientsComponent.mobileCookingView li {
   padding: 10px 12px;
