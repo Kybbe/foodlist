@@ -86,8 +86,24 @@
       v-for="(sectionIngredients, section) in groupedIngredients"
       :key="section"
     >
-      <h3 v-if="section">{{ section }}</h3>
-      <ul class="ingredients">
+      <h3
+        v-if="section"
+        class="ingredientSectionTitle"
+        :class="{ completed: isSectionCompleted(sectionIngredients) }"
+      >
+        <CircleCheck
+          v-if="isSectionCompleted(sectionIngredients)"
+          :size="18"
+          aria-label="Section complete"
+        />
+        <span>{{ section }}</span>
+      </h3>
+      <ul
+        :class="[
+          'ingredients',
+          { completed: isSectionCompleted(sectionIngredients) },
+        ]"
+      >
         <li
           v-for="ingredient in sectionIngredients"
           :key="ingredient.id != null ? ingredient.id : ingredient.name"
@@ -141,7 +157,17 @@
       "
     >
       <template v-if="ingredients.length !== unsectionedIngredients.length">
-        <h3>Other Ingredients</h3>
+        <h3
+          class="ingredientSectionTitle"
+          :class="{ completed: isSectionCompleted(unsectionedIngredients) }"
+        >
+          <CircleCheck
+            v-if="isSectionCompleted(unsectionedIngredients)"
+            :size="18"
+            aria-label="Section complete"
+          />
+          <span>Other Ingredients</span>
+        </h3>
       </template>
       <ul
         class="ingredients"
@@ -288,13 +314,25 @@ export default {
         this.completedIngredientKeys[this.ingredientKey(ingredient)]
       );
     },
+    isSectionCompleted(sectionIngredients) {
+      return (
+        sectionIngredients.length > 0 &&
+        sectionIngredients.every((ingredient) => this.isCompleted(ingredient))
+      );
+    },
     toggleOwned(ingredient) {
       const key = this.ingredientKey(ingredient);
-      this.ownedIngredientKeys[key] = !this.ownedIngredientKeys[key];
+      this.ownedIngredientKeys = {
+        ...this.ownedIngredientKeys,
+        [key]: !this.ownedIngredientKeys[key],
+      };
     },
     toggleCompleted(ingredient) {
       const key = this.ingredientKey(ingredient);
-      this.completedIngredientKeys[key] = !this.completedIngredientKeys[key];
+      this.completedIngredientKeys = {
+        ...this.completedIngredientKeys,
+        [key]: !this.completedIngredientKeys[key],
+      };
     },
     roundToTwoDecimals(num) {
       return Math.round(num * 100) / 100;
@@ -482,6 +520,31 @@ ul {
   padding: 0;
 }
 
+.ingredientSectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.15rem;
+
+  svg {
+    color: #2f9e44;
+  }
+
+  &.completed span {
+    opacity: 0.2;
+    text-decoration: line-through;
+  }
+}
+
+.ingredients {
+  padding: 0;
+  margin: 16px 0;
+
+  &.completed {
+    margin-top: 0;
+  }
+}
+
 li {
   padding: 8px 16px;
   list-style: none;
@@ -526,9 +589,9 @@ li {
   color: #a7adb5;
   cursor: pointer;
 
-  &:hover,
   &:focus-visible {
-    color: #4a8ee7;
+    outline: 2px solid #4a8ee7;
+    outline-offset: 2px;
   }
 
   &.active {
