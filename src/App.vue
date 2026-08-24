@@ -28,13 +28,13 @@ html {
 
 html.mobile-cooking-view-active,
 body.mobile-cooking-view-active {
-  height: 100dvh;
-  overflow: hidden;
+  min-height: calc(100dvh + 1px);
+  overflow-x: hidden;
 }
 
 body.mobile-cooking-view-active #app {
   height: 100dvh;
-  overflow: hidden;
+  overflow: visible;
 }
 
 body.mobile-cooking-view-active .header {

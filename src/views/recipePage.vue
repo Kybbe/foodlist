@@ -209,7 +209,7 @@ export default {
 
       if (this.isMobileLandscapeCookingView) {
         window.setTimeout(() => {
-          window.scrollTo(0, 0);
+          window.scrollTo(0, Math.max(window.scrollY, 1));
         }, 60);
       } else {
         this.showFullscreenDebugPanel = false;

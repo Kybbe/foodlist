@@ -254,6 +254,10 @@ h4 {
 #sortAlphabeticallyAndIgnoreSectionsCheckboxContainer {
   text-align: center;
   margin-bottom: 0.7rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.1rem;
 }
 #servingsContainer button {
   width: 1.5rem;
@@ -264,6 +268,9 @@ h4 {
   background: white;
   color: #4a8ee7;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 #portions {
   width: 2.5em;
