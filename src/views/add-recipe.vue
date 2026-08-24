@@ -308,7 +308,7 @@ export default {
         this.recipe.instructions[i].id--;
       }
     },
-    post() {
+    async post() {
       if (
         this.recipe.title === "" ||
         this.recipe.description === "" ||
@@ -325,15 +325,51 @@ export default {
       }
 
       this.addRecipeId();
+      const recipeId = this.recipe.recipeId;
 
-      firebase.database().ref("recipes").push(this.recipe);
-      this.$toast.add({
-        severity: "success",
-        summary: "Recipe added",
-        detail: "Your recipe has been added successfully!",
+      try {
+        const recipeReference = await firebase
+          .database()
+          .ref("recipes")
+          .push(this.recipe);
+        this.$toast.add({
+          severity: "success",
+          summary: "Recipe added",
+          life: 2000,
+        });
+        this.removeDraft();
+
+        await this.waitForRecipeInStore(recipeReference.key);
+        this.$router.push(`/recipe/${recipeId}`);
+      } catch (err) {
+        console.error("Could not add recipe", err);
+        this.$toast.add({
+          severity: "error",
+          summary: "Could not add recipe",
+          detail: err?.message || "Please try again.",
+        });
+      }
+    },
+    waitForRecipeInStore(recipeKey) {
+      if (
+        this.$store.state.recipesList.some(
+          (recipe) => recipe._key === recipeKey
+        )
+      ) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve) => {
+        const unwatch = this.$store.watch(
+          (state) => state.recipesList,
+          (recipes) => {
+            if (recipes.some((recipe) => recipe._key === recipeKey)) {
+              unwatch();
+              resolve();
+            }
+          }
+        );
       });
-      this.removeDraft();
-      this.$router.push("/");
     },
     saveAsDraft() {
       // save all inputs to localstorage as a draft
