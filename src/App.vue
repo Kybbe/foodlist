@@ -6,15 +6,22 @@
     </transition>
   </router-view>
   <Toast position="bottom-right" />
+  <Toast group="app-update" position="bottom-right">
+    <template #messageicon>
+      <ArrowUp :size="18" aria-hidden="true" />
+    </template>
+  </Toast>
 </template>
 
 <script>
 import navbar from "./components/navbar.vue";
+import { ArrowUp } from "@lucide/vue";
 import Toast from "primevue/toast";
 
 export default {
   name: "App",
   components: {
+    ArrowUp,
     navbar,
     Toast,
   },
