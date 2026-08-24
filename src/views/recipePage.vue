@@ -131,6 +131,11 @@ export default {
       this.updateFullscreenState
     );
   },
+  beforeRouteLeave() {
+    Object.keys(localStorage)
+      .filter((key) => key.startsWith("foodlist:timer:"))
+      .forEach((key) => localStorage.removeItem(key));
+  },
   beforeUnmount() {
     if (typeof window === "undefined") {
       return;
