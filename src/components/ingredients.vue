@@ -2,180 +2,52 @@
   <div :class="['ingredientsComponent', { mobileCookingView }]">
     <h2>Ingredients</h2>
     <h4>
-      {{ ingredients.length }}
-      {{ mobileCookingView ? "items" : "Ingredients" }}
+      {{ ingredients.length }} {{ mobileCookingView ? "items" : "Ingredients" }}
     </h4>
     <div id="servingsContainer">
-      <button v-on:click="remove2Portions()">
-        <Minus :size="16" aria-label="Decrease servings" />
+      <button type="button" @click="changePortions(-2)">
+        <Minus :size="16" />
       </button>
-      <input
-        name="portions"
-        id="portions"
-        :class="{ small: this.livePortions < 10 }"
-        :placeholder="this.livePortions"
-        :value="this.livePortions"
-        @change="changeToPortions"
-      />
+      <input id="portions" :value="livePortions" @change="setPortions" />
       <label for="portions">Servings</label>
-      <button v-on:click="add2Portions()">
-        <Plus :size="16" aria-label="Increase servings" />
+      <button type="button" @click="changePortions(2)">
+        <Plus :size="16" />
       </button>
     </div>
     <div id="sortAlphabeticallyAndIgnoreSectionsCheckboxContainer">
       <input
-        type="checkbox"
-        id="sortAlphabeticallyAndIgnoreSections"
+        id="sortIngredients"
         v-model="sortAlphabeticallyAndIgnoreSections"
+        type="checkbox"
       />
-      <label for="sortAlphabeticallyAndIgnoreSections"
+      <label for="sortIngredients"
         >Sort alphabetically and ignore sections</label
       >
     </div>
-    <div v-if="sortAlphabeticallyAndIgnoreSections">
-      <ul class="ingredients">
-        <li
-          v-for="ingredient in ingredientsSortedAlphabetically"
-          :key="ingredient.id != null ? ingredient.id : ingredient.name"
-          :class="{ completed: isCompleted(ingredient) }"
-        >
-          <span>{{
-            `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
-          }}</span>
-          <button
-            type="button"
-            class="ingredientIconButton"
-            :class="{ active: isOwned(ingredient) }"
-            :title="
-              isOwned(ingredient)
-                ? 'Remove from pantry'
-                : 'Have this ingredient'
-            "
-            :aria-label="
-              isOwned(ingredient)
-                ? 'Remove from pantry'
-                : 'Have this ingredient'
-            "
-            @click="toggleOwned(ingredient)"
-          >
-            <ShoppingBag :size="18" />
-          </button>
-          <button
-            type="button"
-            class="ingredientIconButton"
-            :class="{ active: isCompleted(ingredient) }"
-            :title="
-              isCompleted(ingredient)
-                ? 'Mark ingredient as needed'
-                : 'Mark ingredient as done'
-            "
-            :aria-label="
-              isCompleted(ingredient)
-                ? 'Mark ingredient as needed'
-                : 'Mark ingredient as done'
-            "
-            @click="toggleCompleted(ingredient)"
-          >
-            <CircleCheck :size="18" />
-          </button>
-        </li>
-      </ul>
-    </div>
-    <div
-      v-else-if="!sortAlphabeticallyAndIgnoreSections"
-      v-for="(sectionIngredients, section) in groupedIngredients"
-      :key="section"
-    >
+    <section v-for="group in ingredientGroups" :key="group.key">
       <h3
-        v-if="section"
+        v-if="group.title"
         class="ingredientSectionTitle"
-        :class="{ completed: isSectionCompleted(sectionIngredients) }"
+        :class="{ completed: isSectionCompleted(group.ingredients) }"
       >
-        <CircleCheck
-          v-if="isSectionCompleted(sectionIngredients)"
-          :size="18"
-          aria-label="Section complete"
-        />
-        <span>{{ section }}</span>
+        <button
+          type="button"
+          class="sectionCompletionButton"
+          :class="{ completed: isSectionCompleted(group.ingredients) }"
+          :title="sectionLabel(group.ingredients)"
+          @click="toggleSection(group.ingredients)"
+        >
+          <CircleCheck :size="18" />
+        </button>
+        <span>{{ group.title }}</span>
       </h3>
       <ul
-        :class="[
-          'ingredients',
-          { completed: isSectionCompleted(sectionIngredients) },
-        ]"
-      >
-        <li
-          v-for="ingredient in sectionIngredients"
-          :key="ingredient.id != null ? ingredient.id : ingredient.name"
-          :class="{ completed: isCompleted(ingredient) }"
-        >
-          <span>{{
-            `${ingredient.amount} ${ingredient.measurement} ${ingredient.name}`
-          }}</span>
-          <button
-            type="button"
-            class="ingredientIconButton"
-            :class="{ active: isOwned(ingredient) }"
-            :title="
-              isOwned(ingredient)
-                ? 'Remove from pantry'
-                : 'Have this ingredient'
-            "
-            :aria-label="
-              isOwned(ingredient)
-                ? 'Remove from pantry'
-                : 'Have this ingredient'
-            "
-            @click="toggleOwned(ingredient)"
-          >
-            <ShoppingBag :size="18" />
-          </button>
-          <button
-            type="button"
-            class="ingredientIconButton"
-            :class="{ active: isCompleted(ingredient) }"
-            :title="
-              isCompleted(ingredient)
-                ? 'Mark ingredient as needed'
-                : 'Mark ingredient as done'
-            "
-            :aria-label="
-              isCompleted(ingredient)
-                ? 'Mark ingredient as needed'
-                : 'Mark ingredient as done'
-            "
-            @click="toggleCompleted(ingredient)"
-          >
-            <CircleCheck :size="18" />
-          </button>
-        </li>
-      </ul>
-    </div>
-    <div
-      v-if="
-        unsectionedIngredients.length && !sortAlphabeticallyAndIgnoreSections
-      "
-    >
-      <template v-if="ingredients.length !== unsectionedIngredients.length">
-        <h3
-          class="ingredientSectionTitle"
-          :class="{ completed: isSectionCompleted(unsectionedIngredients) }"
-        >
-          <CircleCheck
-            v-if="isSectionCompleted(unsectionedIngredients)"
-            :size="18"
-            aria-label="Section complete"
-          />
-          <span>Other Ingredients</span>
-        </h3>
-      </template>
-      <ul
         class="ingredients"
-        :style="{ marginTop: unsectionedIngredientsMargin + 'em' }"
+        :class="{ completed: isSectionCompleted(group.ingredients) }"
       >
         <li
-          v-for="ingredient in unsectionedIngredients"
-          :key="ingredient.id != null ? ingredient.id : ingredient.name"
+          v-for="ingredient in group.ingredients"
+          :key="ingredientKey(ingredient)"
           :class="{ completed: isCompleted(ingredient) }"
         >
           <span>{{
@@ -186,11 +58,6 @@
             class="ingredientIconButton"
             :class="{ active: isOwned(ingredient) }"
             :title="
-              isOwned(ingredient)
-                ? 'Remove from pantry'
-                : 'Have this ingredient'
-            "
-            :aria-label="
               isOwned(ingredient)
                 ? 'Remove from pantry'
                 : 'Have this ingredient'
@@ -208,18 +75,13 @@
                 ? 'Mark ingredient as needed'
                 : 'Mark ingredient as done'
             "
-            :aria-label="
-              isCompleted(ingredient)
-                ? 'Mark ingredient as needed'
-                : 'Mark ingredient as done'
-            "
             @click="toggleCompleted(ingredient)"
           >
             <CircleCheck :size="18" />
           </button>
         </li>
       </ul>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -228,83 +90,69 @@ import { CircleCheck, Minus, Plus, ShoppingBag } from "@lucide/vue";
 
 export default {
   name: "ingredientsComponent",
-  components: {
-    CircleCheck,
-    Minus,
-    Plus,
-    ShoppingBag,
-  },
+  components: { CircleCheck, Minus, Plus, ShoppingBag },
   props: {
-    ingredients: {
-      type: Array,
-      required: true,
-    },
-    portions: {
-      type: Number,
-      default: 4,
-    },
-    mobileCookingView: {
-      type: Boolean,
-      default: false,
-    },
+    ingredients: { type: Array, required: true },
+    portions: { type: Number, default: 4 },
+    mobileCookingView: { type: Boolean, default: false },
   },
   data() {
     return {
       sortAlphabeticallyAndIgnoreSections: false,
-      originalIngredients: JSON.parse(JSON.stringify(this.ingredients)), // Deep copy of ingredients
       livePortions: this.portions || 4,
+      originalIngredients: JSON.parse(JSON.stringify(this.ingredients)),
       ownedIngredientKeys: {},
       completedIngredientKeys: {},
     };
   },
   watch: {
-    portions(newPortions) {
-      // If the prop changes, update livePortions to match
-      this.livePortions = newPortions || 4;
-      this.updateIngredientAmounts(newPortions || 4);
+    portions(value) {
+      this.livePortions = value || 4;
+      this.updateAmounts();
     },
-    livePortions(newLive) {
-      // If live matches prop, reset to original amounts
-      if (newLive === (this.portions || 4)) {
-        this.updateIngredientAmounts(this.portions || 4);
-      } else {
-        this.updateIngredientAmounts(newLive);
-      }
+    livePortions() {
+      this.updateAmounts();
     },
   },
   computed: {
-    unsectionedIngredientsMargin() {
-      return `${this.groupedIngredients.length ? "4" : "1"}em`;
-    },
-    groupedIngredients() {
-      return [...this.ingredients].reduce((acc, ingredient) => {
-        const section = ingredient.section;
-        if (!section) {
-          return acc;
-        }
-        if (!acc[section]) {
-          acc[section] = [];
-        }
-        acc[section].push(ingredient);
-        return acc;
-      }, {});
-    },
-    unsectionedIngredients() {
-      return [...this.ingredients].filter((ingredient) => !ingredient.section);
-    },
-    ingredientsSortedAlphabetically() {
-      return [...this.ingredients].sort((a, b) => {
-        const nameA = a.name.toLowerCase();
-        const nameB = b.name.toLowerCase();
-        if (nameA < nameB) return -1;
-        if (nameA > nameB) return 1;
-        return 0;
-      });
+    ingredientGroups() {
+      if (this.sortAlphabeticallyAndIgnoreSections)
+        return [
+          {
+            key: "all",
+            title: "",
+            ingredients: [...this.ingredients].sort((a, b) =>
+              a.name.localeCompare(b.name)
+            ),
+          },
+        ];
+      const groups = Object.entries(
+        this.ingredients.reduce((result, ingredient) => {
+          if (ingredient.section) {
+            if (!result[ingredient.section]) result[ingredient.section] = [];
+            result[ingredient.section].push(ingredient);
+          }
+          return result;
+        }, {})
+      ).map(([title, ingredients]) => ({ key: title, title, ingredients }));
+      const other = this.ingredients.filter(
+        (ingredient) => !ingredient.section
+      );
+      if (other.length)
+        groups.push({
+          key: "other",
+          title: groups.length ? "Other Ingredients" : "",
+          ingredients: other,
+        });
+      return groups;
     },
   },
   methods: {
     ingredientKey(ingredient) {
-      return String(ingredient.id ?? ingredient.name);
+      return String(
+        ingredient.id ??
+          `${ingredient.name}-${ingredient.amount}-${ingredient.measurement}`
+      );
     },
     isOwned(ingredient) {
       return Boolean(this.ownedIngredientKeys[this.ingredientKey(ingredient)]);
@@ -314,11 +162,16 @@ export default {
         this.completedIngredientKeys[this.ingredientKey(ingredient)]
       );
     },
-    isSectionCompleted(sectionIngredients) {
+    isSectionCompleted(items) {
       return (
-        sectionIngredients.length > 0 &&
-        sectionIngredients.every((ingredient) => this.isCompleted(ingredient))
+        items.length > 0 &&
+        items.every((ingredient) => this.isCompleted(ingredient))
       );
+    },
+    sectionLabel(items) {
+      return this.isSectionCompleted(items)
+        ? "Mark all ingredients as needed"
+        : "Mark all ingredients as done";
     },
     toggleOwned(ingredient) {
       const key = this.ingredientKey(ingredient);
@@ -334,119 +187,48 @@ export default {
         [key]: !this.completedIngredientKeys[key],
       };
     },
-    roundToTwoDecimals(num) {
-      return Math.round(num * 100) / 100;
+    toggleSection(items) {
+      const done = !this.isSectionCompleted(items);
+      this.completedIngredientKeys = items.reduce(
+        (state, ingredient) => ({
+          ...state,
+          [this.ingredientKey(ingredient)]: done,
+        }),
+        { ...this.completedIngredientKeys }
+      );
     },
-    add2Portions() {
-      let newPortions;
-      if (this.livePortions === 1) {
-        newPortions = 2;
-      } else {
-        newPortions = this.livePortions + 2;
-      }
-      if (!this.checkServings(newPortions)) {
-        return;
-      }
-      this.livePortions = newPortions;
+    changePortions(delta) {
+      const portions = this.livePortions + delta;
+      if (this.validPortions(portions)) this.livePortions = portions;
     },
-    remove2Portions() {
-      const newPortions = this.livePortions - 2;
-      if (!this.checkServings(newPortions)) {
-        return;
-      }
-      this.livePortions = newPortions;
+    setPortions(event) {
+      const portions = Number.parseInt(event.target.value, 10);
+      if (this.validPortions(portions)) this.livePortions = portions;
     },
-    changeToPortions(e) {
-      let number = 0;
-      if (typeof e === "number") {
-        number = e;
-      } else {
-        number = Number.parseInt(e.target.value);
-      }
-
-      if (!this.checkServings(number)) {
-        return;
-      }
-
-      this.livePortions = number;
-    },
-    updateIngredientAmounts(portionCount) {
-      if (portionCount === (this.portions || 4)) {
-        // Reset ingredients to their original amounts when matching default
-        this.ingredients.forEach((ingredient) => {
-          // Try to match by id first, fall back to name if id is not available
-          const originalIngredient =
-            ingredient.id != null
-              ? this.originalIngredients.find(
-                  (orig) => orig.id === ingredient.id
-                )
-              : this.originalIngredients.find(
-                  (orig) => orig.name === ingredient.name
-                );
-          if (originalIngredient) {
-            ingredient.amount = originalIngredient.amount;
-          }
-        });
-      } else {
-        // Update ingredient amounts based on the new portions
-        for (const ingredient of this.ingredients) {
-          // Try to match by id first, fall back to name if id is not available
-          const originalIngredient =
-            ingredient.id != null
-              ? [...this.originalIngredients].find(
-                  (orig) => orig.id === ingredient.id
-                )
-              : [...this.originalIngredients].find(
-                  (orig) => orig.name === ingredient.name
-                );
-          if (!originalIngredient) {
-            continue; // Skip if no original ingredient found
-          }
-          if (originalIngredient && originalIngredient.amount !== "") {
-            ingredient.amount = this.roundToTwoDecimals(
-              (originalIngredient.amount / (this.portions || 4)) * portionCount
-            );
-          }
-        }
-      }
-    },
-    checkServings(portions) {
-      if (portions === "") {
-        document.getElementById("portions").value = this.portions || 4;
-        return false;
-      }
-      if (portions > 98) {
+    validPortions(portions) {
+      if (Number.isNaN(portions) || portions < 1 || portions > 98) {
         this.$toast.add({
           severity: "error",
           summary: "Invalid servings",
-          detail: "You can't have more than 98 servings!",
+          detail: "Please enter between 1 and 98 servings.",
         });
-        document.getElementById("portions").value = 98;
-        this.changeToPortions(98);
-        return false;
-      }
-      if (portions < 1) {
-        this.$toast.add({
-          severity: "error",
-          summary: "Invalid servings",
-          detail: "You can't have less than 1 serving!",
-        });
-        document.getElementById("portions").value = 1;
-        this.changeToPortions(1);
-        return false;
-      }
-      if (Number.isNaN(portions)) {
-        this.$toast.add({
-          severity: "error",
-          summary: "Invalid servings",
-          detail: `Please enter a valid number of servings, going back to ${
-            this.portions || 4
-          }.`,
-        });
-        document.getElementById("portions").value = this.portions || 4;
         return false;
       }
       return true;
+    },
+    updateAmounts() {
+      this.ingredients.forEach((ingredient) => {
+        const original = this.originalIngredients.find(
+          (item) =>
+            item.id === ingredient.id ||
+            (!item.id && item.name === ingredient.name)
+        );
+        if (original?.amount !== "")
+          ingredient.amount =
+            Math.round(
+              (original.amount / (this.portions || 4)) * this.livePortions * 100
+            ) / 100;
+      });
     },
   },
 };
@@ -457,317 +239,112 @@ export default {
   min-height: 100%;
   box-sizing: border-box;
 }
-
 h2,
 h4 {
   margin: 0;
   text-align: center;
 }
-
 h2 {
-  margin-top: 10px;
-  margin-bottom: 3px;
+  margin: 10px 0 3px;
 }
-
 h4 {
   margin-bottom: 10px;
 }
-
-#servingsContainer {
+#servingsContainer,
+#sortAlphabeticallyAndIgnoreSectionsCheckboxContainer {
   text-align: center;
-
-  #portions {
-    width: 2.5em;
-    padding: 1px 2px;
-  }
-
-  #portions.small {
-    width: 2em;
-  }
-
-  button {
-    border-radius: 50%;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    border: 1px solid black;
-    padding: 0px;
-    cursor: pointer;
-    background-color: white;
-    overflow: hidden;
-    width: 1.5rem;
-    height: 1.5rem;
-    margin: 0px 2px;
-    transition: background-color 0.3s ease-in-out;
-
-    &:hover {
-      background-color: lightsalmon;
-    }
-
-    svg {
-      width: 1rem;
-      height: 1rem;
-      fill: #4a8ee7;
-      display: inline-block;
-      vertical-align: middle;
-    }
-  }
-
-  * {
-    margin: 2px;
-  }
+  margin-bottom: 0.7rem;
 }
-
-ul {
-  padding: 0;
+#servingsContainer button {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0 2px;
+  border: 1px solid black;
+  border-radius: 50%;
+  background: white;
+  color: #4a8ee7;
+  cursor: pointer;
 }
-
+#portions {
+  width: 2.5em;
+  padding: 1px 2px;
+}
 .ingredientSectionTitle {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  margin-bottom: 0.15rem;
-
-  svg {
-    color: #2f9e44;
-  }
-
-  &.completed span {
-    opacity: 0.2;
-    text-decoration: line-through;
-  }
+  margin: 0.8rem 0 0.15rem;
 }
-
-.ingredients {
-  padding: 0;
-  margin: 16px 0;
-
-  &.completed {
-    margin-top: 0;
-  }
+.ingredientSectionTitle.completed span {
+  opacity: 0.2;
+  text-decoration: line-through;
 }
-
-li {
-  padding: 8px 16px;
-  list-style: none;
-  border: 1px solid lightgrey;
-  border-radius: 5px;
-  margin-bottom: 5px;
-  background-color: white;
-  box-shadow: rgba(17, 17, 26, 0.1) 0px 0px 16px;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-
-  > span:first-child {
-    flex: 1;
-  }
-
-  &.completed {
-    padding-top: 3px;
-    padding-bottom: 3px;
-
-    > span:first-child {
-      opacity: 0.2;
-      text-decoration: line-through;
-    }
-  }
-
-  > span:first-child {
-    min-width: 0;
-  }
-}
-
+.sectionCompletionButton,
 .ingredientIconButton {
   display: inline-grid;
   place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  flex: 0 0 auto;
   padding: 0;
   border: 0;
   background: transparent;
   box-shadow: none;
-  color: #a7adb5;
   cursor: pointer;
-
-  &:focus-visible {
-    outline: 2px solid #4a8ee7;
-    outline-offset: 2px;
-  }
-
-  &.active {
-    color: #4a8ee7;
-  }
 }
-
-.ingredientActions,
-.ingredientCheck,
-.hideIngredient,
-.showHidden {
-  display: none;
+.sectionCompletionButton {
+  color: #a7adb5;
 }
-
-.ingredientCheck {
-  white-space: nowrap;
+.sectionCompletionButton.completed {
+  color: #2f9e44;
 }
-
-.hideIngredient,
-.showHidden {
-  padding: 0.3rem 0.5rem;
+.ingredientIconButton {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: #a7adb5;
 }
-
+.ingredientIconButton.active {
+  color: #4a8ee7;
+}
+.ingredients {
+  padding: 0;
+  margin: 16px 0 24px 0;
+}
+.ingredients.completed {
+  margin: 0 0 12px 0;
+}
+li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 8px 16px;
+  margin-bottom: 5px;
+  list-style: none;
+  border: 1px solid lightgrey;
+  border-radius: 5px;
+  background: white;
+  box-shadow: rgba(17, 17, 26, 0.1) 0 0 16px;
+}
+li > span {
+  flex: 1;
+  min-width: 0;
+}
+li.completed {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+li.completed > span {
+  opacity: 0.2;
+  text-decoration: line-through;
+}
 .ingredientsComponent.mobileCookingView {
   color: #16324f;
-
-  h2,
-  h4 {
-    text-align: left;
-  }
-
-  h2 {
-    margin-top: 0;
-    font-size: 1.15rem;
-  }
-
-  h4 {
-    margin-bottom: 0.65rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #6481a1;
-  }
-
-  h3 {
-    margin: 0.8rem 0 0.4rem;
-    font-size: 0.88rem;
-  }
-
-  #servingsContainer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    margin-bottom: 0.55rem;
-
-    #portions {
-      height: 1.75rem;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    label {
-      font-size: 0.88rem;
-      font-weight: 600;
-    }
-
-    button {
-      width: 1.75rem;
-      height: 1.75rem;
-    }
-
-    * {
-      margin: 1px 3px 1px 0;
-    }
-  }
-
-  #sortAlphabeticallyAndIgnoreSectionsCheckboxContainer {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-bottom: 0.7rem;
-    font-size: 0.82rem;
-    line-height: 1.25;
-
-    label {
-      cursor: pointer;
-    }
-  }
-
-  li {
-    padding: 10px 12px;
-    margin-bottom: 0.4rem;
-    border-radius: 10px;
-    font-size: 0.92rem;
-    line-height: 1.28;
-    box-shadow: rgba(31, 68, 120, 0.12) 0px 6px 16px;
-  }
 }
-
-.ingredientsComponent.mobileCookingView {
-  color: #16324f;
-
-  h2,
-  h4 {
-    text-align: left;
-  }
-
-  h2 {
-    margin-top: 0;
-    font-size: 1.15rem;
-  }
-
-  h4 {
-    margin-bottom: 0.65rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: #6481a1;
-  }
-
-  h3 {
-    margin: 0.8rem 0 0.4rem;
-    font-size: 0.88rem;
-  }
-
-  #servingsContainer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    margin-bottom: 0.55rem;
-
-    #portions {
-      height: 1.75rem;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    label {
-      font-size: 0.88rem;
-      font-weight: 600;
-    }
-
-    button {
-      width: 1.75rem;
-      height: 1.75rem;
-    }
-
-    * {
-      margin: 1px 3px 1px 0;
-    }
-  }
-
-  #sortAlphabeticallyAndIgnoreSectionsCheckboxContainer {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-bottom: 0.7rem;
-    font-size: 0.82rem;
-    line-height: 1.25;
-
-    label {
-      cursor: pointer;
-    }
-  }
-
-  li {
-    padding: 10px 12px;
-    margin-bottom: 0.4rem;
-    border-radius: 10px;
-    font-size: 0.92rem;
-    line-height: 1.28;
-    box-shadow: rgba(31, 68, 120, 0.12) 0px 6px 16px;
-  }
+.ingredientsComponent.mobileCookingView h2,
+.ingredientsComponent.mobileCookingView h4 {
+  text-align: left;
+}
+.ingredientsComponent.mobileCookingView li {
+  padding: 10px 12px;
+  margin-bottom: 0.4rem;
+  border-radius: 10px;
+  font-size: 0.92rem;
 }
 </style>
