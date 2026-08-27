@@ -360,4 +360,8 @@ li.completed > span {
   border-radius: 10px;
   font-size: 0.92rem;
 }
+.ingredientsComponent.mobileCookingView li.completed {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
 </style>
