@@ -9,6 +9,14 @@
           :ingredients="this.currentRecipe.ingredients"
           :portions="this.currentRecipe.servings"
           :mobile-cooking-view="true"
+          v-model:live-portions="ingredientPortions"
+          v-model:completed-ingredient-keys="
+            ingredientUiState.completedIngredientKeys
+          "
+          v-model:owned-ingredient-keys="ingredientUiState.ownedIngredientKeys"
+          v-model:sort-alphabetically-and-ignore-sections="
+            ingredientUiState.sortAlphabeticallyAndIgnoreSections
+          "
         />
       </section>
 
@@ -43,6 +51,16 @@
           <ingredients
             :ingredients="this.currentRecipe.ingredients"
             :portions="this.currentRecipe.servings"
+            v-model:live-portions="ingredientPortions"
+            v-model:completed-ingredient-keys="
+              ingredientUiState.completedIngredientKeys
+            "
+            v-model:owned-ingredient-keys="
+              ingredientUiState.ownedIngredientKeys
+            "
+            v-model:sort-alphabetically-and-ignore-sections="
+              ingredientUiState.sortAlphabeticallyAndIgnoreSections
+            "
           />
         </div>
 
@@ -98,6 +116,12 @@ export default {
       canRequestFullscreen: false,
       isFullscreenActive: false,
       showFullscreenDebugPanel: false,
+      ingredientUiState: {
+        portions: null,
+        completedIngredientKeys: {},
+        ownedIngredientKeys: {},
+        sortAlphabeticallyAndIgnoreSections: false,
+      },
     };
   },
   mounted() {
@@ -433,6 +457,16 @@ export default {
     },
     currentRecipe() {
       return this.$store.state.recipesList[this.currentRecipeId];
+    },
+    ingredientPortions: {
+      get() {
+        return (
+          this.ingredientUiState.portions ?? this.currentRecipe.servings ?? 4
+        );
+      },
+      set(value) {
+        this.ingredientUiState.portions = value;
+      },
     },
     store() {
       return useStore();

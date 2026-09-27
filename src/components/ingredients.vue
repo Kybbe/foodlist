@@ -17,8 +17,14 @@
     <div id="sortAlphabeticallyAndIgnoreSectionsCheckboxContainer">
       <input
         id="sortIngredients"
-        v-model="sortAlphabeticallyAndIgnoreSections"
+        :checked="sortAlphabeticallyAndIgnoreSections"
         type="checkbox"
+        @change="
+          $emit(
+            'update:sortAlphabeticallyAndIgnoreSections',
+            $event.target.checked
+          )
+        "
       />
       <label for="sortIngredients"
         >Sort alphabetically and ignore sections</label
@@ -94,40 +100,45 @@ export default {
   props: {
     ingredients: { type: Array, required: true },
     portions: { type: Number, default: 4 },
+    livePortions: { type: Number, default: 4 },
+    completedIngredientKeys: { type: Object, default: () => ({}) },
+    ownedIngredientKeys: { type: Object, default: () => ({}) },
+    sortAlphabeticallyAndIgnoreSections: { type: Boolean, default: false },
     mobileCookingView: { type: Boolean, default: false },
   },
-  data() {
-    return {
-      sortAlphabeticallyAndIgnoreSections: false,
-      livePortions: this.portions || 4,
-      originalIngredients: JSON.parse(JSON.stringify(this.ingredients)),
-      ownedIngredientKeys: {},
-      completedIngredientKeys: {},
-    };
-  },
-  watch: {
-    portions(value) {
-      this.livePortions = value || 4;
-      this.updateAmounts();
-    },
-    livePortions() {
-      this.updateAmounts();
-    },
-  },
+  emits: [
+    "update:livePortions",
+    "update:completedIngredientKeys",
+    "update:ownedIngredientKeys",
+    "update:sortAlphabeticallyAndIgnoreSections",
+  ],
   computed: {
+    scaledIngredients() {
+      const basePortions = this.portions || 4;
+      return this.ingredients.map((ingredient, index) => ({
+        ...ingredient,
+        amount:
+          ingredient.amount === ""
+            ? ""
+            : Math.round(
+                (ingredient.amount / basePortions) * this.livePortions * 100
+              ) / 100,
+        _uiKey: ingredient.id ?? `ingredient-${index}`,
+      }));
+    },
     ingredientGroups() {
       if (this.sortAlphabeticallyAndIgnoreSections)
         return [
           {
             key: "all",
             title: "",
-            ingredients: [...this.ingredients].sort((a, b) =>
+            ingredients: [...this.scaledIngredients].sort((a, b) =>
               a.name.localeCompare(b.name)
             ),
           },
         ];
       const groups = Object.entries(
-        this.ingredients.reduce((result, ingredient) => {
+        this.scaledIngredients.reduce((result, ingredient) => {
           if (ingredient.section) {
             if (!result[ingredient.section]) result[ingredient.section] = [];
             result[ingredient.section].push(ingredient);
@@ -135,7 +146,7 @@ export default {
           return result;
         }, {})
       ).map(([title, ingredients]) => ({ key: title, title, ingredients }));
-      const other = this.ingredients.filter(
+      const other = this.scaledIngredients.filter(
         (ingredient) => !ingredient.section
       );
       if (other.length)
@@ -149,10 +160,7 @@ export default {
   },
   methods: {
     ingredientKey(ingredient) {
-      return String(
-        ingredient.id ??
-          `${ingredient.name}-${ingredient.amount}-${ingredient.measurement}`
-      );
+      return String(ingredient.id ?? ingredient._uiKey);
     },
     isOwned(ingredient) {
       return Boolean(this.ownedIngredientKeys[this.ingredientKey(ingredient)]);
@@ -175,35 +183,38 @@ export default {
     },
     toggleOwned(ingredient) {
       const key = this.ingredientKey(ingredient);
-      this.ownedIngredientKeys = {
+      this.$emit("update:ownedIngredientKeys", {
         ...this.ownedIngredientKeys,
         [key]: !this.ownedIngredientKeys[key],
-      };
+      });
     },
     toggleCompleted(ingredient) {
       const key = this.ingredientKey(ingredient);
-      this.completedIngredientKeys = {
+      this.$emit("update:completedIngredientKeys", {
         ...this.completedIngredientKeys,
         [key]: !this.completedIngredientKeys[key],
-      };
+      });
     },
     toggleSection(items) {
       const done = !this.isSectionCompleted(items);
-      this.completedIngredientKeys = items.reduce(
+      const completedIngredientKeys = items.reduce(
         (state, ingredient) => ({
           ...state,
           [this.ingredientKey(ingredient)]: done,
         }),
         { ...this.completedIngredientKeys }
       );
+      this.$emit("update:completedIngredientKeys", completedIngredientKeys);
     },
     changePortions(delta) {
       const portions = this.livePortions + delta;
-      if (this.validPortions(portions)) this.livePortions = portions;
+      if (this.validPortions(portions))
+        this.$emit("update:livePortions", portions);
     },
     setPortions(event) {
       const portions = Number.parseInt(event.target.value, 10);
-      if (this.validPortions(portions)) this.livePortions = portions;
+      if (this.validPortions(portions))
+        this.$emit("update:livePortions", portions);
     },
     validPortions(portions) {
       if (Number.isNaN(portions) || portions < 1 || portions > 98) {
@@ -215,20 +226,6 @@ export default {
         return false;
       }
       return true;
-    },
-    updateAmounts() {
-      this.ingredients.forEach((ingredient) => {
-        const original = this.originalIngredients.find(
-          (item) =>
-            item.id === ingredient.id ||
-            (!item.id && item.name === ingredient.name)
-        );
-        if (original?.amount !== "")
-          ingredient.amount =
-            Math.round(
-              (original.amount / (this.portions || 4)) * this.livePortions * 100
-            ) / 100;
-      });
     },
   },
 };
