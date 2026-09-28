@@ -186,14 +186,12 @@ const store = createStore({
       }
     },
     async checkAdmin(context) {
-      if (store.state.currentUser) {
-        if (
-          store.state.currentUser.email === "jacob.klaren@me.com" ||
-          store.state.currentUser.email === "klarenjacob00@gmail.com"
-        ) {
-          context.commit("setAdmin", true);
-        }
-      }
+      const email = store.state.currentUser?.email?.toLowerCase();
+      const isAdmin = [
+        "jacob.klaren@me.com",
+        "klarenjacob00@gmail.com",
+      ].includes(email);
+      context.commit("setAdmin", isAdmin);
     },
     async register(context, payload) {
       const user = await firebase
@@ -208,6 +206,7 @@ const store = createStore({
     async logout(context) {
       await firebase.auth().signOut();
       context.commit("setCurrentUser", null);
+      context.commit("setAdmin", false);
     },
   },
   getters: {},

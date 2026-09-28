@@ -65,6 +65,9 @@
             </div>
           </div>
           <div class="card-body">
+            <span v-if="recipe.needsApproval" class="approvalBadge">
+              Needs approval
+            </span>
             <h2 class="card-title">{{ recipe.title }}</h2>
             <p class="card-text">{{ recipe.description }}</p>
             <div class="extras">
@@ -108,6 +111,9 @@
             </div>
           </div>
           <div class="card-body">
+            <span v-if="drink.needsApproval" class="approvalBadge">
+              Needs approval
+            </span>
             <h2 class="card-title">{{ drink.title }}</h2>
             <p class="card-text">{{ drink.description }}</p>
             <div class="extras">
@@ -198,6 +204,10 @@ export default {
   methods: {
     saveAndRedirect(recipe) {
       this.$store.commit("setSelectedRecipe", recipe);
+      if (recipe.needsApproval && this.$store.state.admin) {
+        this.$router.push(`/approving/${recipe._key}`);
+        return;
+      }
       this.$router.push(`/recipe/${recipe.recipeId}`);
     },
     backgroundimg(specificLink, thisId) {
@@ -729,6 +739,17 @@ h1 {
       margin-left: 0px;
     }
   }
+}
+
+.approvalBadge {
+  align-self: flex-start;
+  margin: 0 0 0.55rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: #fff1d6;
+  color: #8a4b08;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 a {

@@ -3,6 +3,7 @@ import store from "../store/index";
 import addRecipe from "../views/add-recipe.vue";
 import adminRecipeStats from "../views/admin-recipe-stats.vue";
 import adminIngredientMigration from "../views/admin-ingredient-migration.vue";
+import adminRecipeApprovals from "../views/admin-recipe-approvals.vue";
 import editRecipe from "../views/edit-recipe.vue";
 import loginPage from "../views/loginPage.vue";
 import recipeList from "../views/recipe-list.vue";
@@ -81,6 +82,16 @@ const routes = [
     },
   },
   {
+    path: "/approving/:key?",
+    name: "adminRecipeApprovals",
+    component: adminRecipeApprovals,
+    meta: {
+      title: "Approve Recipes",
+      authRequired: true,
+      adminRequired: true,
+    },
+  },
+  {
     path: "/:catchAll(.*)",
     name: "NotFound",
     component: recipeList,
@@ -114,6 +125,17 @@ function checkAuthIsReady() {
 }
 
 router.beforeEach((to, from, next) => {
+  if (to.matched.some((record) => record.meta.adminRequired)) {
+    checkAuthIsReady().then(() => {
+      if (store.state.currentUser && store.state.admin) {
+        next();
+      } else {
+        next("/");
+      }
+    });
+    return;
+  }
+
   if (to.matched.some((record) => record.meta.authRequired)) {
     checkAuthIsReady().then(() => {
       if (store.state.currentUser) {

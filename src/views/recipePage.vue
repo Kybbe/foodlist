@@ -29,6 +29,13 @@
     </div>
 
     <template v-else>
+      <div
+        v-if="currentRecipe.needsApproval && !$store.state.admin"
+        class="approvalNotice"
+        role="status"
+      >
+        This recipe needs to be approved.
+      </div>
       <div id="content">
         <div
           class="bigCard card"
@@ -632,6 +639,17 @@ body {
 
   max-width: 75em;
   margin: 0 auto;
+}
+
+.approvalNotice {
+  max-width: 75em;
+  margin: 1rem auto;
+  padding: 0.85rem 1rem;
+  border: 1px solid #f0c36d;
+  border-radius: 0.5rem;
+  background: #fff7e6;
+  color: #704b0b;
+  font-weight: 700;
 }
 
 .card {

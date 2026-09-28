@@ -30,6 +30,10 @@
         </svg>
       </router-link>
       <router-link :to="'/add'" v-if="loggedIn"> Add Recipe </router-link>
+      <router-link :to="'/approving'" v-if="isAdmin">
+        Approving
+        <span v-if="pendingCount" class="pendingCount">{{ pendingCount }}</span>
+      </router-link>
       <router-link :to="'/stats'" v-if="isAdmin"> Admin Stats </router-link>
     </div>
 
@@ -62,6 +66,11 @@ export default {
     },
     isAdmin() {
       return this.$store.state.admin;
+    },
+    pendingCount() {
+      return this.$store.state.recipesList.filter(
+        (recipe) => recipe.needsApproval
+      ).length;
     },
   },
 };
@@ -108,6 +117,19 @@ a {
   &:hover {
     text-decoration: underline;
   }
+}
+
+.pendingCount {
+  display: inline-flex;
+  min-width: 1.2em;
+  height: 1.2em;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #fff;
+  color: #9a3412;
+  font-size: 0.75em;
+  font-weight: 700;
 }
 
 svg * {
