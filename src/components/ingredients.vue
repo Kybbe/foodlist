@@ -2,7 +2,7 @@
   <div :class="['ingredientsComponent', { mobileCookingView }]">
     <h2>Ingredients</h2>
     <h4 v-if="!mobileCookingView">
-      {{ ingredients.length }} {{ mobileCookingView ? "items" : "Ingredients" }}
+      {{ displayedIngredientCount }} Ingredients
     </h4>
     <div id="servingsContainer">
       <button type="button" @click="changePortions(-2)">
@@ -132,8 +132,8 @@ export default {
           {
             key: "all",
             title: "",
-            ingredients: [...this.scaledIngredients].sort((a, b) =>
-              a.name.localeCompare(b.name)
+            ingredients: this.combineIngredients(this.scaledIngredients).sort(
+              (a, b) => a.name.localeCompare(b.name)
             ),
           },
         ];
@@ -157,17 +157,175 @@ export default {
         });
       return groups;
     },
+    displayedIngredientCount() {
+      return this.ingredientGroups.reduce(
+        (count, group) => count + group.ingredients.length,
+        0
+      );
+    },
   },
   methods: {
+    normalizedName(name) {
+      return String(name || "")
+        .normalize("NFKC")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLocaleLowerCase();
+    },
+    normalizedMeasurement(measurement) {
+      const normalized = String(measurement || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLocaleLowerCase();
+      const aliases = {
+        l: "l",
+        liter: "l",
+        litre: "l",
+        liters: "l",
+        litres: "l",
+        literar: "l",
+        dl: "dl",
+        deciliter: "dl",
+        cl: "cl",
+        centiliter: "cl",
+        ml: "ml",
+        milliliter: "ml",
+        msk: "msk",
+        matsked: "msk",
+        matskedar: "msk",
+        tsk: "tsk",
+        tesked: "tsk",
+        teskedar: "tsk",
+        krm: "krm",
+        kryddmått: "krm",
+      };
+      return aliases[normalized] || normalized;
+    },
+    numericAmount(amount) {
+      if (typeof amount === "number") {
+        return Number.isFinite(amount) ? amount : null;
+      }
+      if (typeof amount !== "string" || !amount.trim()) return null;
+      const parsed = Number(amount.trim().replace(",", "."));
+      return Number.isFinite(parsed) ? parsed : null;
+    },
+    sourceIngredientKeys(ingredient) {
+      return ingredient._sourceKeys || [this.ingredientKey(ingredient)];
+    },
+    combineIngredients(ingredients) {
+      const ingredientsByName = new Map();
+      for (const ingredient of ingredients) {
+        const nameKey = this.normalizedName(ingredient.name);
+        if (!nameKey) {
+          ingredientsByName.set(Symbol(), [ingredient]);
+          continue;
+        }
+        if (!ingredientsByName.has(nameKey)) {
+          ingredientsByName.set(nameKey, []);
+        }
+        ingredientsByName.get(nameKey).push(ingredient);
+      }
+
+      const combined = [];
+      const volumeInMilliliters = {
+        l: 1000,
+        dl: 100,
+        cl: 10,
+        msk: 15,
+        tsk: 5,
+        ml: 1,
+        krm: 1,
+      };
+
+      for (const nameIngredients of ingredientsByName.values()) {
+        const measurementGroups = new Map();
+        for (const ingredient of nameIngredients) {
+          const measurement = this.normalizedMeasurement(
+            ingredient.measurement
+          );
+          if (!measurementGroups.has(measurement)) {
+            measurementGroups.set(measurement, []);
+          }
+          measurementGroups.get(measurement).push(ingredient);
+        }
+
+        const mergedGroups = [];
+        for (const items of measurementGroups.values()) {
+          const amounts = items.map((item) => this.numericAmount(item.amount));
+          if (items.length > 1 && amounts.every((amount) => amount !== null)) {
+            mergedGroups.push({
+              ...items[0],
+              amount: this.roundAmount(
+                amounts.reduce((sum, amount) => sum + amount, 0)
+              ),
+              measurement: items[0].measurement,
+              _sourceKeys: items.flatMap((item) =>
+                this.sourceIngredientKeys(item)
+              ),
+            });
+          } else {
+            mergedGroups.push(...items);
+          }
+        }
+
+        const convertibleGroups = mergedGroups.filter(
+          (item) =>
+            Object.prototype.hasOwnProperty.call(
+              volumeInMilliliters,
+              this.normalizedMeasurement(item.measurement)
+            ) && this.numericAmount(item.amount) !== null
+        );
+        if (convertibleGroups.length > 1) {
+          const totalMilliliters = convertibleGroups.reduce(
+            (sum, item) =>
+              sum +
+              this.numericAmount(item.amount) *
+                volumeInMilliliters[
+                  this.normalizedMeasurement(item.measurement)
+                ],
+            0
+          );
+          const preferredUnits = ["l", "dl", "msk", "cl", "tsk", "ml"];
+          const outputMeasurement =
+            preferredUnits.find(
+              (unit) => totalMilliliters >= volumeInMilliliters[unit]
+            ) || "ml";
+          const mergedVolume = {
+            ...convertibleGroups[0],
+            amount: this.roundAmount(
+              totalMilliliters / volumeInMilliliters[outputMeasurement]
+            ),
+            measurement: outputMeasurement,
+            _sourceKeys: convertibleGroups.flatMap((item) =>
+              this.sourceIngredientKeys(item)
+            ),
+          };
+          const convertibleSet = new Set(convertibleGroups);
+          combined.push(
+            ...mergedGroups.filter((item) => !convertibleSet.has(item)),
+            mergedVolume
+          );
+        } else {
+          combined.push(...mergedGroups);
+        }
+      }
+
+      return combined;
+    },
+    roundAmount(amount) {
+      return Math.round((amount + Number.EPSILON) * 100) / 100;
+    },
     ingredientKey(ingredient) {
       return String(ingredient.id ?? ingredient._uiKey);
     },
     isOwned(ingredient) {
-      return Boolean(this.ownedIngredientKeys[this.ingredientKey(ingredient)]);
+      return this.sourceIngredientKeys(ingredient).every(
+        (key) => this.ownedIngredientKeys[key]
+      );
     },
     isCompleted(ingredient) {
-      return Boolean(
-        this.completedIngredientKeys[this.ingredientKey(ingredient)]
+      return this.sourceIngredientKeys(ingredient).every(
+        (key) => this.completedIngredientKeys[key]
       );
     },
     isSectionCompleted(items) {
@@ -182,26 +340,29 @@ export default {
         : "Mark all ingredients as done";
     },
     toggleOwned(ingredient) {
-      const key = this.ingredientKey(ingredient);
+      const keys = this.sourceIngredientKeys(ingredient);
+      const owned = this.isOwned(ingredient);
       this.$emit("update:ownedIngredientKeys", {
         ...this.ownedIngredientKeys,
-        [key]: !this.ownedIngredientKeys[key],
+        ...Object.fromEntries(keys.map((key) => [key, !owned])),
       });
     },
     toggleCompleted(ingredient) {
-      const key = this.ingredientKey(ingredient);
+      const keys = this.sourceIngredientKeys(ingredient);
+      const completed = this.isCompleted(ingredient);
       this.$emit("update:completedIngredientKeys", {
         ...this.completedIngredientKeys,
-        [key]: !this.completedIngredientKeys[key],
+        ...Object.fromEntries(keys.map((key) => [key, !completed])),
       });
     },
     toggleSection(items) {
       const done = !this.isSectionCompleted(items);
       const completedIngredientKeys = items.reduce(
-        (state, ingredient) => ({
-          ...state,
-          [this.ingredientKey(ingredient)]: done,
-        }),
+        (state, ingredient) =>
+          this.sourceIngredientKeys(ingredient).reduce(
+            (keys, key) => ({ ...keys, [key]: done }),
+            state
+          ),
         { ...this.completedIngredientKeys }
       );
       this.$emit("update:completedIngredientKeys", completedIngredientKeys);

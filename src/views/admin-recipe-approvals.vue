@@ -4,7 +4,10 @@
       <div>
         <p class="eyebrow">ADMIN REVIEW</p>
         <h1>Recipe approvals</h1>
-        <p>Review the complete recipe JSON, make changes, then approve it.</p>
+        <p>
+          Review the complete recipe JSON. Approving saves your edits;
+          previewing saves them while keeping the recipe pending.
+        </p>
       </div>
       <span class="queueCount">{{ pendingRecipes.length }} pending</span>
     </header>
@@ -21,6 +24,7 @@
           :key="recipe._key"
           type="button"
           class="queueItem"
+          :disabled="saving"
           :class="{ selected: recipe._key === currentRecipe?._key }"
           @click="openRecipe(recipe)"
         >
@@ -100,14 +104,6 @@
           </button>
           <button
             type="button"
-            class="saveButton"
-            :disabled="saving || !!jsonError"
-            @click="saveRecipe(false)"
-          >
-            Save changes
-          </button>
-          <button
-            type="button"
             class="approveButton"
             :disabled="saving || !!jsonError"
             @click="saveRecipe(true)"
@@ -158,9 +154,13 @@ export default {
       saving: false,
       selectedKey: "",
       loadedKey: "",
+      savedRecipeJson: "",
     };
   },
   computed: {
+    hasUnsavedChanges() {
+      return this.recipeJson !== this.savedRecipeJson;
+    },
     pendingRecipes() {
       return this.$store.state.recipesList.filter(
         (recipe) => recipe.needsApproval
@@ -253,6 +253,7 @@ export default {
             null,
             2
           );
+          this.savedRecipeJson = this.recipeJson;
         }
       },
     },
@@ -265,6 +266,21 @@ export default {
       },
     },
   },
+  beforeRouteLeave() {
+    return this.confirmDiscardingChanges();
+  },
+  beforeRouteUpdate(to, from) {
+    if (to.params.key !== from.params.key) {
+      return this.confirmDiscardingChanges();
+    }
+    return true;
+  },
+  mounted() {
+    window.addEventListener("beforeunload", this.handleBeforeUnload);
+  },
+  beforeUnmount() {
+    window.removeEventListener("beforeunload", this.handleBeforeUnload);
+  },
   methods: {
     editableRecipe(recipe) {
       const editable = { ...recipe };
@@ -272,9 +288,20 @@ export default {
       return editable;
     },
     openRecipe(recipe) {
-      this.selectedKey = recipe._key;
       this.message = "";
       this.$router.push(`/approving/${recipe._key}`);
+    },
+    confirmDiscardingChanges() {
+      if (!this.hasUnsavedChanges) return true;
+      return window.confirm(
+        "Are you sure you want to leave with unsaved changes?"
+      );
+    },
+    handleBeforeUnload(event) {
+      if (!this.hasUnsavedChanges) return undefined;
+      event.preventDefault();
+      event.returnValue = "";
+      return "";
     },
     formatDate(value) {
       const date = new Date(value);
@@ -305,6 +332,7 @@ export default {
           .database()
           .ref(`recipes/${recipeBeingDeclined._key}`)
           .remove();
+        this.savedRecipeJson = this.recipeJson;
         this.messageType = "success";
         this.message = "Recipe declined and removed from the recipe list.";
         this.selectedKey = nextRecipe?._key || "";
@@ -344,8 +372,10 @@ export default {
           .database()
           .ref(`recipes/${recipeBeingSaved._key}`)
           .set(recipe);
+        this.savedRecipeJson = this.recipeJson;
         if (!approve) {
           this.recipeJson = JSON.stringify(recipe, null, 2);
+          this.savedRecipeJson = this.recipeJson;
           if (openPreview) {
             await this.$router.push(`/recipe/${recipeBeingSaved.recipeId}`);
             return;
@@ -555,10 +585,6 @@ textarea {
       opacity: 0.55;
     }
   }
-}
-
-.saveButton {
-  background: #52657d;
 }
 
 .previewButton {
