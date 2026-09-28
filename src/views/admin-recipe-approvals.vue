@@ -92,6 +92,14 @@
         <div class="actions">
           <button
             type="button"
+            class="previewButton"
+            :disabled="saving || !!jsonError"
+            @click="previewOnRecipePage"
+          >
+            Preview on recipe page
+          </button>
+          <button
+            type="button"
             class="saveButton"
             :disabled="saving || !!jsonError"
             @click="saveRecipe(false)"
@@ -105,6 +113,14 @@
             @click="saveRecipe(true)"
           >
             {{ saving ? "Saving…" : "Approve recipe" }}
+          </button>
+          <button
+            type="button"
+            class="declineButton"
+            :disabled="saving"
+            @click="declineRecipe"
+          >
+            Decline recipe
           </button>
         </div>
       </section>
@@ -264,7 +280,45 @@ export default {
       const date = new Date(value);
       return Number.isNaN(date.getTime()) ? "recently" : date.toLocaleString();
     },
-    async saveRecipe(approve) {
+    async previewOnRecipePage() {
+      await this.saveRecipe(false, true);
+    },
+    async declineRecipe() {
+      const recipeBeingDeclined = this.currentRecipe;
+      if (
+        !recipeBeingDeclined ||
+        this.saving ||
+        !window.confirm(
+          `Decline “${recipeBeingDeclined.title}” and remove it from the recipe list? This cannot be undone.`
+        )
+      ) {
+        return;
+      }
+
+      const nextRecipe = this.pendingRecipes.find(
+        (pending) => pending._key !== recipeBeingDeclined._key
+      );
+      this.saving = true;
+      this.message = "";
+      try {
+        await firebase
+          .database()
+          .ref(`recipes/${recipeBeingDeclined._key}`)
+          .remove();
+        this.messageType = "success";
+        this.message = "Recipe declined and removed from the recipe list.";
+        this.selectedKey = nextRecipe?._key || "";
+        await this.$router.push(
+          nextRecipe ? `/approving/${nextRecipe._key}` : "/approving"
+        );
+      } catch (error) {
+        this.messageType = "error";
+        this.message = error?.message || "Could not decline this recipe.";
+      } finally {
+        this.saving = false;
+      }
+    },
+    async saveRecipe(approve, openPreview = false) {
       if (!this.currentRecipe || this.jsonError || this.saving) return;
 
       const recipeBeingSaved = this.currentRecipe;
@@ -292,6 +346,10 @@ export default {
           .set(recipe);
         if (!approve) {
           this.recipeJson = JSON.stringify(recipe, null, 2);
+          if (openPreview) {
+            await this.$router.push(`/recipe/${recipeBeingSaved.recipeId}`);
+            return;
+          }
           this.messageType = "success";
           this.message =
             "Changes saved. This recipe is still awaiting approval.";
@@ -479,6 +537,7 @@ textarea {
 
 .actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.75rem;
   margin-top: 1.25rem;
@@ -502,8 +561,16 @@ textarea {
   background: #52657d;
 }
 
+.previewButton {
+  background: #3977c3;
+}
+
 .approveButton {
   background: #218653;
+}
+
+.declineButton {
+  background: #b42318;
 }
 
 .statusMessage {

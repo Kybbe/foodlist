@@ -30,11 +30,17 @@
 
     <template v-else>
       <div
-        v-if="currentRecipe.needsApproval && !$store.state.admin"
+        v-if="currentRecipe.needsApproval"
         class="approvalNotice"
         role="status"
       >
-        This recipe needs to be approved.
+        <template v-if="$store.state.admin">
+          Previewing a recipe that needs approval.
+          <router-link :to="`/approving/${currentRecipe._key}`">
+            Return to approval review
+          </router-link>
+        </template>
+        <template v-else>This recipe needs to be approved.</template>
       </div>
       <div id="content">
         <div
@@ -650,6 +656,12 @@ body {
   background: #fff7e6;
   color: #704b0b;
   font-weight: 700;
+
+  a {
+    margin-left: 0.5rem;
+    color: inherit;
+    text-decoration: underline;
+  }
 }
 
 .card {
