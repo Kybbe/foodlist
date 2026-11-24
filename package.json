@@ -8,6 +8,7 @@
     "serve": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "node --test",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
     "deploy": "sh deploy.sh"
   },

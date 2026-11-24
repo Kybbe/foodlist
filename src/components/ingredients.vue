@@ -93,6 +93,7 @@
 
 <script>
 import { CircleCheck, Minus, Plus, ShoppingBag } from "@lucide/vue";
+import { adjustPortions } from "../utils/portions.mjs";
 
 export default {
   name: "ingredientsComponent",
@@ -368,7 +369,7 @@ export default {
       this.$emit("update:completedIngredientKeys", completedIngredientKeys);
     },
     changePortions(delta) {
-      const portions = this.livePortions + delta;
+      const portions = adjustPortions(this.livePortions, delta);
       if (this.validPortions(portions))
         this.$emit("update:livePortions", portions);
     },

@@ -112,6 +112,7 @@
 import ingredients from "../components/ingredients.vue";
 import instruction from "../components/instructions.vue";
 import mainArea from "../components/mainArea.vue";
+import { getInitialPortions } from "../utils/portions.mjs";
 
 import { useStore } from "vuex";
 
@@ -473,8 +474,8 @@ export default {
     },
     ingredientPortions: {
       get() {
-        return (
-          this.ingredientUiState.portions ?? this.currentRecipe.servings ?? 4
+        return getInitialPortions(
+          this.ingredientUiState.portions ?? this.currentRecipe.servings
         );
       },
       set(value) {
